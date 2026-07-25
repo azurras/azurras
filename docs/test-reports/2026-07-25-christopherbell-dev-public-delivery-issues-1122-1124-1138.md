@@ -23,7 +23,8 @@ This report covers the isolated local runtime checkpoint for issues #1122, #1123
 
 - Repository: `azurras/christopherbell.dev`
 - Branch: `codex/public-delivery-1122-1124-1138`
-- Commit: `c5b189c517f3f1fe44d7f0542595aa9d14c3221b`
+- Commits: `c5b189c517f3f1fe44d7f0542595aa9d14c3221b` and
+  `550ae1f36f0c88295eafce4d9bf531772c83149e`
 - Base: `origin/main` at `1c4a532b`
 
 ## App / Environment
@@ -53,7 +54,7 @@ production root on port 8080 still returned status code 200.
 | Static delivery | Favicon and rendered release-scoped CSS/JavaScript/module imports resolve. | 5 | Pass |
 | Cache policy | Release-scoped assets are immutable for one year; direct assets use one hour. | 4 | Pass |
 | Health boundary | Liveness/readiness are public and healthy; aggregate and component health stay private. | 4 | Pass |
-| Deployment scripts | Two-host route matrix, configuration validation, release identity, and rollback checks. | 243 | Pass |
+| Deployment scripts | Two-host route matrix, configuration migration/validation, release identity, and rollback checks. | 244 | Pass |
 | Full repository | Clean Java, JavaScript, packaging, and sensor-runtime verification. | 21 tasks | Pass |
 
 ## Data Sent
@@ -95,8 +96,9 @@ production root on port 8080 still returned status code 200.
 
 Pass. The isolated runtime satisfied every acceptance route, metadata, probe, access-control,
 asset-resolution, and cache-header assertion. The final post-rebase clean build completed all 21
-tasks successfully in 1 minute 47 seconds. The full Windows deployment suite passed 239 of 243
-tests with zero failures and four expected environment-only skips.
+tasks successfully in 1 minute 47 seconds. After adding the backward-compatible protected-config
+migration, the full Windows deployment suite passed 240 of 244 tests with zero failures and four
+expected environment-only skips.
 
 Test-first evidence was retained during development: the initial public-delivery configuration
 test failed four contract groups before implementation, and the deployment suite failed six
@@ -107,7 +109,7 @@ fixes for release-scoped security matchers and servlet filter ordering/header ca
 
 - `PublicDeliveryConfigurationTest`: 6/6 focused tests passed.
 - `gradlew.bat clean build`: `BUILD SUCCESSFUL`, 21 actionable tasks executed.
-- `Invoke-Pester -Path .\ops\production\windows\tests`: total 243, passed 239, failed 0,
+- `Invoke-Pester -Path .\ops\production\windows\tests`: total 244, passed 240, failed 0,
   skipped 4.
 - Runtime route matrix: 11 endpoint checks and 5 asset-boundary checks captured directly from
   port 8091.
@@ -117,7 +119,8 @@ fixes for release-scoped security matchers and servlet filter ordering/header ca
 
 ## Bugs / Follow-ups
 
-No local acceptance defect remains for these four issues. The apex-host Cloudflare routing or
-canonical redirect and the protected production `publicUrls` configuration must be completed
-before deployment, followed by live two-host verification. Pull-request checks, merge,
-production rollout, issue closure, and Builder campaign closeout remain.
+No local acceptance defect remains for these four issues. Existing protected production
+configuration now derives the apex route from the canonical `www` URL without rewriting the
+secret-bearing file. The apex-host Cloudflare routing or canonical redirect must still be
+completed before deployment, followed by live two-host verification. Pull-request checks,
+merge, production rollout, issue closure, and Builder campaign closeout remain.
