@@ -29,6 +29,27 @@ Continue the approved campaign to complete every open `azurras/christopherbell.d
 - Final diff review made `jackson-dataformat-yaml` an explicit test dependency so the parsed-YAML contract does not rely on Springdoc's transitive classpath.
 - PR #1241 proved that GitHub default setup rejects advanced-workflow SARIF uploads. The corrective design preserves all three default-setup languages in the checked-in matrix, builds Java manually, and only then switches default setup off through GitHub's supported API.
 
+## Completion
+
+- Implemented and pushed commits `0b7c117f` and `86e7442d` on `codex/github-automation-1144-1150`.
+- Merged PR [#1241](https://github.com/azurras/christopherbell.dev/pull/1241) as squash commit `88144134290e5f690c048cb4945db531b8ef17c9`.
+- GitHub closed #1144, #1145, #1146, #1147, #1148, #1149, and #1150 at merge time.
+- Created and verified repository labels `pinned` and `roadmap` for stale-policy protection.
+- Switched CodeQL from default setup to the checked-in advanced workflow through the supported repository API after preserving Actions, Java/Kotlin, and JavaScript/TypeScript coverage.
+
+## Final Validation
+
+- RED: all five parsed-YAML configuration contracts failed before implementation; the expanded CodeQL matrix contract also failed before the hosted fix.
+- GREEN: the focused five-test JUnit contract passed.
+- `gradlew build --rerun-tasks --no-daemon` passed on the rebased final tree; the browser JUnit report parsed with a `testsuites` root and all 176 browser tests passed.
+- Hosted checks passed on Ubuntu, macOS, Windows, Dependency Review, and all CodeQL language jobs.
+- Independent review found no Critical, Important, or Minor findings.
+- Local Spring app testing and a Builder test report were not applicable because this batch changed repository automation only and did not change runtime application behavior.
+
+## Follow-up
+
+- Continue the autonomous campaign with the remaining 51 open issues, beginning with the next production/deployment/configuration sub-plan.
+
 ## Current State and Follow-up
 
 - Plan status is `ready-for-execution`.
