@@ -17,7 +17,7 @@ Resolve every currently open issue in `azurras/christopherbell.dev` through curr
 ## Related Specs and Plans
 
 - Project spec: [Complete All Open christopherbell.dev Issues](../specs/2026-07-25-complete-all-open-christopherbell-dev-issues.md) (`ready-for-execution`, approved 2026-07-25).
-- Implementation plans: [GitHub Automation Issues 1144-1150](../implementation-plans/2026-07-25-github-automation-issues-1144-1150.md) (`complete`); [Public Delivery Issues 1122-1124 and 1138](../implementation-plans/2026-07-25-public-delivery-issues-1122-1124-1138.md) (`ready-for-execution`); remaining dependency-aware plans follow as each sub-batch reaches execution.
+- Implementation plans: [GitHub Automation Issues 1144-1150](../implementation-plans/2026-07-25-github-automation-issues-1144-1150.md) (`complete`); [Public Delivery Issues 1122-1124 and 1138](../implementation-plans/2026-07-25-public-delivery-issues-1122-1124-1138.md) (`blocked` on Cloudflare authentication after green implementation/CI); remaining dependency-aware plans follow as each sub-batch reaches execution.
 
 ## Spoke Repositories
 
@@ -45,10 +45,14 @@ Resolve every currently open issue in `azurras/christopherbell.dev` through curr
 - The campaign now has 51 open issues remaining.
 - Live revalidation for the next sub-batch confirmed that localhost and `www` serve the main pages while the apex hostname returns 404; robots, sitemap, probes, cache headers, and dual-host deployment acceptance need work.
 - The public-delivery plan for #1122-#1124 and #1138 is ready for validation and execution on `codex/public-delivery-1122-1124-1138`.
+- Public-delivery PR [#1245](https://github.com/azurras/christopherbell.dev/pull/1245) is implemented at `550ae1f36f0c88295eafce4d9bf531772c83149e`; all CI, CodeQL, and Dependency Review gates pass.
+- Local port-8091 acceptance proved public metadata, bounded probes, release-scoped asset URLs, and cache headers; 240 of 244 Windows deployment tests pass with four environment-only skips.
+- Independent review found no code defects. Merge is held because the apex hostname still returns 404 and would correctly fail the new two-host deployment gate.
 
 ## Blockers
 
-- None currently. Existing spoke checkout state requires isolation but does not block delivery.
+- Cloudflare dashboard authentication is required to create and verify the apex-to-`www` route for
+  PR #1245. A Chrome login tab is open; no repository or production-code defect remains.
 
 ## Validation
 
@@ -57,6 +61,6 @@ Resolve every currently open issue in `azurras/christopherbell.dev` through curr
 
 ## Next Steps
 
-1. Execute the public-delivery plan for #1122-#1124 and #1138 through merge, Cloudflare routing correction, deployment, and live verification.
+1. Authenticate Cloudflare, correct and verify apex routing, then merge/deploy PR #1245 and close #1122-#1124 and #1138.
 2. Continue the remaining dependency-aware plans through merge and closure.
 3. Record spoke reviews, closure, and final session memory.
