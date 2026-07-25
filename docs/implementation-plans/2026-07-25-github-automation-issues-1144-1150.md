@@ -50,7 +50,7 @@ License policy, release automation, deploy behavior, or immutable action SHA pin
 
 ## Assumptions
 
-The public GitHub.com repository can use CodeQL and Dependency Review. Node 24 supports paired spec and junit reporters. Missing early-failure reports must warn without hiding the original failure.
+The public GitHub.com repository can use CodeQL and Dependency Review. The checked-in advanced CodeQL workflow must preserve the default setup's Java/Kotlin, JavaScript/TypeScript, and Actions coverage before default setup is disabled. Node 24 supports paired spec and junit reporters. Missing early-failure reports must warn without hiding the original failure.
 
 ## Open Questions
 
@@ -114,7 +114,7 @@ class GitHubAutomationConfigurationTest {
   }
 
   @Test
-  void codeQlScansJavaWithNarrowPermissions() throws IOException {
+  void codeQlPreservesAllDefaultSetupLanguagesAndBuildsJava() throws IOException {
     var workflow = readYaml(".github/workflows/codeql.yml");
     assertThat(workflow.at("/permissions/contents").asText()).isEqualTo("read");
     assertThat(workflow.at("/permissions/security-events").asText()).isEqualTo("write");
@@ -122,9 +122,21 @@ class GitHubAutomationConfigurationTest {
     assertThat(workflow.at("/on/push/branches/0").asText()).isEqualTo("main");
     assertThat(workflow.at("/on/schedule/0/cron").asText()).isNotBlank();
 
+    var configurations = workflow.at("/jobs/analyze/strategy/matrix/include");
+    assertThat(textValues(configurations, "language"))
+        .containsExactlyInAnyOrder("java-kotlin", "javascript-typescript", "actions");
+    assertThat(entryFor(configurations, "language", "java-kotlin").path("build-mode").asText())
+        .isEqualTo("manual");
+    assertThat(entryFor(configurations, "language", "javascript-typescript")
+        .path("build-mode").asText()).isEqualTo("none");
+    assertThat(entryFor(configurations, "language", "actions").path("build-mode").asText())
+        .isEqualTo("none");
+
     var steps = workflow.at("/jobs/analyze/steps");
     assertThat(stepUsing(steps, "github/codeql-action/init@v4")
-        .at("/with/languages").asText()).isEqualTo("java-kotlin");
+        .at("/with/languages").asText()).isEqualTo("${{ matrix.language }}");
+    assertThat(stepRunning(steps, "./gradlew :website:classes").path("if").asText())
+        .isEqualTo("matrix.language == 'java-kotlin'");
     assertThat(stepUsing(steps, "github/codeql-action/analyze@v4").isMissingNode()).isFalse();
   }
 
@@ -204,8 +216,28 @@ class GitHubAutomationConfigurationTest {
         .orElse(MissingNode.getInstance());
   }
 
+  private static JsonNode entryFor(JsonNode entries, String field, String expected) {
+    return StreamSupport.stream(entries.spliterator(), false)
+        .filter(entry -> expected.equals(entry.path(field).asText()))
+        .findFirst()
+        .orElse(MissingNode.getInstance());
+  }
+
+  private static JsonNode stepRunning(JsonNode steps, String command) {
+    return StreamSupport.stream(steps.spliterator(), false)
+        .filter(step -> command.equals(step.path("run").asText()))
+        .findFirst()
+        .orElse(MissingNode.getInstance());
+  }
+
   private static List<String> textValues(JsonNode values) {
     return StreamSupport.stream(values.spliterator(), false).map(JsonNode::asText).toList();
+  }
+
+  private static List<String> textValues(JsonNode values, String field) {
+    return StreamSupport.stream(values.spliterator(), false)
+        .map(value -> value.path(field).asText())
+        .toList();
   }
 
   private static Path locateRepositoryRoot() {
@@ -431,28 +463,43 @@ on:
     - cron: '17 7 * * 1'
 jobs:
   analyze:
-    name: Analyze Java
+    name: Analyze (${{ matrix.language }})
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - language: java-kotlin
+            build-mode: manual
+          - language: javascript-typescript
+            build-mode: none
+          - language: actions
+            build-mode: none
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-java@v5
+        if: matrix.language == 'java-kotlin'
         with:
           distribution: temurin
           java-version: 25
       - uses: gradle/actions/setup-gradle@v6
+        if: matrix.language == 'java-kotlin'
         with:
           cache-read-only: ${{ github.event_name == 'pull_request' }}
       - uses: github/codeql-action/init@v4
         with:
-          languages: java-kotlin
-          build-mode: manual
-      - run: ./gradlew :website:classes
+          languages: ${{ matrix.language }}
+          build-mode: ${{ matrix.build-mode }}
+      - if: matrix.language == 'java-kotlin'
+        run: ./gradlew :website:classes
       - uses: github/codeql-action/analyze@v4
+        with:
+          category: '/language:${{ matrix.language }}'
 ```
 
 Verification:
-- Focused JUnit YAML contract and PR CodeQL check.
+- Focused JUnit YAML contract, supported API switch from default to advanced setup, and all three PR CodeQL checks.
 
 #### Code Edit 3.2
 - File: .github/workflows/dependency-review.yml
