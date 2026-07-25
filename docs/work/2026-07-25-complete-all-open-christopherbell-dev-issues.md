@@ -17,7 +17,7 @@ Resolve every currently open issue in `azurras/christopherbell.dev` through curr
 ## Related Specs and Plans
 
 - Project spec: [Complete All Open christopherbell.dev Issues](../specs/2026-07-25-complete-all-open-christopherbell-dev-issues.md) (`ready-for-execution`, approved 2026-07-25).
-- Implementation plans: [GitHub Automation Issues 1144-1150](../implementation-plans/2026-07-25-github-automation-issues-1144-1150.md) (`complete`); remaining dependency-aware plans follow as each sub-batch reaches execution.
+- Implementation plans: [GitHub Automation Issues 1144-1150](../implementation-plans/2026-07-25-github-automation-issues-1144-1150.md) (`complete`); [Public Delivery Issues 1122-1124 and 1138](../implementation-plans/2026-07-25-public-delivery-issues-1122-1124-1138.md) (`ready-for-execution`); remaining dependency-aware plans follow as each sub-batch reaches execution.
 
 ## Spoke Repositories
 
@@ -43,6 +43,8 @@ Resolve every currently open issue in `azurras/christopherbell.dev` through curr
 - PR [#1241](https://github.com/azurras/christopherbell.dev/pull/1241) merged as `88144134290e5f690c048cb4945db531b8ef17c9`; issues #1144-#1150 closed automatically.
 - All three CI platforms, Dependency Review, and CodeQL for Actions, Java/Kotlin, and JavaScript/TypeScript passed. GitHub default CodeQL setup was replaced by the checked-in advanced matrix without reducing language coverage.
 - The campaign now has 51 open issues remaining.
+- Live revalidation for the next sub-batch confirmed that localhost and `www` serve the main pages while the apex hostname returns 404; robots, sitemap, probes, cache headers, and dual-host deployment acceptance need work.
+- The public-delivery plan for #1122-#1124 and #1138 is ready for validation and execution on `codex/public-delivery-1122-1124-1138`.
 
 ## Blockers
 
@@ -55,6 +57,6 @@ Resolve every currently open issue in `azurras/christopherbell.dev` through curr
 
 ## Next Steps
 
-1. Create and execute the next Batch 1 sub-plan for production, deployment, and runtime configuration issues.
+1. Execute the public-delivery plan for #1122-#1124 and #1138 through merge, Cloudflare routing correction, deployment, and live verification.
 2. Continue the remaining dependency-aware plans through merge and closure.
 3. Record spoke reviews, closure, and final session memory.
