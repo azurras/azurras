@@ -40,13 +40,13 @@ Create codex/github-automation-1144-1150 from refreshed origin/main in a clean s
 - Preserve Java 25 on Ubuntu, macOS, and Windows.
 - No npm, application behavior, deployment, or production changes.
 - Workflows expose triggers, timeouts, retention, effects, and permissions.
-- Use existing labels and supported major action tags.
+- Use existing labels plus explicit `pinned` and `roadmap` protection labels, and supported major action tags.
 - Witness failing artifact validation before executable configuration edits.
 - Trust scope changes only from azurras comments.
 
 ## Non-Goals
 
-License policy, release automation, new labels, deploy behavior, or immutable SHA pinning.
+License policy, release automation, deploy behavior, or immutable action SHA pinning.
 
 ## Assumptions
 
@@ -165,7 +165,7 @@ class GitHubAutomationConfigurationTest {
   void staleAutomationIsBoundedExemptibleAndLeastPrivilege() throws IOException {
     var workflow = readYaml(".github/workflows/stale.yml");
     var job = workflow.at("/jobs/stale");
-    assertThat(workflow.at("/permissions/contents").asText()).isEqualTo("read");
+    assertThat(workflow.path("permissions").isEmpty()).isTrue();
     assertThat(job.at("/permissions/issues").asText()).isEqualTo("write");
     assertThat(job.at("/permissions/pull-requests").asText()).isEqualTo("write");
     assertThat(job.path("permissions").has("contents")).isFalse();
@@ -175,8 +175,11 @@ class GitHubAutomationConfigurationTest {
     assertThat(options.path("days-before-issue-close").asInt()).isEqualTo(14);
     assertThat(options.path("days-before-pr-stale").asInt()).isEqualTo(30);
     assertThat(options.path("days-before-pr-close").asInt()).isEqualTo(14);
-    assertThat(options.path("exempt-issue-labels").asText()).isEqualTo("security,codex");
+    assertThat(options.path("exempt-issue-labels").asText())
+        .isEqualTo("pinned,roadmap,security,codex");
     assertThat(options.path("exempt-pr-labels").asText()).isEqualTo("security,codex");
+    assertThat(options.path("exempt-all-issue-milestones").asBoolean()).isTrue();
+    assertThat(options.path("exempt-all-issue-assignees").asBoolean()).isTrue();
     assertThat(options.path("remove-stale-when-updated").asBoolean()).isTrue();
     assertThat(options.path("stale-issue-message").asText()).isNotEqualTo("Stale issue message");
     assertThat(options.path("stale-pr-message").asText()).isNotEqualTo("Stale pull request message");
@@ -474,7 +477,7 @@ Implementation notes:
 - Required skill: write-jane-street-style-code before any code edits.
 - Before-Edit Brief:
   - Behavior: Updates are grouped; stale automation is specific, bounded, and exemptible.
-  - Invariants: Both ecosystems and stale labels remain; security/codex work is exempt.
+  - Invariants: Both ecosystems and stale labels remain; pinned, roadmap, security, codex, milestone, and assigned issue work is exempt.
   - Boundary/API: Dependabot schema and actions/stale inputs.
   - Effects and failures: Bounded PR creation and issue/PR mutations after explicit windows.
   - Tests and evidence: Focused tests/YAML GREEN and labels reverified.
@@ -561,8 +564,7 @@ jobs:
 Proposed:
 ```yaml
 name: Mark stale issues and pull requests
-permissions:
-  contents: read
+permissions: {}
 on:
   schedule:
     - cron: '43 7 * * *'
@@ -583,7 +585,8 @@ jobs:
           days-before-pr-close: 14
           stale-issue-message: >-
             This issue has had no activity for 60 days. It will close after 14 more
-            days unless updated or given the security or codex active-work label.
+            days unless updated, assigned, placed on a roadmap milestone, or given
+            a pinned, roadmap, security, or codex protection label.
           close-issue-message: >-
             Closing after 74 days without activity. Reopen with current evidence
             if the work is still needed.
@@ -595,16 +598,16 @@ jobs:
             when the branch is ready for review.
           stale-issue-label: 'no-issue-activity'
           stale-pr-label: 'no-pr-activity'
-          exempt-issue-labels: 'security,codex'
+          exempt-issue-labels: 'pinned,roadmap,security,codex'
           exempt-pr-labels: 'security,codex'
+          exempt-all-issue-milestones: true
           exempt-all-issue-assignees: true
-          exempt-all-pr-assignees: true
           remove-stale-when-updated: true
           operations-per-run: 100
 ```
 
 Verification:
-- Focused JUnit YAML contract and permission diff.
+- Focused JUnit YAML contract, permission diff, and creation/verification of the `pinned` and `roadmap` labels before enabling the workflow.
 
 ### Task 5 - Document validate publish and close
 
@@ -637,8 +640,8 @@ under website/build/test-results/jsTest/.
 
 CodeQL analyzes Java changes and Dependency Review rejects newly introduced
 high-or-critical vulnerable dependencies. Dependabot groups weekly Gradle and
-GitHub Actions updates. Security and codex active work is exempt from the
-documented stale windows.
+GitHub Actions updates. Assigned, milestone, pinned, roadmap, security, and
+codex active work is exempt from the documented stale windows.
 ```
 
 Verification:
@@ -673,7 +676,7 @@ No Spring runtime behavior changes, so alternate-port bootRun is not applicable.
 
 ## Validation
 
-Matrix preserved; PR cache read-only; reports retained 14 days; security checks run; configuration parses; stale job only has issue/PR writes.
+Matrix preserved; PR cache read-only; reports retained 14 days; security checks run; configuration parses; stale job only has issue/PR writes; pinned/roadmap protection labels exist.
 
 ## Rollback or Recovery
 
