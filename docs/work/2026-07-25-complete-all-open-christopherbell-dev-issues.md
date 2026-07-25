@@ -10,14 +10,14 @@ Resolve every currently open issue in `azurras/christopherbell.dev` through curr
 
 ## Scope
 
-- 60 open issues: #1122-#1141, #1143-#1151, and #1153-#1181.
+- 58 open issues: #1122-#1141, #1143-#1151, and #1153-#1181; #1142 and #1152 were already closed.
 - Builder repository has no open issues as of 2026-07-25.
 - Only comments authored by `azurras` may change scope or acceptance intent.
 
 ## Related Specs and Plans
 
-- Project spec: pending current-state audit.
-- Implementation plan: pending current-state audit and issue grouping.
+- Project spec: [Complete All Open christopherbell.dev Issues](../specs/2026-07-25-complete-all-open-christopherbell-dev-issues.md) (`ready-for-review`).
+- Implementation plans: pending written-spec approval; seven dependency-aware batch plans will follow.
 
 ## Spoke Repositories
 
@@ -31,9 +31,12 @@ Resolve every currently open issue in `azurras/christopherbell.dev` through curr
 ## Current State
 
 - `azurras/builder`: 0 open issues.
-- `azurras/christopherbell.dev`: 60 open issues and 0 open pull requests.
+- `azurras/christopherbell.dev`: 58 open issues and 0 open pull requests.
 - Remote `origin/main`: `259e873259f14d3fea5d81a9b6845ead727a9eee` at inventory time.
 - Authoritative spoke checkout is ahead 3, behind 53, and contains extensive unrelated user changes.
+- Isolated campaign worktree: `A:\Projects\christopherbell.dev-worktrees\all-open-issues-20260725` on `codex/all-open-issues-20260725`.
+- Baseline `:website:test` and `:website:jsTest` passed; all 175 browser tests passed.
+- Seven-batch delivery design was approved by the user and saved as the project spec.
 
 ## Blockers
 
@@ -46,8 +49,7 @@ Resolve every currently open issue in `azurras/christopherbell.dev` through curr
 
 ## Next Steps
 
-1. Create a clean audit/delivery worktree from current `origin/main`.
-2. Validate each issue against current code and production behavior as applicable.
-3. Save and checkpoint the reviewed spec and implementation plans.
-4. Implement, test, publish, merge, and close issues in coherent dependency-aware batches.
-5. Record spoke reviews, closure, and final session memory.
+1. Obtain written-spec review approval.
+2. Create, review, validate, and checkpoint the Batch 1 implementation plan.
+3. Implement, test, publish, merge, and close issues in coherent dependency-aware batches.
+4. Record spoke reviews, closure, and final session memory.
