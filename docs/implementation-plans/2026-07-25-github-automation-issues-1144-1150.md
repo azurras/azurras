@@ -4,7 +4,7 @@
 
 **Goal:** Close #1144-#1150 with faster, diagnosable, security-scanned, least-privilege GitHub automation.
 
-**Architecture:** Keep each concern in its own YAML file. A Node filesystem contract test asserts semantics without npm, and Gradle's existing jsTest task retains JUnit XML while preserving console output.
+**Architecture:** Keep each concern in its own YAML file. A JUnit contract test parses the repository YAML into Jackson trees and asserts semantic values without formatting-sensitive source matching; Gradle's existing jsTest task retains JUnit XML while preserving console output.
 
 **Tech Stack:** GitHub Actions, Gradle 9.6.1, Java 25, Node 24, YAML, Dependabot.
 
@@ -68,82 +68,160 @@ Implementation notes:
 - Before-Edit Brief:
   - Behavior: Local tests reject missing caching, reports, scans, grouping, and stale policy.
   - Invariants: Node built-ins only; semantic assertions rather than snapshots.
-  - Boundary/API: node --test website/src/test/js/github-automation.test.js.
-  - Effects and failures: Bounded reads of controlled files with contract-specific assertions.
+  - Boundary/API: Gradle's focused JUnit test boundary over repository-owned YAML files.
+  - Effects and failures: Bounded reads and real YAML parsing of controlled files with contract-specific assertions; absent files become assertion failures rather than I/O errors.
   - Tests and evidence: Witness expected failures before editing workflows.
 
 #### Code Edit 1.1
-- File: website/src/test/js/github-automation.test.js
+- File: website/src/test/java/dev/christopherbell/configuration/GitHubAutomationConfigurationTest.java
 - Lines: 1
 - Action: add
 
 Proposed:
-```javascript
-import assert from 'node:assert/strict';
-import fs from 'node:fs';
-import test from 'node:test';
+```java
+package dev.christopherbell.configuration;
 
-const read = (path) => fs.existsSync(path) ? fs.readFileSync(path, 'utf8') : '';
+import static org.assertj.core.api.Assertions.assertThat;
 
-test('CI caches Gradle and retains failed reports', () => {
-  const workflow = read('.github/workflows/ci.yml');
-  const build = read('website/build.gradle.kts');
-  assert.match(workflow, /gradle\/actions\/setup-gradle@v6/);
-  assert.match(workflow, /cache-read-only:/);
-  assert.match(workflow, /if:\s+failure\(\)[\s\S]*actions\/upload-artifact@v7/);
-  assert.match(workflow, /retention-days:\s+14/);
-  assert.match(workflow, /\*\*\/build\/test-results\/\*\*/);
-  assert.match(build, /--test-reporter=junit/);
-  assert.match(build, /test-results\/jsTest\/results\.xml/);
-});
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.MissingNode;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.stream.StreamSupport;
+import org.junit.jupiter.api.Test;
 
-test('CodeQL scans Java with narrow permissions', () => {
-  const workflow = read('.github/workflows/codeql.yml');
-  assert.match(workflow, /pull_request:[\s\S]*branches:\s*\[ main \]/);
-  assert.match(workflow, /push:[\s\S]*branches:\s*\[ main \]/);
-  assert.match(workflow, /schedule:[\s\S]*cron:/);
-  assert.match(workflow, /contents:\s+read/);
-  assert.match(workflow, /security-events:\s+write/);
-  assert.match(workflow, /github\/codeql-action\/init@v4/);
-  assert.match(workflow, /languages:\s+java-kotlin/);
-  assert.match(workflow, /github\/codeql-action\/analyze@v4/);
-});
+class GitHubAutomationConfigurationTest {
+  private static final ObjectMapper YAML = new ObjectMapper(new YAMLFactory());
+  private static final Path REPOSITORY_ROOT = locateRepositoryRoot();
 
-test('dependency review blocks high-severity vulnerable additions', () => {
-  const workflow = read('.github/workflows/dependency-review.yml');
-  assert.match(workflow, /pull_request:/);
-  assert.match(workflow, /contents:\s+read/);
-  assert.doesNotMatch(workflow, /contents:\s+write/);
-  assert.match(workflow, /actions\/dependency-review-action@v5/);
-  assert.match(workflow, /fail-on-severity:\s+high/);
-});
+  @Test
+  void ciCachesGradleAndRetainsFailedReports() throws IOException {
+    var workflow = readYaml(".github/workflows/ci.yml");
+    var steps = workflow.at("/jobs/build/steps");
+    var setupGradle = stepUsing(steps, "gradle/actions/setup-gradle@v6");
+    assertThat(setupGradle.at("/with/cache-read-only").asText())
+        .isEqualTo("${{ github.ref != 'refs/heads/main' }}");
 
-test('Dependabot groups both ecosystems with existing labels', () => {
-  const config = read('.github/dependabot.yml');
-  assert.match(config, /package-ecosystem:\s+"gradle"[\s\S]*open-pull-requests-limit:\s+5/);
-  assert.match(config, /labels:[\s\S]*"dependencies"[\s\S]*"java"/);
-  assert.match(config, /groups:[\s\S]*spring:[\s\S]*minor-and-patch:/);
-  assert.match(config, /package-ecosystem:\s+"github-actions"[\s\S]*"github_actions"/);
-  assert.match(config, /github-actions:[\s\S]*patterns:\s*\["\*"\]/);
-});
+    var upload = stepUsing(steps, "actions/upload-artifact@v7");
+    assertThat(upload.path("if").asText()).isEqualTo("failure()");
+    assertThat(upload.at("/with/retention-days").asInt()).isEqualTo(14);
+    assertThat(upload.at("/with/path").asText())
+        .contains("**/build/reports/tests/**", "**/build/test-results/**");
+  }
 
-test('stale automation is bounded exemptible and least privilege', () => {
-  const workflow = read('.github/workflows/stale.yml');
-  assert.match(workflow, /^permissions:\s*\n\s+contents:\s+read/m);
-  assert.match(workflow, /permissions:[\s\S]*issues:\s+write[\s\S]*pull-requests:\s+write/);
-  assert.doesNotMatch(workflow, /contents:\s+write/);
-  assert.match(workflow, /days-before-issue-stale:\s+60/);
-  assert.match(workflow, /days-before-pr-stale:\s+30/);
-  assert.match(workflow, /days-before-issue-close:\s+14/);
-  assert.match(workflow, /exempt-issue-labels:\s+'security,codex'/);
-  assert.match(workflow, /remove-stale-when-updated:\s+true/);
-  assert.doesNotMatch(workflow, /'Stale issue message'|'Stale pull request message'/);
-});
+  @Test
+  void codeQlScansJavaWithNarrowPermissions() throws IOException {
+    var workflow = readYaml(".github/workflows/codeql.yml");
+    assertThat(workflow.at("/permissions/contents").asText()).isEqualTo("read");
+    assertThat(workflow.at("/permissions/security-events").asText()).isEqualTo("write");
+    assertThat(workflow.at("/on/pull_request/branches/0").asText()).isEqualTo("main");
+    assertThat(workflow.at("/on/push/branches/0").asText()).isEqualTo("main");
+    assertThat(workflow.at("/on/schedule/0/cron").asText()).isNotBlank();
+
+    var steps = workflow.at("/jobs/analyze/steps");
+    assertThat(stepUsing(steps, "github/codeql-action/init@v4")
+        .at("/with/languages").asText()).isEqualTo("java-kotlin");
+    assertThat(stepUsing(steps, "github/codeql-action/analyze@v4").isMissingNode()).isFalse();
+  }
+
+  @Test
+  void dependencyReviewBlocksHighSeverityVulnerableAdditions() throws IOException {
+    var workflow = readYaml(".github/workflows/dependency-review.yml");
+    assertThat(workflow.at("/permissions/contents").asText()).isEqualTo("read");
+    assertThat(workflow.path("permissions").has("write")).isFalse();
+    assertThat(workflow.at("/on/pull_request/branches/0").asText()).isEqualTo("main");
+    var review = stepUsing(
+        workflow.at("/jobs/dependency-review/steps"),
+        "actions/dependency-review-action@v5");
+    assertThat(stepUsing(
+        workflow.at("/jobs/dependency-review/steps"),
+        "actions/checkout@v7").isMissingNode()).isFalse();
+    assertThat(review.at("/with/fail-on-severity").asText()).isEqualTo("high");
+  }
+
+  @Test
+  void dependabotGroupsBothEcosystemsWithExistingLabels() throws IOException {
+    var updates = readYaml(".github/dependabot.yml").path("updates");
+    var gradle = updateFor(updates, "gradle");
+    assertThat(gradle.path("open-pull-requests-limit").asInt()).isEqualTo(5);
+    assertThat(textValues(gradle.path("labels"))).containsExactly("dependencies", "java");
+    assertThat(textValues(gradle.at("/groups/spring/patterns")))
+        .contains("org.springframework*");
+    assertThat(textValues(gradle.at("/groups/minor-and-patch/update-types")))
+        .containsExactly("minor", "patch");
+
+    var actions = updateFor(updates, "github-actions");
+    assertThat(textValues(actions.path("labels")))
+        .containsExactly("dependencies", "github_actions");
+    assertThat(textValues(actions.at("/groups/github-actions/patterns")))
+        .containsExactly("*");
+  }
+
+  @Test
+  void staleAutomationIsBoundedExemptibleAndLeastPrivilege() throws IOException {
+    var workflow = readYaml(".github/workflows/stale.yml");
+    var job = workflow.at("/jobs/stale");
+    assertThat(workflow.at("/permissions/contents").asText()).isEqualTo("read");
+    assertThat(job.at("/permissions/issues").asText()).isEqualTo("write");
+    assertThat(job.at("/permissions/pull-requests").asText()).isEqualTo("write");
+    assertThat(job.path("permissions").has("contents")).isFalse();
+
+    var options = stepUsing(job.path("steps"), "actions/stale@v10").path("with");
+    assertThat(options.path("days-before-issue-stale").asInt()).isEqualTo(60);
+    assertThat(options.path("days-before-issue-close").asInt()).isEqualTo(14);
+    assertThat(options.path("days-before-pr-stale").asInt()).isEqualTo(30);
+    assertThat(options.path("days-before-pr-close").asInt()).isEqualTo(14);
+    assertThat(options.path("exempt-issue-labels").asText()).isEqualTo("security,codex");
+    assertThat(options.path("exempt-pr-labels").asText()).isEqualTo("security,codex");
+    assertThat(options.path("remove-stale-when-updated").asBoolean()).isTrue();
+    assertThat(options.path("stale-issue-message").asText()).isNotEqualTo("Stale issue message");
+    assertThat(options.path("stale-pr-message").asText()).isNotEqualTo("Stale pull request message");
+  }
+
+  private static JsonNode readYaml(String repositoryRelativePath) throws IOException {
+    var path = REPOSITORY_ROOT.resolve(repositoryRelativePath);
+    return Files.exists(path) ? YAML.readTree(path.toFile()) : MissingNode.getInstance();
+  }
+
+  private static JsonNode stepUsing(JsonNode steps, String action) {
+    return StreamSupport.stream(steps.spliterator(), false)
+        .filter(step -> action.equals(step.path("uses").asText()))
+        .findFirst()
+        .orElse(MissingNode.getInstance());
+  }
+
+  private static JsonNode updateFor(JsonNode updates, String ecosystem) {
+    return StreamSupport.stream(updates.spliterator(), false)
+        .filter(update -> ecosystem.equals(update.path("package-ecosystem").asText()))
+        .findFirst()
+        .orElse(MissingNode.getInstance());
+  }
+
+  private static List<String> textValues(JsonNode values) {
+    return StreamSupport.stream(values.spliterator(), false).map(JsonNode::asText).toList();
+  }
+
+  private static Path locateRepositoryRoot() {
+    var current = Path.of("").toAbsolutePath().normalize();
+    if (Files.isDirectory(current.resolve(".github"))) {
+      return current;
+    }
+    var parent = current.getParent();
+    if (parent != null && Files.isDirectory(parent.resolve(".github"))) {
+      return parent;
+    }
+    throw new IllegalStateException("Cannot locate repository root from " + current);
+  }
+}
 ```
 
 Verification:
-- node --test website/src/test/js/github-automation.test.js
-- Expected RED: missing files or semantic assertions fail for all seven contracts.
+- `.\gradlew.bat :website:test --tests dev.christopherbell.configuration.GitHubAutomationConfigurationTest --no-daemon`
+- Expected RED: semantic assertions fail for the absent or incomplete automation configuration.
 
 ### Task 2 - Cache Gradle and retain diagnostics
 
@@ -157,7 +235,7 @@ Implementation notes:
   - Invariants: Matrix and wrapper commands remain; PR cache is read-only.
   - Boundary/API: ci.yml orchestration and the jsTest Gradle task.
   - Effects and failures: Cache/artifact writes explicit; missing files warn; original failure wins.
-  - Tests and evidence: Focused contract becomes GREEN and XML parses.
+  - Tests and evidence: Focused YAML contract becomes GREEN; a pre-edit `jsTest` run lacks the planned XML file, then the post-edit report parses.
 
 #### Code Edit 2.1
 - File: .github/workflows/ci.yml
@@ -242,7 +320,7 @@ Proposed:
 ```
 
 Verification:
-- Focused Node contract and PyYAML parsing.
+- Focused JUnit YAML contract and Jackson parsing.
 
 #### Code Edit 2.2
 - File: website/build.gradle.kts
@@ -358,7 +436,7 @@ jobs:
 ```
 
 Verification:
-- Focused contract, YAML parse, and PR CodeQL check.
+- Focused JUnit YAML contract and PR CodeQL check.
 
 #### Code Edit 3.2
 - File: .github/workflows/dependency-review.yml
@@ -378,13 +456,14 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
+      - uses: actions/checkout@v7
       - uses: actions/dependency-review-action@v5
         with:
           fail-on-severity: high
 ```
 
 Verification:
-- Focused contract, YAML parse, and PR Dependency Review check.
+- Focused JUnit YAML contract and PR Dependency Review check.
 
 ### Task 4 - Group updates and harden stale policy
 
@@ -453,7 +532,7 @@ updates:
 ```
 
 Verification:
-- Focused contract, YAML parse, and gh label list.
+- Focused JUnit YAML contract and gh label list.
 
 #### Code Edit 4.2
 - File: .github/workflows/stale.yml
@@ -525,7 +604,7 @@ jobs:
 ```
 
 Verification:
-- Focused contract, YAML parse, and permission diff.
+- Focused JUnit YAML contract and permission diff.
 
 ### Task 5 - Document validate publish and close
 
@@ -543,7 +622,7 @@ Implementation notes:
 
 #### Code Edit 5.1
 - File: README.md
-- Lines: after 183
+- Lines: after 418
 - Action: add
 
 Proposed:
@@ -566,8 +645,7 @@ Verification:
 - Render README and run the validation commands below.
 
 Execution checklist:
-- Parse workflow and Dependabot YAML with PyYAML.
-- Run node --test website/src/test/js/github-automation.test.js.
+- Run the focused JUnit YAML contract.
 - Run .\gradlew.bat :website:jsTest --rerun-tasks and parse JUnit XML.
 - Run .\gradlew.bat :website:test with isolated GRADLE_USER_HOME.
 - Run git diff --check and semantic review.
@@ -575,7 +653,7 @@ Execution checklist:
 
 ## Code Changes
 
-- github-automation.test.js: automation contracts (1.1).
+- GitHubAutomationConfigurationTest.java: parsed automation contracts (1.1).
 - ci.yml and website/build.gradle.kts: caching and diagnostics (2.1-2.2).
 - codeql.yml and dependency-review.yml: security checks (3.1-3.2).
 - dependabot.yml and stale.yml: update/triage policy (4.1-4.2).
@@ -587,11 +665,11 @@ Execution checklist:
 
 ## Unit Testing
 
-RED/GREEN focused Node contract, full jsTest with JUnit XML, and website Java tests.
+RED/GREEN focused JUnit YAML contract, full jsTest with JUnit XML, and website Java tests.
 
 ## Local Testing
 
-No Spring runtime behavior changes, so alternate-port bootRun is not applicable. Parse YAML, run focused/full suites, and verify external behavior through PR checks. Do not manufacture a failing main run only to prove artifacts.
+No Spring runtime behavior changes, so alternate-port bootRun is not applicable. Parse YAML through the focused JUnit contract, run focused/full suites, and verify external behavior through PR checks. Do not manufacture a failing main run only to prove artifacts.
 
 ## Validation
 
@@ -608,6 +686,6 @@ External feature availability; formatting-sensitive regex tests; Node-owned JUni
 ## Completion Criteria
 
 - RED/GREEN evidence for each semantic change.
-- YAML, focused Node, jsTest, website:test, XML, and diff checks pass.
+- Parsed YAML contract, jsTest, website:test, XML, and diff checks pass.
 - PR CI, CodeQL, and Dependency Review pass or affected issues remain open with an external blocker.
 - PR merges, #1144-#1150 close, and Builder artifacts are updated and pushed.

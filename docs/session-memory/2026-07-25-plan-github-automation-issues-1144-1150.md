@@ -17,12 +17,14 @@ Continue the approved campaign to complete every open `azurras/christopherbell.d
 - Keep each GitHub automation concern in its native configuration file and add a Node built-in filesystem contract test rather than introducing an npm dependency.
 - Preserve console test output while adding JUnit XML for artifact collection.
 - Use current supported major action tags verified from official action documentation.
+- Parse YAML into structured Jackson trees in JUnit rather than relying on formatting-sensitive Node regular expressions; include the checkout step shown by the official Dependency Review installation contract.
 
 ## Validation
 
 - `validate_implementation_plan.py` passed.
 - Placeholder scan and `git diff --check` passed.
 - Execution-readiness review found no blockers. Residual risk is limited to GitHub-hosted feature availability and action behavior, which the pull request checks must prove.
+- After remote main advanced, the baseline was refreshed at `ea2ba7ea4c4ab1b71f172a29dd994e8375507675`: `:website:test` and all 176 `jsTest` cases passed. The reviewed plan was updated before implementation to use parsed YAML assertions and the current README insertion line.
 
 ## Current State and Follow-up
 
