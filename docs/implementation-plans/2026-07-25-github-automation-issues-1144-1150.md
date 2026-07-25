@@ -226,6 +226,19 @@ Verification:
 - `.\gradlew.bat :website:test --tests dev.christopherbell.configuration.GitHubAutomationConfigurationTest --no-daemon`
 - Expected RED: semantic assertions fail for the absent or incomplete automation configuration.
 
+#### Code Edit 1.2
+- File: website/build.gradle.kts
+- Lines: after 62
+- Action: add
+
+Proposed:
+```kotlin
+    testImplementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml")
+```
+
+Verification:
+- Run the focused JUnit YAML contract and dependency insight for `jackson-dataformat-yaml`; the test must use a declared test dependency rather than Springdoc's transitive classpath.
+
 ### Task 2 - Cache Gradle and retain diagnostics
 
 Sequence / dependencies:
@@ -656,7 +669,7 @@ Execution checklist:
 
 ## Code Changes
 
-- GitHubAutomationConfigurationTest.java: parsed automation contracts (1.1).
+- GitHubAutomationConfigurationTest.java and its declared Jackson YAML test dependency: parsed automation contracts (1.1-1.2).
 - ci.yml and website/build.gradle.kts: caching and diagnostics (2.1-2.2).
 - codeql.yml and dependency-review.yml: security checks (3.1-3.2).
 - dependabot.yml and stale.yml: update/triage policy (4.1-4.2).

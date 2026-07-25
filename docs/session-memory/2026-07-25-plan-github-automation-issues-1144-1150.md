@@ -26,6 +26,7 @@ Continue the approved campaign to complete every open `azurras/christopherbell.d
 - Execution-readiness review found no blockers. Residual risk is limited to GitHub-hosted feature availability and action behavior, which the pull request checks must prove.
 - After remote main advanced, the baseline was refreshed at `ea2ba7ea4c4ab1b71f172a29dd994e8375507675`: `:website:test` and all 176 `jsTest` cases passed. The reviewed plan was updated before implementation to use parsed YAML assertions and the current README insertion line.
 - Full trusted issue-body intake corrected the stale contract before production edits: workflow-level permissions are empty, the job receives only issue and pull-request writes, assigned and milestone issues are directly exempt, and `pinned`/`roadmap` protection labels cover action/stale's lack of native pin-metadata support.
+- Final diff review made `jackson-dataformat-yaml` an explicit test dependency so the parsed-YAML contract does not rely on Springdoc's transitive classpath.
 
 ## Current State and Follow-up
 
