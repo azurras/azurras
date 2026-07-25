@@ -2,7 +2,7 @@
 
 ## Document Status
 
-ready-for-review
+ready-for-execution
 
 ## Purpose
 
@@ -245,3 +245,5 @@ For #1122 and other operational work, acceptance additionally requires productio
 ## Open Questions
 
 None block planning. The accepted defaults are: seven dependency-aware batches; required first/last names; HttpOnly cookie plus explicit bearer compatibility; 15-minute author edit window; per-user conversation archive rather than destructive cross-user deletion; anonymized retained public posts on account deletion; and a repository-native Mongo migration/lease implementation unless plan-time compatibility evidence favors a maintained library.
+
+The user approved this written specification on 2026-07-25 and explicitly authorized autonomous continuation through the remaining delivery phases without routine approval gates.

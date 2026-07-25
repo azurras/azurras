@@ -16,8 +16,8 @@ Resolve every currently open issue in `azurras/christopherbell.dev` through curr
 
 ## Related Specs and Plans
 
-- Project spec: [Complete All Open christopherbell.dev Issues](../specs/2026-07-25-complete-all-open-christopherbell-dev-issues.md) (`ready-for-review`).
-- Implementation plans: pending written-spec approval; seven dependency-aware batch plans will follow.
+- Project spec: [Complete All Open christopherbell.dev Issues](../specs/2026-07-25-complete-all-open-christopherbell-dev-issues.md) (`ready-for-execution`, approved 2026-07-25).
+- Implementation plans: seven dependency-aware batch plans will follow; Batch 1 planning is active.
 
 ## Spoke Repositories
 
@@ -37,6 +37,7 @@ Resolve every currently open issue in `azurras/christopherbell.dev` through curr
 - Isolated campaign worktree: `A:\Projects\christopherbell.dev-worktrees\all-open-issues-20260725` on `codex/all-open-issues-20260725`.
 - Baseline `:website:test` and `:website:jsTest` passed; all 175 browser tests passed.
 - Seven-batch delivery design was approved by the user and saved as the project spec.
+- The user approved the written spec and authorized autonomous continuation without routine phase approval pauses.
 
 ## Blockers
 
@@ -49,7 +50,6 @@ Resolve every currently open issue in `azurras/christopherbell.dev` through curr
 
 ## Next Steps
 
-1. Obtain written-spec review approval.
-2. Create, review, validate, and checkpoint the Batch 1 implementation plan.
-3. Implement, test, publish, merge, and close issues in coherent dependency-aware batches.
-4. Record spoke reviews, closure, and final session memory.
+1. Create, review, validate, and checkpoint the Batch 1 implementation plan.
+2. Implement, test, publish, merge, and close issues in coherent dependency-aware batches.
+3. Record spoke reviews, closure, and final session memory.
