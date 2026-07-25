@@ -1,0 +1,30 @@
+# 2026-07-25 - Plan GitHub Automation Issues 1144-1150
+
+## Request
+
+Continue the approved campaign to complete every open `azurras/christopherbell.dev` issue without routine approval pauses, beginning with the GitHub automation portion of Batch 1.
+
+## Work Completed
+
+- Created `docs/implementation-plans/2026-07-25-github-automation-issues-1144-1150.md` for issues #1144-#1150.
+- Defined artifact-native RED/GREEN coverage for Gradle caching, failed-run diagnostics, CodeQL, Dependency Review, Dependabot grouping, and stale-policy permissions and windows.
+- Split the broader deployment/configuration batch so this independent automation work can be reviewed, rolled back, merged, and closed as one coherent pull request.
+- Updated the central work ledger with the ready plan.
+
+## Decisions
+
+- Execute inline without subagents, consistent with the user's autonomous campaign authorization.
+- Keep each GitHub automation concern in its native configuration file and add a Node built-in filesystem contract test rather than introducing an npm dependency.
+- Preserve console test output while adding JUnit XML for artifact collection.
+- Use current supported major action tags verified from official action documentation.
+
+## Validation
+
+- `validate_implementation_plan.py` passed.
+- Placeholder scan and `git diff --check` passed.
+- Execution-readiness review found no blockers. Residual risk is limited to GitHub-hosted feature availability and action behavior, which the pull request checks must prove.
+
+## Current State and Follow-up
+
+- Plan status is `ready-for-execution`.
+- Next create `codex/github-automation-1144-1150` in a fresh sibling worktree, invoke the required implementation skills, witness RED, implement, run the full relevant suites, publish a pull request, wait for checks, merge, and close #1144-#1150.

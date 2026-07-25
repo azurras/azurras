@@ -17,7 +17,7 @@ Resolve every currently open issue in `azurras/christopherbell.dev` through curr
 ## Related Specs and Plans
 
 - Project spec: [Complete All Open christopherbell.dev Issues](../specs/2026-07-25-complete-all-open-christopherbell-dev-issues.md) (`ready-for-execution`, approved 2026-07-25).
-- Implementation plans: seven dependency-aware batch plans will follow; Batch 1 planning is active.
+- Implementation plans: [GitHub Automation Issues 1144-1150](../implementation-plans/2026-07-25-github-automation-issues-1144-1150.md) (`ready-for-execution`); remaining dependency-aware plans follow as each sub-batch reaches execution.
 
 ## Spoke Repositories
 
@@ -38,6 +38,7 @@ Resolve every currently open issue in `azurras/christopherbell.dev` through curr
 - Baseline `:website:test` and `:website:jsTest` passed; all 175 browser tests passed.
 - Seven-batch delivery design was approved by the user and saved as the project spec.
 - The user approved the written spec and authorized autonomous continuation without routine phase approval pauses.
+- The first Batch 1 sub-plan for #1144-#1150 passed mechanical validation and human execution-readiness review with no blockers.
 
 ## Blockers
 
@@ -50,6 +51,6 @@ Resolve every currently open issue in `azurras/christopherbell.dev` through curr
 
 ## Next Steps
 
-1. Create, review, validate, and checkpoint the Batch 1 implementation plan.
-2. Implement, test, publish, merge, and close issues in coherent dependency-aware batches.
+1. Execute, test, publish, merge, and close the #1144-#1150 automation sub-plan.
+2. Create and execute the remaining dependency-aware plans.
 3. Record spoke reviews, closure, and final session memory.
