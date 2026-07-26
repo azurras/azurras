@@ -19,7 +19,7 @@ Resolve every currently open issue in `azurras/christopherbell.dev` through curr
 - Project spec: [Complete All Open christopherbell.dev Issues](../specs/2026-07-25-complete-all-open-christopherbell-dev-issues.md) (`ready-for-execution`, approved 2026-07-25).
 - Implementation plans: [GitHub Automation Issues 1144-1150](../implementation-plans/2026-07-25-github-automation-issues-1144-1150.md) (`complete`); [Public Delivery Issues 1122-1124 and 1138](../implementation-plans/2026-07-25-public-delivery-issues-1122-1124-1138.md) (`complete`); [Browser Security Issues 1125-1130](../implementation-plans/2026-07-25-browser-security-issues-1125-1130.md) (`complete`); [Public Content Issues 1131-1137](../implementation-plans/2026-07-25-public-content-issues-1131-1137.md) (`complete`); [Production Foundations Issues 1143, 1151, 1153, and 1154](../implementation-plans/2026-07-25-production-foundations-issues-1143-1151-1153-1154.md) (`complete`); [Request Limits, Rate Limiting, and API Errors Issues 1139-1141 and 1157](../implementation-plans/2026-07-25-request-limits-rate-limiting-api-errors-issues-1139-1141-1157.md) (`complete`); [Accounts, Messages, Notifications, Posts, and Moderation Issues 1155-1168](../implementation-plans/2026-07-26-accounts-messages-notifications-posts-moderation-issues-1155-1168.md) (`complete`).
 
-- Current batch plan: pending selection from #1169-#1181.
+- Current batch plan: [WFL and Location Imports Issues 1169-1175](../implementation-plans/2026-07-26-wfl-location-imports-issues-1169-1175.md) (`ready-for-execution`).
 
 ## Spoke Repositories
 
@@ -80,6 +80,8 @@ Resolve every currently open issue in `azurras/christopherbell.dev` through curr
 - Final `:website:check` passed with 1,155 Java tests, zero failures or errors, three expected skips, and 231 JavaScript tests. Independent final review found no actionable findings.
 - Native SYSTEM auto-deployment replaced production Java listener PID `47288` with `6624`; `/`, `/back-office`, and the new stable feed returned 200, while protected admin APIs correctly returned 403.
 - Issues #1155, #1156, and #1158-#1168 are closed. The campaign has 13 open issues remaining: #1169-#1181.
+- Live inventory reconfirmed #1169-#1181 as the exact remaining issues. The approved specification retains two final batches: WFL/location #1169-#1175, then VIN/scheduling/link previews #1176-#1181.
+- Batch 6 uses clean worktree `A:\Projects\christopherbell.dev-worktrees\wfl-location-imports-1169-1175` on `codex/wfl-location-imports-1169-1175` from merge `5835a3c2`; baseline `:website:check` passed in 1m46s with all 231 JavaScript tests.
 
 ## Blockers
 
