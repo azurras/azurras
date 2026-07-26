@@ -10,7 +10,7 @@ GitHub issues `cbell504/website#1125`, `#1126`, `#1127`, `#1128`, `#1129`, and `
 
 ## Branch
 
-Spoke branch `codex/browser-security-1125-1130`, rebased onto `origin/main` commit `1de1af0d`; verified head `98099a40`.
+Spoke branch `codex/browser-security-1125-1130`, rebased onto `origin/main` commit `1de1af0d`; verified head `98099a40`. [PR #1249](https://github.com/azurras/christopherbell.dev/pull/1249) squash-merged as `b6c361d1d916337679a37f04caa46c3475215e71`.
 
 ## App / Environment
 
@@ -20,7 +20,7 @@ Spoke branch `codex/browser-security-1125-1130`, rebased onto `origin/main` comm
 - Alternate port and base URL: `8090`, `http://localhost:8090`
 - Database: local MongoDB service and the configured `christopherbell` database; runtime checks used anonymous or deliberately unknown account data and did not create or mutate an account
 - Relevant environment: `SPRING_PROFILES_ACTIVE=local`, `SERVER_PORT=8090`, `APP_PUBLIC_BASE_URL=http://localhost:8090`, isolated `GRADLE_USER_HOME=A:\Temp\gradle-browser-security-1125-1130`
-- Production safety: Windows services `MongoDB`, `ChristopherBellDev`, and `cloudflared` remained running. Production stayed on PID `40600`, port `8080`.
+- Production safety: Windows services `MongoDB`, `ChristopherBellDev`, and `cloudflared` remained running. Pre-merge testing never touched port `8080`; the native auto-deploy later switched production from PID `50708` to PID `26680` after the merge.
 
 ## Local Run Details
 
@@ -47,6 +47,8 @@ The first Spring child process under test was PID `50408`; the final post-review
 7. Submit logout with a valid CSRF cookie/header pair and inspect cookie clearing.
 8. Run the full Java, focused browser-security Java, JavaScript, syntax, and diff checks supporting the live results.
 9. Retest dual login compatibility after review: legacy API mode without CSRF, browser cookie mode without CSRF, and browser cookie mode with CSRF.
+10. After merge, inspect the public HTTPS header policy and repeat the login, CSRF, validation, and logout matrix against production.
+11. Refresh an already-authenticated Chrome `/shared` session across the deployment boundary and verify fail-closed migration from the removed localStorage JWT session.
 
 ## Data Sent
 
@@ -79,6 +81,16 @@ HTTP response evidence from the running app:
 - Logout with CSRF: `200` and two clearing headers: `CBELL_AUTH=... Max-Age=0 ... HttpOnly; SameSite=Lax` and `CBELL_AUTH_STATE=... Max-Age=0 ... SameSite=Lax`.
 - Final dual-mode login retest: legacy login without CSRF reached Bean Validation and returned `400`; browser cookie mode without CSRF returned `403`; browser cookie mode with CSRF reached Bean Validation and returned `400`.
 
+Post-merge production evidence from `https://www.christopherbell.dev`:
+
+- Native auto-deploy switched the production listener from PID `50708` to PID `26680`; `/` remained `200` throughout.
+- The public response emits the planned CSP, `Strict-Transport-Security: max-age=31536000; includeSubDomains`, `Permissions-Policy: camera=(), geolocation=(), microphone=(), payment=(), usb=()`, `Referrer-Policy: strict-origin-when-cross-origin`, and `X-Frame-Options: SAMEORIGIN`.
+- `GET /login` returned `200` and established `XSRF-TOKEN`.
+- Malformed legacy API login without CSRF returned `400`; browser cookie-mode login without CSRF returned `403`; the same malformed browser login with a valid token returned `400`.
+- `POST /api/accounts/2024-12-15/create` with blank first and last names and a valid CSRF pair returned `400` with both `NotBlank` failures.
+- Logout with the valid CSRF pair returned `200` and expired `CBELL_AUTH` as `Secure; HttpOnly; SameSite=Lax` plus `CBELL_AUTH_STATE` as `Secure; SameSite=Lax`.
+- Reloading the pre-deployment Chrome `/shared` tab redirected to `/login?redirect=%2Fshared` with no console errors, proving the removed JavaScript-readable JWT is not silently reused after deployment. A fresh cookie login is required by design.
+
 ## Pass / Fail
 
 - PASS: browser security response policy is emitted on a live page.
@@ -89,6 +101,8 @@ HTTP response evidence from the running app:
 - PASS: logout succeeds with CSRF and expires both browser auth cookies.
 - PASS: legacy bearer-token acquisition retains its stateless no-CSRF contract while explicit browser cookie mode remains CSRF protected.
 - PASS: alternate-port process cleanup and production continuity checks succeeded.
+- PASS: the native Windows auto-deploy completed without downtime and the public HTTPS endpoint exposes the production-only HSTS/cookie policy.
+- PASS: a pre-migration browser session fails closed and returns to the intended `/shared` destination after fresh authentication.
 
 ## Evidence
 
@@ -99,9 +113,12 @@ HTTP response evidence from the running app:
 - `node --check` passed for all 22 JavaScript files changed from the rebased `origin/main`.
 - `git diff --check` passed; repository scan found no production `cbellLoginToken`, JavaScript-built bearer header, or token-bearing shared-folder worker path.
 - Live runtime interactions were captured at `2026-07-25 20:15:23 -05:00` through PowerShell `Invoke-WebRequest` sessions against port `8090`.
+- GitHub checks for PR #1249 passed on Windows, macOS, Ubuntu, Dependency Review, and CodeQL for Actions, Java/Kotlin, and JavaScript/TypeScript.
+- Post-merge production interactions were captured from `2026-07-25 20:45:59 -05:00` through `20:47:51 -05:00`, followed by focused public HTTPS requests and Chrome verification.
 
 ## Bugs / Follow-ups
 
 - No application defect remained after testing.
 - The first broad Gradle retry encountered a missing transient binary result file because another invocation overlapped after a shell timeout. The definitive clean, single-worker run with an isolated Gradle home passed. This was a runner artifact race, not a test assertion failure.
 - A successful password login was verified at the controller boundary rather than against the live Mongo database to avoid creating, changing, or exposing production account credentials on the shared host.
+- The pre-deployment signed-in Chrome session cannot survive the intentional localStorage-to-HttpOnly-cookie migration. The user must sign in once after deployment; this is expected migration behavior, not a remaining defect.

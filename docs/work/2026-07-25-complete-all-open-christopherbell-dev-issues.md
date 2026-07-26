@@ -17,7 +17,7 @@ Resolve every currently open issue in `azurras/christopherbell.dev` through curr
 ## Related Specs and Plans
 
 - Project spec: [Complete All Open christopherbell.dev Issues](../specs/2026-07-25-complete-all-open-christopherbell-dev-issues.md) (`ready-for-execution`, approved 2026-07-25).
-- Implementation plans: [GitHub Automation Issues 1144-1150](../implementation-plans/2026-07-25-github-automation-issues-1144-1150.md) (`complete`); [Public Delivery Issues 1122-1124 and 1138](../implementation-plans/2026-07-25-public-delivery-issues-1122-1124-1138.md) (`complete`); remaining dependency-aware plans follow as each sub-batch reaches execution.
+- Implementation plans: [GitHub Automation Issues 1144-1150](../implementation-plans/2026-07-25-github-automation-issues-1144-1150.md) (`complete`); [Public Delivery Issues 1122-1124 and 1138](../implementation-plans/2026-07-25-public-delivery-issues-1122-1124-1138.md) (`complete`); [Browser Security Issues 1125-1130](../implementation-plans/2026-07-25-browser-security-issues-1125-1130.md) (`complete`); remaining dependency-aware plans follow as each sub-batch reaches execution.
 
 ## Spoke Repositories
 
@@ -55,10 +55,13 @@ Resolve every currently open issue in `azurras/christopherbell.dev` through curr
 - Production runs the exact follow-up merge SHA. SEO metadata, bounded probes, versioned assets,
   cache headers, and apex redirects all pass live acceptance.
 - Issues #1122, #1123, #1124, and #1138 are closed. The campaign has 47 open issues remaining.
+- Browser-security PR [#1249](https://github.com/azurras/christopherbell.dev/pull/1249) merged as `b6c361d1d916337679a37f04caa46c3475215e71`; all platform, dependency-review, and CodeQL gates passed.
+- Production auto-deployed the merge to PID `26680`. Public HTTPS headers, CSRF boundaries, DTO validation, cookie clearing, and fail-closed migration from the old browser JWT session passed live acceptance.
+- Issues #1125-#1130 are closed. The campaign has 41 open issues remaining.
 
 ## Blockers
 
-None for the completed public-delivery sub-batch.
+None for the completed browser-security sub-batch. The user needs one fresh browser login after the intentional credential-storage migration; the login tab is already open at the `/shared` return target.
 
 ## Validation
 
@@ -67,6 +70,6 @@ None for the completed public-delivery sub-batch.
 
 ## Next Steps
 
-1. Start the next dependency-aware sub-batch from the 47 remaining issues.
+1. Start the next dependency-aware sub-batch from the 41 remaining issues.
 2. Continue each batch through merge, production acceptance where applicable, and closure.
 3. Record final campaign closure and session memory after all issues are resolved.

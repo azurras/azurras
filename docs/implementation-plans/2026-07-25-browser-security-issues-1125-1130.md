@@ -23,7 +23,10 @@
 
 ## Document Status
 
-ready-for-execution
+complete
+
+Completed in [PR #1249](https://github.com/azurras/christopherbell.dev/pull/1249),
+squash-merged as `b6c361d1d916337679a37f04caa46c3475215e71` on 2026-07-25.
 
 ## Objective
 
