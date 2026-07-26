@@ -10,7 +10,7 @@ complete
 - Worktree: `A:\Projects\christopherbell.dev-worktrees\public-content-1131-1137`
 - Branch: `codex/public-content-1131-1137`
 - Base: `b6c361d1d916337679a37f04caa46c3475215e71`
-- Reviewed head: `4108c5c6f5adf5877f247c2cff4cf543fd7eb1cd`
+- Reviewed head: `f5120784bf4763cbd57666839307be24d209198a`
 - Pull request: [azurras/christopherbell.dev#1251](https://github.com/azurras/christopherbell.dev/pull/1251)
 - Issues: `#1131`, `#1132`, `#1133`, `#1134`, `#1135`, `#1136`, and `#1137`
 
@@ -29,6 +29,8 @@ No remaining Blocker or Warning findings.
 
 The initial review found one blocker: `PhotoProperties` bound `photo-properties.photos` while `application.yml` supplied `photo-properties.images`, leaving the live API empty despite 12 configured entries. Commit `4108c5c6f5adf5877f247c2cff4cf543fd7eb1cd` aligns the key, adds a configuration-context regression with witnessed RED/GREEN evidence, and treats configured `n/a` descriptions as missing alt text so the photo name is used. Independent re-review found the blocker closed and no new findings.
 
+The first CI rerun exposed an environment-bound test-harness defect: `PhotoPropertiesConfigurationTest` used `@SpringBootTest`, discovered the full application, and timed out against unavailable MongoDB on macOS. Commit `f5120784bf4763cbd57666839307be24d209198a` narrows the test to load the real `application.yml` and bind only `PhotoProperties`. The configuration contract remains covered without booting unrelated services; the authoritative local suite and the Ubuntu, macOS, and Windows CI jobs all passed afterward.
+
 ## Validation Checked
 
 - Focused Java public-content suite: 29 passed before review.
@@ -40,7 +42,9 @@ The initial review found one blocker: `PhotoProperties` bound `photo-properties.
 - Browser: 12 gallery images rendered; name fallbacks replaced 11 `n/a` descriptions, the one real description remained, the usage link was present, and console logs were empty.
 - Static checks: JavaScript syntax, `git diff --check`, recursive no-Bootstrap-CDN scan, archive local-asset scan, and no-insecure-image scan passed.
 - Dependency insight selected `org.webjars:bootstrap:5.3.3`; Dependency Review passed on both PR revisions.
+- The final PR head passed Ubuntu, macOS, Windows, Dependency Review, and all CodeQL analyses. Post-merge CI Build and CodeQL also passed on `4b82116a`.
 - Port `8090` was stopped; production PID `26680` on `8080` returned `200` after final local testing.
+- Automatic deployment replaced the live Java listener with PID `29012`. Production HTTPS returned `200` for every target page/API/WebJar asset, both APIs exposed their configured data, all four POST boundary probes remained `403`, and deployed browser checks showed the expected content with no warning/error console entries.
 
 ## House-Style Review
 
@@ -58,4 +62,4 @@ None remaining.
 
 ## Merge Readiness
 
-Ready to merge after the rerun GitHub CI and CodeQL checks on head `4108c5c6` pass.
+Merged through [PR #1251](https://github.com/azurras/christopherbell.dev/pull/1251) as `4b82116a0ed489c74eed144a478f1b3a3944ada2`. All seven source issues closed and production acceptance passed with no known gaps.
