@@ -10,7 +10,7 @@ GitHub issues `cbell504/website#1125`, `#1126`, `#1127`, `#1128`, `#1129`, and `
 
 ## Branch
 
-Spoke branch `codex/browser-security-1125-1130` from `origin/main` commit `08dd78af`.
+Spoke branch `codex/browser-security-1125-1130`, rebased onto `origin/main` commit `1de1af0d`; verified head `98099a40`.
 
 ## App / Environment
 
@@ -34,7 +34,7 @@ $env:GRADLE_USER_HOME='A:\Temp\gradle-browser-security-1125-1130'
 .\gradlew.bat :website:bootRun --no-daemon --no-watch-fs --max-workers=1 --console=plain
 ```
 
-The Spring child process under test was PID `50408`. After all checks, PID `50408` was verified as belonging to this worktree and stopped. A final socket check showed no listener on `8090`; production remained PID `40600` on `8080` and `GET http://localhost:8080/` returned `200`.
+The first Spring child process under test was PID `50408`; the final post-review/rebase process was PID `14672`. Each PID was verified as belonging to this worktree and stopped after its checks. A final socket check showed no listener on `8090`. Production independently advanced from PID `40600` to PID `47220` when a separate mainline update auto-deployed; it remained on `8080`, and `GET http://localhost:8080/` returned `200` after the final cleanup.
 
 ## Test Cases
 
@@ -46,6 +46,7 @@ The Spring child process under test was PID `50408`. After all checks, PID `5040
 6. Request the current-account endpoint anonymously.
 7. Submit logout with a valid CSRF cookie/header pair and inspect cookie clearing.
 8. Run the full Java, focused browser-security Java, JavaScript, syntax, and diff checks supporting the live results.
+9. Retest dual login compatibility after review: legacy API mode without CSRF, browser cookie mode without CSRF, and browser cookie mode with CSRF.
 
 ## Data Sent
 
@@ -57,6 +58,9 @@ The Spring child process under test was PID `50408`. After all checks, PID `5040
 - `POST http://localhost:8090/api/accounts/2024-12-15/password-reset/request` with the CSRF header, `X-Forwarded-Host: evil.example`, `X-Forwarded-Proto: https`, and body `{"email":"nobody-browser-security@example.test"}`
 - `GET http://localhost:8090/api/accounts/2025-09-03/me` in a fresh anonymous web session
 - `POST http://localhost:8090/api/accounts/2024-12-15/logout` with the valid CSRF cookie/header pair
+- `POST http://localhost:8090/api/accounts/2024-12-15/login` without the browser-session header or CSRF and malformed body `{"email":"bad","password":""}`
+- `POST http://localhost:8090/api/accounts/2024-12-15/login` with `X-CBELL-Browser-Session: cookie`, no CSRF header, and syntactically valid unknown credentials
+- The same browser-mode login with the valid CSRF cookie/header pair and malformed body
 
 ## Response Received
 
@@ -73,6 +77,7 @@ HTTP response evidence from the running app:
 - Spoofed-forwarding password-reset request: generic `200`; the focused controller test separately proves the service receives the configured canonical origin rather than either supplied forwarding header.
 - Anonymous current-account request: denied with `403`.
 - Logout with CSRF: `200` and two clearing headers: `CBELL_AUTH=... Max-Age=0 ... HttpOnly; SameSite=Lax` and `CBELL_AUTH_STATE=... Max-Age=0 ... SameSite=Lax`.
+- Final dual-mode login retest: legacy login without CSRF reached Bean Validation and returned `400`; browser cookie mode without CSRF returned `403`; browser cookie mode with CSRF reached Bean Validation and returned `400`.
 
 ## Pass / Fail
 
@@ -82,15 +87,16 @@ HTTP response evidence from the running app:
 - PASS: forwarded-origin spoofing does not change the generic reset workflow; automated boundary verification confirms the configured origin passed to the service.
 - PASS: unauthenticated protected data remains denied.
 - PASS: logout succeeds with CSRF and expires both browser auth cookies.
+- PASS: legacy bearer-token acquisition retains its stateless no-CSRF contract while explicit browser cookie mode remains CSRF protected.
 - PASS: alternate-port process cleanup and production continuity checks succeeded.
 
 ## Evidence
 
 - Focused Java command: `.\gradlew.bat :website:test --tests dev.christopherbell.configuration.JwtAuthenticationFilterTest --tests dev.christopherbell.account.AccountControllerTest --tests dev.christopherbell.sharedfolder.SharedFolderSecurityIntegrationTest --no-daemon` — 46 passed.
-- Full Java command with isolated cache: `.\gradlew.bat :website:cleanTest :website:test --no-daemon --no-watch-fs --max-workers=1 --console=plain` — `BUILD SUCCESSFUL`, 106 suites, 983 tests, 0 failures, 3 skipped.
-- JavaScript command: `.\gradlew.bat :website:jsTest --no-daemon` — 180 passed.
+- Full Java command with isolated cache: `.\gradlew.bat :website:cleanTest :website:test --no-daemon --no-watch-fs --max-workers=1 --console=plain` — final `BUILD SUCCESSFUL`, 108 suites, 999 tests, 0 failures, 3 skipped.
+- JavaScript command: `.\gradlew.bat :website:jsTest --no-daemon` — final post-rebase run 195 passed, including the concurrent mainline audio-metadata coverage.
 - Focused Node commands for browser auth, signup, shared-folder streaming, and worker runtime — 12 passed.
-- `node --check` passed for all 20 touched JavaScript files.
+- `node --check` passed for all 22 JavaScript files changed from the rebased `origin/main`.
 - `git diff --check` passed; repository scan found no production `cbellLoginToken`, JavaScript-built bearer header, or token-bearing shared-folder worker path.
 - Live runtime interactions were captured at `2026-07-25 20:15:23 -05:00` through PowerShell `Invoke-WebRequest` sessions against port `8090`.
 
