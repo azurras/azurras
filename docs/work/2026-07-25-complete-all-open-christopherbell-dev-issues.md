@@ -19,7 +19,7 @@ Resolve every currently open issue in `azurras/christopherbell.dev` through curr
 - Project spec: [Complete All Open christopherbell.dev Issues](../specs/2026-07-25-complete-all-open-christopherbell-dev-issues.md) (`ready-for-execution`, approved 2026-07-25).
 - Implementation plans: [GitHub Automation Issues 1144-1150](../implementation-plans/2026-07-25-github-automation-issues-1144-1150.md) (`complete`); [Public Delivery Issues 1122-1124 and 1138](../implementation-plans/2026-07-25-public-delivery-issues-1122-1124-1138.md) (`complete`); [Browser Security Issues 1125-1130](../implementation-plans/2026-07-25-browser-security-issues-1125-1130.md) (`complete`); [Public Content Issues 1131-1137](../implementation-plans/2026-07-25-public-content-issues-1131-1137.md) (`complete`); [Production Foundations Issues 1143, 1151, 1153, and 1154](../implementation-plans/2026-07-25-production-foundations-issues-1143-1151-1153-1154.md) (`complete`); [Request Limits, Rate Limiting, and API Errors Issues 1139-1141 and 1157](../implementation-plans/2026-07-25-request-limits-rate-limiting-api-errors-issues-1139-1141-1157.md) (`complete`).
 
-- Current batch plan: pending selection from the 26 remaining dependency-aware issues.
+- Current batch plan: [Accounts, Messages, Notifications, Posts, and Moderation Issues 1155-1168](../implementation-plans/2026-07-26-accounts-messages-notifications-posts-moderation-issues-1155-1168.md) (`ready-for-execution`).
 
 ## Spoke Repositories
 
@@ -73,6 +73,9 @@ Resolve every currently open issue in `azurras/christopherbell.dev` through curr
 - Request-boundary PR [#1254](https://github.com/azurras/christopherbell.dev/pull/1254) merged as `ac74bbe30e7392781950bbc1f06f44e196adc46e`; all platform, Dependency Review, and CodeQL gates passed after independent-review commit `fb1f1c55` resolved ordered-expiry, upload-streaming, and rule-identity concerns.
 - Production auto-deployed the merge from Java listener PID `20156` to `47288`. `/` remained 200 and readiness settled from 503 to 200.
 - Issues #1139, #1140, #1141, and #1157 are closed. The campaign has 26 open issues remaining.
+- Live inventory confirmed the exact 26 remaining issues are #1155-#1156 and #1158-#1181. Approved Batch 5 selects #1155, #1156, and #1158-#1168; all 13 are open with no comments or attachments.
+- Batch 5 uses clean worktree `A:\Projects\christopherbell.dev-worktrees\accounts-messages-moderation-1155-1168` on `codex/accounts-messages-moderation-1155-1168` from merge `ac74bbe3`. Its baseline `check` passed in 1m39s with 1,173 Java tests, zero failures, and three expected skips.
+- The Batch 5 implementation plan passed mechanical validation and execution-readiness review. It uses additive page/cursor APIs, durable idempotent deletion, database-owned dedupe/rate guards, compound cursor indexes, and bounded moderation audit records.
 
 ## Blockers
 
