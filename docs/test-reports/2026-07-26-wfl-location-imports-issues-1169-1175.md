@@ -12,7 +12,7 @@ GitHub issues `cbell504/website#1169` through `#1175`.
 
 - Repository: `A:\Projects\christopherbell.dev-worktrees\wfl-location-imports-1169-1175`
 - Branch: `codex/wfl-location-imports-1169-1175`
-- Commits under test: `d61ea463`, `b69f390b`, `54df92ae`, `02112be5`, `7a5b02ee`, and final head `c106eda9`
+- Commits under test: `d61ea463`, `b69f390b`, `54df92ae`, `02112be5`, `7a5b02ee`, `c106eda9`, and final head `a861c4b5`
 - Pull request: `cbell504/website#1256`
 
 ## App / Environment
@@ -118,6 +118,7 @@ PASS. The final candidate enforces preview-before-apply imports and duplicate cl
 - Final `\.\gradlew.bat :website:check`: `BUILD SUCCESSFUL` in 1m 24s.
 - Post-CI-fix `\.\gradlew.bat :website:check` at `c106eda9`: `BUILD SUCCESSFUL` in 1m 25s.
 - `ProgressiveMediaControllerTest.readyDerivativeUsesTheStreamingResponseHandler` passed four forced focused executions after adding the missing async-result wait.
+- `node --test website/src/test/js/wfl-freshness.test.js` passed 2/2 after replacing the CodeQL-reported HTML-filtering regexp assertion with exact escaped-output and raw-tag-absence assertions; `node --check` also passed.
 - Java XML: 1,170 tests, 0 failures, 0 errors, 3 skipped.
 - JavaScript JUnit XML: 233 tests, 0 failures.
 - Changed `back-office.js`, `whats-for-lunch.js`, `wfl-list.js`, and `wfl-freshness.js` passed `node --check`.
@@ -132,5 +133,6 @@ PASS. The final candidate enforces preview-before-apply imports and duplicate cl
 
 - Resolved during runtime testing: the first candidate returned `403` for the intended public freshness API because the global security matcher had not been updated. A focused matcher and anonymous MVC regression test were added; the rebuilt runtime returned `200`, and the browser rendered the freshness UI.
 - Resolved during CI: Ubuntu exposed a pre-existing async MockMvc race in `ProgressiveMediaControllerTest` while the same test passed on macOS. The failure artifact showed Spring Security header mutation racing the mocked body write and raising `ConcurrentModificationException`; waiting for the async result before dispatch removed the race, passed four forced focused runs, and preserved the production implementation unchanged.
+- Resolved during CodeQL review: a test used a lower-case-only regexp to assert that untrusted city text was escaped. The sanitizer itself encoded all angle brackets correctly, but the assertion matched CodeQL's bad-HTML-filter pattern. The test now asserts the exact escaped text and confirms the original raw tag is absent without treating a regexp as an HTML filter.
 - The isolated database intentionally contained no successful OpenStreetMap import, so the final public UI displayed the honest `Not yet imported` state. Successful/failure lifecycle transitions, lease contention, checksum mismatch, and safe error categories are covered by focused automated tests.
 - Authenticated destructive import and duplicate apply operations were not run against production or the empty disposable database. Their operator binding, checksum/version conflict behavior, all-before-any validation, and protected controller boundary are covered by the passing test suites.
