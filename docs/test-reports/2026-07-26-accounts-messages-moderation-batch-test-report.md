@@ -12,7 +12,7 @@ GitHub issues `cbell504/website#1155`, `#1156`, and `#1158` through `#1168`.
 
 - Repository: `A:\Projects\christopherbell.dev-worktrees\accounts-messages-moderation-1155-1168`
 - Branch: `codex/accounts-messages-moderation-1155-1168`
-- Commit under test: `02eba3ba6debbef40e797073e1c7bbe577b2a077`
+- Commit under test: `349ba1c77dd33f2a077750600c7ff3086b31a7b0`
 
 ## App / Environment
 
@@ -20,7 +20,7 @@ GitHub issues `cbell504/website#1155`, `#1156`, and `#1158` through `#1168`.
 - Profile: `local`
 - Base URL: `http://127.0.0.1:8090`
 - Production URL/port preserved during testing: `http://127.0.0.1:8080`
-- Isolated MongoDB database: `codex_batch5_review_20260726`
+- Isolated MongoDB database: `codex_batch5_final_20260726`
 - MongoDB URI: `mongodb://127.0.0.1:27017`
 - Mail delivery: disabled with `APP_MAIL_ENABLED=false`
 - Gradle home: `A:\Projects\.gradle-codex-batch5`
@@ -33,15 +33,15 @@ The app was started from the isolated feature worktree with these explicit setti
 $env:SERVER_PORT='8090'
 $env:SPRING_PROFILES_ACTIVE='local'
 $env:SPRING_MONGODB_URI='mongodb://127.0.0.1:27017'
-$env:SPRING_MONGODB_DATABASE='codex_batch5_review_20260726'
+$env:SPRING_MONGODB_DATABASE='codex_batch5_final_20260726'
 $env:APP_MAIL_ENABLED='false'
 $env:GRADLE_USER_HOME='A:\Projects\.gradle-codex-batch5'
 .\gradlew.bat :website:bootRun --no-daemon
 ```
 
-The final alternate-port application listened as Java PID `57968`. Standard output was captured in
-`build/local-review-8090.log` and standard error in `build/local-review-8090.err.log` inside the
-worktree. PID `57968` was stopped after testing and port `8090` was confirmed free. Production
+The final alternate-port application listened as Java PID `56928`. Standard output was captured in
+`build/local-final-8090.log` and standard error in `build/local-final-8090.err.log` inside the
+worktree. PID `56928` was stopped after testing and port `8090` was confirmed free. Production
 Java PID `47288` remained listening on port `8080` throughout the test.
 
 ## Test Cases
@@ -61,9 +61,9 @@ Java PID `47288` remained listening on port `8080` throughout the test.
 | 11 | Legacy and additive account-deletion routes both preserve their protected boundary | PASS |
 | 12 | Legacy and additive report-submission routes both preserve their protected boundary | PASS |
 | 13 | Deletion removes retained like/edit identity and uses bounded private-state pages | PASS |
-| 14 | Moderation audit retries are durable, idempotent, and redact sensitive reason content | PASS |
+| 14 | Moderation audit retries are durable, idempotent, redact sensitive reason content, and preserve the original actor across a different-admin retry | PASS |
 | 15 | Worker cancellation timeout preserves private media artifacts for retry | PASS |
-| 16 | Failed notification persistence releases dedupe state and expired claims can retry immediately | PASS |
+| 16 | Failed notification persistence releases dedupe state, refunds rate capacity, and expired claims can retry immediately | PASS |
 | 17 | Post edits remain original-author-only, including for administrators | PASS |
 
 ## Data Sent
@@ -145,10 +145,10 @@ compatibility. Production traffic was not interrupted.
 
 ## Evidence
 
-- `./gradlew.bat :website:check` exited `0` on commit `02eba3ba`.
-- Java test XML: 137 suites, 1,154 tests, 0 failures, 0 errors, 3 skipped.
+- `./gradlew.bat :website:check` exited `0` on commit `349ba1c7`.
+- Java test XML: 137 suites, 1,155 tests, 0 failures, 0 errors, 3 skipped.
 - JavaScript tests: 231 passed, 0 failed.
-- Runtime startup log identified local profile, port `8090`, isolated worktree, and PID `57968`.
+- Runtime startup log identified local profile, port `8090`, isolated worktree, and PID `56928`.
 - Focused review-remediation suites passed before the complete check, including account deletion,
   account/report moderation audit, admin activity, notifications, post editing/controllers,
   report controllers, uploads, and media playback.
