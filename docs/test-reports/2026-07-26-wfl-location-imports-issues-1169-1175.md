@@ -12,7 +12,7 @@ GitHub issues `cbell504/website#1169` through `#1175`.
 
 - Repository: `A:\Projects\christopherbell.dev-worktrees\wfl-location-imports-1169-1175`
 - Branch: `codex/wfl-location-imports-1169-1175`
-- Commits under test: `d61ea463`, `b69f390b`, `54df92ae`, `02112be5`, and final head `7a5b02ee`
+- Commits under test: `d61ea463`, `b69f390b`, `54df92ae`, `02112be5`, `7a5b02ee`, and final head `c106eda9`
 - Pull request: `cbell504/website#1256`
 
 ## App / Environment
@@ -59,6 +59,7 @@ The first diagnostic process was PID `46368`. It exposed a global-security allow
 | 13 | Protected import and dedupe operator APIs reject anonymous callers | PASS |
 | 14 | Browser renders freshness on picks and top-rated pages without console errors | PASS |
 | 15 | Candidate shutdown, disposable database cleanup, and production isolation | PASS |
+| 16 | Async media controller test waits for streaming completion before dispatch assertions | PASS |
 
 ## Data Sent
 
@@ -115,6 +116,8 @@ PASS. The final candidate enforces preview-before-apply imports and duplicate cl
 ## Evidence
 
 - Final `\.\gradlew.bat :website:check`: `BUILD SUCCESSFUL` in 1m 24s.
+- Post-CI-fix `\.\gradlew.bat :website:check` at `c106eda9`: `BUILD SUCCESSFUL` in 1m 25s.
+- `ProgressiveMediaControllerTest.readyDerivativeUsesTheStreamingResponseHandler` passed four forced focused executions after adding the missing async-result wait.
 - Java XML: 1,170 tests, 0 failures, 0 errors, 3 skipped.
 - JavaScript JUnit XML: 233 tests, 0 failures.
 - Changed `back-office.js`, `whats-for-lunch.js`, `wfl-list.js`, and `wfl-freshness.js` passed `node --check`.
@@ -128,5 +131,6 @@ PASS. The final candidate enforces preview-before-apply imports and duplicate cl
 ## Bugs / Follow-ups
 
 - Resolved during runtime testing: the first candidate returned `403` for the intended public freshness API because the global security matcher had not been updated. A focused matcher and anonymous MVC regression test were added; the rebuilt runtime returned `200`, and the browser rendered the freshness UI.
+- Resolved during CI: Ubuntu exposed a pre-existing async MockMvc race in `ProgressiveMediaControllerTest` while the same test passed on macOS. The failure artifact showed Spring Security header mutation racing the mocked body write and raising `ConcurrentModificationException`; waiting for the async result before dispatch removed the race, passed four forced focused runs, and preserved the production implementation unchanged.
 - The isolated database intentionally contained no successful OpenStreetMap import, so the final public UI displayed the honest `Not yet imported` state. Successful/failure lifecycle transitions, lease contention, checksum mismatch, and safe error categories are covered by focused automated tests.
 - Authenticated destructive import and duplicate apply operations were not run against production or the empty disposable database. Their operator binding, checksum/version conflict behavior, all-before-any validation, and protected controller boundary are covered by the passing test suites.
