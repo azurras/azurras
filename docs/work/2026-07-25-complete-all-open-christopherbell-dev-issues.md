@@ -17,9 +17,9 @@ Resolve every currently open issue in `azurras/christopherbell.dev` through curr
 ## Related Specs and Plans
 
 - Project spec: [Complete All Open christopherbell.dev Issues](../specs/2026-07-25-complete-all-open-christopherbell-dev-issues.md) (`ready-for-execution`, approved 2026-07-25).
-- Implementation plans: [GitHub Automation Issues 1144-1150](../implementation-plans/2026-07-25-github-automation-issues-1144-1150.md) (`complete`); [Public Delivery Issues 1122-1124 and 1138](../implementation-plans/2026-07-25-public-delivery-issues-1122-1124-1138.md) (`complete`); [Browser Security Issues 1125-1130](../implementation-plans/2026-07-25-browser-security-issues-1125-1130.md) (`complete`); [Public Content Issues 1131-1137](../implementation-plans/2026-07-25-public-content-issues-1131-1137.md) (`complete`); [Production Foundations Issues 1143, 1151, 1153, and 1154](../implementation-plans/2026-07-25-production-foundations-issues-1143-1151-1153-1154.md) (`complete`); [Request Limits, Rate Limiting, and API Errors Issues 1139-1141 and 1157](../implementation-plans/2026-07-25-request-limits-rate-limiting-api-errors-issues-1139-1141-1157.md) (`complete`).
+- Implementation plans: [GitHub Automation Issues 1144-1150](../implementation-plans/2026-07-25-github-automation-issues-1144-1150.md) (`complete`); [Public Delivery Issues 1122-1124 and 1138](../implementation-plans/2026-07-25-public-delivery-issues-1122-1124-1138.md) (`complete`); [Browser Security Issues 1125-1130](../implementation-plans/2026-07-25-browser-security-issues-1125-1130.md) (`complete`); [Public Content Issues 1131-1137](../implementation-plans/2026-07-25-public-content-issues-1131-1137.md) (`complete`); [Production Foundations Issues 1143, 1151, 1153, and 1154](../implementation-plans/2026-07-25-production-foundations-issues-1143-1151-1153-1154.md) (`complete`); [Request Limits, Rate Limiting, and API Errors Issues 1139-1141 and 1157](../implementation-plans/2026-07-25-request-limits-rate-limiting-api-errors-issues-1139-1141-1157.md) (`complete`); [Accounts, Messages, Notifications, Posts, and Moderation Issues 1155-1168](../implementation-plans/2026-07-26-accounts-messages-notifications-posts-moderation-issues-1155-1168.md) (`complete`).
 
-- Current batch plan: [Accounts, Messages, Notifications, Posts, and Moderation Issues 1155-1168](../implementation-plans/2026-07-26-accounts-messages-notifications-posts-moderation-issues-1155-1168.md) (`ready-for-execution`).
+- Current batch plan: pending selection from #1169-#1181.
 
 ## Spoke Repositories
 
@@ -76,6 +76,10 @@ Resolve every currently open issue in `azurras/christopherbell.dev` through curr
 - Live inventory confirmed the exact 26 remaining issues are #1155-#1156 and #1158-#1181. Approved Batch 5 selects #1155, #1156, and #1158-#1168; all 13 are open with no comments or attachments.
 - Batch 5 uses clean worktree `A:\Projects\christopherbell.dev-worktrees\accounts-messages-moderation-1155-1168` on `codex/accounts-messages-moderation-1155-1168` from merge `ac74bbe3`. Its baseline `check` passed in 1m39s with 1,173 Java tests, zero failures, and three expected skips.
 - The Batch 5 implementation plan passed mechanical validation and execution-readiness review. It uses additive page/cursor APIs, durable idempotent deletion, database-owned dedupe/rate guards, compound cursor indexes, and bounded moderation audit records.
+- Batch 5 PR [#1255](https://github.com/azurras/christopherbell.dev/pull/1255) passed all CI and CodeQL gates and merged as `5835a3c2b1dc032413e027568583859b9094ab9d` from final branch head `349ba1c77dd33f2a077750600c7ff3086b31a7b0`.
+- Final `:website:check` passed with 1,155 Java tests, zero failures or errors, three expected skips, and 231 JavaScript tests. Independent final review found no actionable findings.
+- Native SYSTEM auto-deployment replaced production Java listener PID `47288` with `6624`; `/`, `/back-office`, and the new stable feed returned 200, while protected admin APIs correctly returned 403.
+- Issues #1155, #1156, and #1158-#1168 are closed. The campaign has 13 open issues remaining: #1169-#1181.
 
 ## Blockers
 
@@ -89,5 +93,5 @@ None. Docker is unavailable on this native-Mongo host, but the Compose contract 
 ## Next Steps
 
 1. Reconcile the live open-issue inventory against the approved campaign spec.
-2. Select and plan the next coherent dependency-aware batch from the 26 remaining issues.
+2. Select and plan the next coherent dependency-aware batch from the 13 remaining issues, #1169-#1181.
 3. Continue the same local verification, PR/CI, merge, production acceptance, and Builder closure loop without routine approval pauses.
