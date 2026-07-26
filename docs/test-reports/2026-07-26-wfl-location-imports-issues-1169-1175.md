@@ -12,7 +12,7 @@ GitHub issues `cbell504/website#1169` through `#1175`.
 
 - Repository: `A:\Projects\christopherbell.dev-worktrees\wfl-location-imports-1169-1175`
 - Branch: `codex/wfl-location-imports-1169-1175`
-- Commits under test: `d61ea463`, `b69f390b`, `54df92ae`, and final head `02112be5`
+- Commits under test: `d61ea463`, `b69f390b`, `54df92ae`, `02112be5`, and final head `7a5b02ee`
 - Pull request: `cbell504/website#1256`
 
 ## App / Environment
@@ -114,13 +114,14 @@ PASS. The final candidate enforces preview-before-apply imports and duplicate cl
 
 ## Evidence
 
-- Final `\.\gradlew.bat :website:check`: `BUILD SUCCESSFUL` in 1m 25s.
-- Java XML: 1,168 tests, 0 failures, 0 errors, 3 skipped.
+- Final `\.\gradlew.bat :website:check`: `BUILD SUCCESSFUL` in 1m 24s.
+- Java XML: 1,170 tests, 0 failures, 0 errors, 3 skipped.
 - JavaScript JUnit XML: 233 tests, 0 failures.
 - Changed `back-office.js`, `whats-for-lunch.js`, `wfl-list.js`, and `wfl-freshness.js` passed `node --check`.
 - `git diff --check` passed before commits.
 - Final packaged runtime PID `53472` started on `8091` with isolated database `christopherbell_batch6_smoke_2`.
 - Browser evidence confirmed the freshness landmark and 47-city summary on `/wfl` and `/wfl/top-rated`, with an empty error-console result.
+- Independent diff review added an in-loop renewable lease guard; focused tests prove a long-running apply renews again before later writes and checks ownership before every candidate mutation.
 - Both disposable MongoDB databases returned `{ ok: 1, dropped: ... }` during cleanup.
 - Candidate PID `53472` was stopped; production root continued to return `200`.
 
