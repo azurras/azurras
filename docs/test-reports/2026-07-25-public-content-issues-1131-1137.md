@@ -59,7 +59,7 @@ Acceptance requests were captured on `2026-07-25` between approximately `21:20` 
 - `GET /blog`: `200 text/html`, length `2912`.
 - `GET /api/blog/v1/posts`: `200 application/json`, length `280`, `success=true`, with `payload.posts` containing the configured `test blog` post.
 - `GET /photos`: `200 text/html`, length `2776`.
-- `GET /api/photo/v1`: `200 application/json`, length `73`, body `{"messages":null,"payload":{"images":[]},"requestId":null,"success":true}`.
+- Initial `GET /api/photo/v1`: `200 application/json` with an empty `payload.images`, which exposed the configuration-binding defect during review. After correction, the same endpoint returned `success=true` with all 12 configured photos; the first was `The River Walk - San Antonio` at `/images/photos/IMG_0072.jpeg`.
 - `GET /photos/usage`: `200 text/html`, length `2475`.
 - `GET /thebell`: `200 text/html`, length `7058`; `GET /thebell/tony`: `200 text/html`, length `3026`.
 - WebJar CSS: `200 text/css`, length `232800`, identifies Bootstrap `v5.3.3`.
@@ -67,7 +67,7 @@ Acceptance requests were captured on `2026-07-25` between approximately `21:20` 
 - All four equivalent POST probes returned `403` with empty response bodies.
 - Local CSP narrowed to `script-src 'self'` and removed jsDelivr from `style-src`; `X-Frame-Options` remained `SAMEORIGIN`.
 - Browser blog text was `test blogAuthor: TestTest Content`; the final screenshot showed the post rendered inside the public blog page with Bootstrap styling and zero console messages.
-- The gallery exposed `href="/photos/usage"`; the usage page rendered its consent text and zero console messages.
+- The final gallery rendered all 12 configured images and exposed `href="/photos/usage"`; the first three alt values used their photo names instead of the `n/a` sentinel, the one real description remained preferred, and the first JPEG returned `200 image/jpeg` with length `4770189`. The gallery and usage page emitted zero console messages.
 - Tony exposed three article images, no empty/numeric links, no insecure image sources, the versioned local `K-On.jpg` favicon, and zero console messages.
 - The active `main.css` stylesheet contained an imported `/webjars/bootstrap/5.3.3/css/bootstrap.min.css` rule.
 
@@ -77,7 +77,7 @@ Acceptance requests were captured on `2026-07-25` between approximately `21:20` 
 - PASS: API/WebJar public access is GET-only; mutation-shaped probes are denied.
 - PASS: the blog component renders after both raw-envelope and shared-`fetchJson` payload normalization.
 - PASS: unsupported tag controls and polling are removed.
-- PASS: gallery envelope parsing and alt fallback contracts are executable; the configured local gallery is empty, so live alt attributes were validated by unit partition rather than fixture mutation.
+- PASS: gallery configuration binding, envelope parsing, and alt fallback contracts are executable and proved against all 12 live configured records.
 - PASS: the photography usage route is public and linked.
 - PASS: archive invalid links, missing favicon, insecure image sources, and stray markers are removed.
 - PASS: Bootstrap is pinned and self-hosted with no jsDelivr Bootstrap reference in application resources.
@@ -90,7 +90,7 @@ Acceptance requests were captured on `2026-07-25` between approximately `21:20` 
 - Browser-discovered RED after the first automated GREEN: the blog host contained only `<div class="blogPosts"></div>` because `fetchJson` had already unwrapped `payload`; the added unwrapped-payload assertions failed before the one-line-per-normalizer fix and passed afterward.
 - Focused Java command covering `BlogControllerTest`, `PhotoControllerTest`, `SecurityConfigTest`, and `ViewControllerTest`: 29 passed.
 - Focused Node command `node --test website/src/test/js/public-content.test.js`: 4 passed after witnessed RED failures.
-- Final full Java command `:website:test`: 108 suites, 1002 tests, 0 failures, 3 skipped.
+- Final single-worker `cleanTest + check`: 108 suites, 1003 Java tests, 0 failures, 3 skipped; it includes the new application-configuration binding regression.
 - Final full JavaScript command `:website:jsTest`: 199 passed, 0 failed.
 - Final `:website:check`: `BUILD SUCCESSFUL`; included `bootJar`, full tests, JavaScript tests, and `verifySensorRuntime`.
 - `dependencyInsight` selected exactly `org.webjars:bootstrap:5.3.3` on `runtimeClasspath`; the repository has no Gradle verification metadata and relies on its existing Dependency Review CI workflow plus Dependabot.
@@ -100,5 +100,7 @@ Acceptance requests were captured on `2026-07-25` between approximately `21:20` 
 ## Bugs / Follow-ups
 
 - Fixed during local browser testing: the first implementation double-unwrapped the API response because `fetchJson` already returns `data.payload`. The regression now covers both the raw response envelope and the shared-helper payload shape.
-- The local profile's unrelated startup-time OpenStreetMap catch-up listener fetched candidates and logged a duplicate-key write failure for an existing normalized restaurant name. This did not affect the tested public-content routes or production availability, but future alternate-port runs should suppress scheduled/import startup work or use an isolated database when the repository provides that boundary.
+- Fixed after independent review: `PhotoProperties` expected `photo-properties.photos` while `application.yml` supplied `photo-properties.images`. A witnessed failing configuration-context test now proves the application file binds photos, and live HTTP/browser verification proves all 12 reach the gallery.
+- The first local run's unrelated startup-time OpenStreetMap catch-up listener fetched candidates and logged a duplicate-key write failure for an existing normalized restaurant name. Final gallery retesting set the supported `WFL_RESTAURANT_IMPORT_MONTHLY_ENABLED=false` boundary, so the unrelated import did not run.
+- One full-check attempt overlapped a still-running invocation after a shell timeout and reported a missing Gradle binary result file. The authoritative no-overlap command used `cleanTest`, `--max-workers=1`, and disabled file watching; it passed in 2m 3s.
 - The worktree continues to show the pre-existing `gradlew.bat` LF-to-CRLF checkout-only difference. It is excluded from the spoke commit.
