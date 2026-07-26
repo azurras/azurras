@@ -11,8 +11,9 @@ complete
   `A:\Projects\christopherbell.dev-worktrees\production-foundations-1143-1154`
 - Branch: `codex/production-foundations-1143-1154`
 - Base: `4b82116a0ed489c74eed144a478f1b3a3944ada2`
-- Reviewed head: final staged pre-commit diff against the base; implementation
-  commit and PR will be appended after publication.
+- Reviewed head: `4e767dfd87a03f873114d496600f1a68d8f560c6`.
+- Pull request: [#1252](https://github.com/azurras/christopherbell.dev/pull/1252),
+  squash-merged as `965b25bb3e703a2e67a5064d777a9ab1998f26a1`.
 - Issues: `#1143`, `#1151`, `#1153`, and `#1154`
 
 ## Scope Reviewed
@@ -100,8 +101,9 @@ categories only.
   exact-record inspection, and a bounded single-record action.
 - Local Compose syntax could not be passed through the Docker CLI on this host.
   Cross-platform CI and the YAML structural regression remain required gates.
-- Production migration execution has not occurred yet. Guarded deployment and
-  production database inspection remain closure gates after merge.
+- Production migration execution completed successfully. Read-only inspection
+  proved exactly one APPLIED V001 record, both named indexes, and a released
+  ownerless lease.
 - `gradlew.bat` has a checkout-only line-ending difference. It is unstaged and
   absent from the reviewed diff.
 
@@ -111,6 +113,6 @@ None remaining.
 
 ## Merge Readiness
 
-Ready for an intentional spoke commit and PR after this Builder review
-checkpoint is committed. Merge remains gated on Ubuntu, macOS, Windows,
-Dependency Review, CodeQL, and guarded production acceptance.
+Complete. The implementation and deterministic timing-test repair passed
+Ubuntu, macOS, Windows, Dependency Review, and CodeQL, merged through PR #1252,
+and passed guarded production acceptance on Java listener PID `30976`.

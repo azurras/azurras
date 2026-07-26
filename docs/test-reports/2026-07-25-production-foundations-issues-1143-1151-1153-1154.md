@@ -165,16 +165,37 @@ acceptance occurred on `2026-07-25` between approximately `22:55` and
 
 ## Bugs / Follow-ups
 
-- One baseline full Java run had the unrelated timing test
-  `CommandCenterMetricsServiceTest.timedOutInterruptIgnoringProviderIsNotResubmittedUntilItsInvocationCompletes`
-  miss its handoff once; the complete 12-test class passed immediately before
-  batch edits. Both final full runs passed that test in the 1,030-test suite.
+- The baseline command-center timing race recurred once on the first macOS PR
+  run. Commit `4e767dfd87a03f873114d496600f1a68d8f560c6` replaced the provider-side
+  pre-return latch with a single-worker executor barrier, which proves the
+  timed-out service wrapper has actually completed before resubmission. The
+  exact method, all 12 owning tests, and the full 1,030-test local suite passed;
+  the fresh macOS, Ubuntu, and Windows CI matrix passed on that commit.
 - The worktree retains the checkout-only `gradlew.bat` line-ending difference.
   It must remain excluded from the spoke commit.
-- PR, CI, merge, issue closure, automatic deployment, and production migration
-  acceptance remain to be appended.
+- Docker remains unavailable on this host; the checked structural Compose test
+  is the acceptance evidence for that contract.
 
 ## Publication and Closure
 
-Pending spoke review, commit/push, PR, CI, merge, issue closure, guarded
-deployment, and production acceptance.
+- Implementation commit: `257e2f656c030aa585b99cb07d58d96489a980b4`.
+- CI race repair: `4e767dfd87a03f873114d496600f1a68d8f560c6`.
+- [PR #1252](https://github.com/azurras/christopherbell.dev/pull/1252)
+  passed Dependency Review, CodeQL for Actions, Java/Kotlin, and
+  JavaScript/TypeScript, plus Java 25 builds on Ubuntu, macOS, and Windows.
+- PR #1252 squash-merged to `main` as
+  `965b25bb3e703a2e67a5064d777a9ab1998f26a1` on 2026-07-25 local time.
+- Issues #1143, #1151, #1153, and #1154 closed automatically from the merged
+  PR.
+- Guarded production deployment replaced Java listener PID `29012` with
+  `30976`. During startup readiness briefly returned 503 as expected, then
+  reached 200; `/` remained 200 and the Windows service remained Running.
+- Read-only production Mongo inspection found exactly one APPLIED
+  `001-ensure-migration-infrastructure` record with checksum
+  `aec77e3e8cf68bf8d67f239ee0e842fbdad26ea9766ab04cbc3d74dd9ad93876`,
+  the `migration_status_completed` and `lease_expiry` indexes, and a released
+  `application-migrations` lease with no owner token and epoch expiry.
+- The deployed HTML references assets under the exact merge SHA namespace
+  `965b25bb3e703a2e67a5064d777a9ab1998f26a1`.
+
+Overall result: PASS. No remaining batch blocker or acceptance gap.
