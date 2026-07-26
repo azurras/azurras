@@ -17,7 +17,7 @@ Resolve every currently open issue in `azurras/christopherbell.dev` through curr
 ## Related Specs and Plans
 
 - Project spec: [Complete All Open christopherbell.dev Issues](../specs/2026-07-25-complete-all-open-christopherbell-dev-issues.md) (`ready-for-execution`, approved 2026-07-25).
-- Implementation plans: [GitHub Automation Issues 1144-1150](../implementation-plans/2026-07-25-github-automation-issues-1144-1150.md) (`complete`); [Public Delivery Issues 1122-1124 and 1138](../implementation-plans/2026-07-25-public-delivery-issues-1122-1124-1138.md) (`blocked` on Cloudflare authentication after green implementation/CI); remaining dependency-aware plans follow as each sub-batch reaches execution.
+- Implementation plans: [GitHub Automation Issues 1144-1150](../implementation-plans/2026-07-25-github-automation-issues-1144-1150.md) (`complete`); [Public Delivery Issues 1122-1124 and 1138](../implementation-plans/2026-07-25-public-delivery-issues-1122-1124-1138.md) (`complete`); remaining dependency-aware plans follow as each sub-batch reaches execution.
 
 ## Spoke Repositories
 
@@ -48,11 +48,17 @@ Resolve every currently open issue in `azurras/christopherbell.dev` through curr
 - Public-delivery PR [#1245](https://github.com/azurras/christopherbell.dev/pull/1245) is implemented at `550ae1f36f0c88295eafce4d9bf531772c83149e`; all CI, CodeQL, and Dependency Review gates pass.
 - Local port-8091 acceptance proved public metadata, bounded probes, release-scoped asset URLs, and cache headers; 240 of 244 Windows deployment tests pass with four environment-only skips.
 - Independent review found no code defects. Merge is held because the apex hostname still returns 404 and would correctly fail the new two-host deployment gate.
+- Cloudflare now redirects apex paths and query strings to canonical `www`, and its browser cache
+  policy respects origin headers.
+- PR #1245 merged as `c0ccb88bf8666fa1014d2568ce772f48ac538705`; follow-up PR #1246 fixed
+  the live `/dev/` asset namespace and merged as `193761d4e0b69240188b8d053de4c9ba4115e339`.
+- Production runs the exact follow-up merge SHA. SEO metadata, bounded probes, versioned assets,
+  cache headers, and apex redirects all pass live acceptance.
+- Issues #1122, #1123, #1124, and #1138 are closed. The campaign has 47 open issues remaining.
 
 ## Blockers
 
-- Cloudflare dashboard authentication is required to create and verify the apex-to-`www` route for
-  PR #1245. A Chrome login tab is open; no repository or production-code defect remains.
+None for the completed public-delivery sub-batch.
 
 ## Validation
 
@@ -61,6 +67,6 @@ Resolve every currently open issue in `azurras/christopherbell.dev` through curr
 
 ## Next Steps
 
-1. Authenticate Cloudflare, correct and verify apex routing, then merge/deploy PR #1245 and close #1122-#1124 and #1138.
-2. Continue the remaining dependency-aware plans through merge and closure.
-3. Record spoke reviews, closure, and final session memory.
+1. Start the next dependency-aware sub-batch from the 47 remaining issues.
+2. Continue each batch through merge, production acceptance where applicable, and closure.
+3. Record final campaign closure and session memory after all issues are resolved.

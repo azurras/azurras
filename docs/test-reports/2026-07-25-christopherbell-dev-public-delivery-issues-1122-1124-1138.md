@@ -4,8 +4,8 @@
 
 complete
 
-This report covers the isolated local runtime checkpoint for issues #1122, #1123, #1124, and
-#1138. Pull-request, production, and issue-closure checkpoints remain separate.
+This report covers isolated local and final production acceptance for issues #1122, #1123,
+#1124, and #1138.
 
 ## Story/Issue
 
@@ -25,6 +25,8 @@ This report covers the isolated local runtime checkpoint for issues #1122, #1123
 - Branch: `codex/public-delivery-1122-1124-1138`
 - Commits: `c5b189c517f3f1fe44d7f0542595aa9d14c3221b` and
   `550ae1f36f0c88295eafce4d9bf531772c83149e`
+- Production merges: `c0ccb88bf8666fa1014d2568ce772f48ac538705` and follow-up asset-version
+  fix `193761d4e0b69240188b8d053de4c9ba4115e339`
 - Base: `origin/main` at `1c4a532b`
 
 ## App / Environment
@@ -105,6 +107,30 @@ test failed four contract groups before implementation, and the deployment suite
 public-host/route checks before the new behavior was added. Runtime testing then found and drove
 fixes for release-scoped security matchers and servlet filter ordering/header canonicalization.
 
+Production testing then found that the installed Windows service did not inherit `GIT_COMMIT`,
+causing `/dev/` asset URLs. A test-first follow-up made the packaged configuration embed its exact
+checkout SHA. The regression test failed before the fix and all seven focused tests passed after it.
+The follow-up clean build passed all 21 tasks in 4 minutes 53 seconds.
+
+## Production Acceptance
+
+- PR #1245 merged and auto-deployed; all Windows, macOS, Linux, Dependency Review, and CodeQL
+  checks passed.
+- PR #1246 merged as `193761d4e0b69240188b8d053de4c9ba4115e339`; the same complete check
+  matrix passed.
+- Live `/` and `/blog` return 200. `robots.txt` and `sitemap.xml` return 200 with canonical
+  `www` URLs.
+- Live liveness and readiness return 200 with detail-free `{"status":"UP"}`; aggregate health
+  remains protected with 403.
+- Live home markup references
+  `/193761d4e0b69240188b8d053de4c9ba4115e339/css/main.css`.
+- The exact versioned asset returns 200 with
+  `Cache-Control: public, max-age=31536000, immutable`; the direct asset returns 200 with
+  `Cache-Control: public, max-age=3600`.
+- Cloudflare Browser Cache TTL is now `Respect Existing Headers`; `robots.txt` consequently
+  exposes the origin `Cache-Control: no-cache` contract instead of the former four-hour override.
+- Apex `/blog?utm_source=codex` returns 301 to the identical `www` path and query string.
+
 ## Evidence
 
 - `PublicDeliveryConfigurationTest`: 6/6 focused tests passed.
@@ -119,8 +145,8 @@ fixes for release-scoped security matchers and servlet filter ordering/header ca
 
 ## Bugs / Follow-ups
 
-No local acceptance defect remains for these four issues. Existing protected production
-configuration now derives the apex route from the canonical `www` URL without rewriting the
-secret-bearing file. The apex-host Cloudflare routing or canonical redirect must still be
-completed before deployment, followed by live two-host verification. Pull-request checks,
-merge, production rollout, issue closure, and Builder campaign closeout remain.
+No acceptance defect remains for these four issues. Existing protected production configuration
+derives the apex route from the canonical `www` URL without rewriting the secret-bearing file.
+Independent follow-up review noted that the packaged-config unit assertion proves a 40-hex shape
+rather than equality to HEAD; generated-resource inspection, isolated-JAR HTTP testing, and live
+exact-merge-SHA verification provide the stricter evidence for this release.
