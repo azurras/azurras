@@ -94,6 +94,10 @@ Witnessed compile RED for the missing typed request/error-writer APIs, ten exact
 
 An independent code review identified three important boundary concerns: linear rate-bucket cleanup under a global lock, heap buffering of unknown-length shared-upload chunks, and duplicate rule names sharing bucket identity. Focused RED tests reproduced the latter two concerns; existing characterization tests protected the store refactor. The final implementation uses ordered expiry plus access-ordered bounded eviction, preserves streaming for the feature-owned shared-upload route, validates unique rule names, and includes rule index in bucket identity.
 
+### 6. Merged production acceptance
+
+After every required GitHub check passed, PR #1254 squash-merged as `ac74bbe30e7392781950bbc1f06f44e196adc46e`. The protected native Windows auto-deployer replaced the port-8080 Java listener PID `20156` with PID `47288`. The root endpoint remained `200`; readiness briefly returned `503` during initialization and then returned `200` on the next poll.
+
 ## Data Sent
 
 ### Known-length 413
@@ -164,6 +168,7 @@ An independent code review identified three important boundary concerns: linear 
 | Typed service failures | PASS | Ten targeted operational paths preserve causes in `ServiceUnavailableException` or `InternalServiceException`; safe global mappings pass. |
 | Full repository regression | PASS | `cleanTest check` completed successfully on the final tree. |
 | Cleanup and production isolation | PASS | Final-head PID `50588` stopped, its disposable database was dropped, port `8090` released, and production PID `20156` remained on `8080`. |
+| PR, merge, and production | PASS | All eight required checks passed, PR #1254 merged, four issues closed, and the native deployment settled healthy on PID `47288`. |
 
 ## Evidence
 
@@ -178,10 +183,12 @@ An independent code review identified three important boundary concerns: linear 
 - Runtime root smoke: `GET http://127.0.0.1:8090/` returned `200` before acceptance requests.
 - Final-head runtime evidence on `fb1f1c55`: known-length `413`, raw chunked `413`, first small login `400`, second small login `429` with `Retry-After: 5`, `X-RateLimit-Limit: 1`, `X-RateLimit-Remaining: 0`, and `X-RateLimit-Reset: 1785044428`.
 - Cleanup evidence: MongoDB returned `{ ok: 1, dropped: 'christopherbell_request_limits_final_20260726003951' }`; final listener enumeration retained only `8080 -> PID 20156`.
+- GitHub evidence: Ubuntu, macOS, Windows, Dependency Review, Actions analysis, Java/Kotlin analysis, JavaScript/TypeScript analysis, and aggregate CodeQL all passed on final head `fb1f1c55`.
+- Production evidence: PR #1254 squash-merged as `ac74bbe3`; listener `8080` changed from PID `20156` to `47288`, `/` returned `200`, and `/actuator/health/readiness` settled from `503` to `200`.
 
 ## Bugs / Follow-ups
 
 - Resolved during testing: the first raw chunked request returned `400 REQUEST_ERROR` because a malformed JSON parser stopped before the streaming wrapper observed limit-plus-one bytes. A focused RED test reproduced that downstream early-reader path. Unknown-length bodies now pre-read at most limit-plus-one bytes and replay only accepted bodies; the corrected raw request returned `413`.
 - Resolved during full regression: MVC slices initially failed because the servlet writer used the legacy Jackson 2 mapper type. Switching to the application-native Jackson 3 `tools.jackson.databind.ObjectMapper` restored all 13 affected tests.
 - Resolved after independent review: rate-bucket expiration now uses an expiry-ordered index instead of an all-bucket scan, unknown-length shared-upload chunks preserve their existing streaming contract, and duplicate configured rule names cannot share bucket state.
-- No known acceptance gap remains. Production deployment is intentionally deferred until the PR is merged and CI is green.
+- No known acceptance gap remains. Protected SYSTEM release metadata correctly remained unreadable from the non-elevated session; the post-merge listener transition and public root/readiness probes provide deployment evidence without bypassing that boundary.

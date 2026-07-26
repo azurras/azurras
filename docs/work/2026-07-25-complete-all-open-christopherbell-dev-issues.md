@@ -17,9 +17,9 @@ Resolve every currently open issue in `azurras/christopherbell.dev` through curr
 ## Related Specs and Plans
 
 - Project spec: [Complete All Open christopherbell.dev Issues](../specs/2026-07-25-complete-all-open-christopherbell-dev-issues.md) (`ready-for-execution`, approved 2026-07-25).
-- Implementation plans: [GitHub Automation Issues 1144-1150](../implementation-plans/2026-07-25-github-automation-issues-1144-1150.md) (`complete`); [Public Delivery Issues 1122-1124 and 1138](../implementation-plans/2026-07-25-public-delivery-issues-1122-1124-1138.md) (`complete`); [Browser Security Issues 1125-1130](../implementation-plans/2026-07-25-browser-security-issues-1125-1130.md) (`complete`); [Public Content Issues 1131-1137](../implementation-plans/2026-07-25-public-content-issues-1131-1137.md) (`complete`); [Production Foundations Issues 1143, 1151, 1153, and 1154](../implementation-plans/2026-07-25-production-foundations-issues-1143-1151-1153-1154.md) (`complete`).
+- Implementation plans: [GitHub Automation Issues 1144-1150](../implementation-plans/2026-07-25-github-automation-issues-1144-1150.md) (`complete`); [Public Delivery Issues 1122-1124 and 1138](../implementation-plans/2026-07-25-public-delivery-issues-1122-1124-1138.md) (`complete`); [Browser Security Issues 1125-1130](../implementation-plans/2026-07-25-browser-security-issues-1125-1130.md) (`complete`); [Public Content Issues 1131-1137](../implementation-plans/2026-07-25-public-content-issues-1131-1137.md) (`complete`); [Production Foundations Issues 1143, 1151, 1153, and 1154](../implementation-plans/2026-07-25-production-foundations-issues-1143-1151-1153-1154.md) (`complete`); [Request Limits, Rate Limiting, and API Errors Issues 1139-1141 and 1157](../implementation-plans/2026-07-25-request-limits-rate-limiting-api-errors-issues-1139-1141-1157.md) (`complete`).
 
-- Current batch plan: pending selection from the 30 remaining dependency-aware issues.
+- Current batch plan: pending selection from the 26 remaining dependency-aware issues.
 
 ## Spoke Repositories
 
@@ -70,10 +70,13 @@ Resolve every currently open issue in `azurras/christopherbell.dev` through curr
 - Production-foundations PR [#1252](https://github.com/azurras/christopherbell.dev/pull/1252) merged as `965b25bb3e703a2e67a5064d777a9ab1998f26a1`; all Ubuntu, macOS, Windows, Dependency Review, and CodeQL gates passed after commit `4e767dfd` replaced a pre-existing command-center timing-test race with a deterministic executor barrier.
 - Production auto-deployed the merge from Java listener PID `29012` to `30976`. `/` remained 200, readiness settled to 200, V001 was stored exactly once with the reviewed checksum, both migration indexes exist, and the migration lease is released and ownerless.
 - Issues #1143, #1151, #1153, and #1154 are closed. The campaign has 30 open issues remaining.
+- Request-boundary PR [#1254](https://github.com/azurras/christopherbell.dev/pull/1254) merged as `ac74bbe30e7392781950bbc1f06f44e196adc46e`; all platform, Dependency Review, and CodeQL gates passed after independent-review commit `fb1f1c55` resolved ordered-expiry, upload-streaming, and rule-identity concerns.
+- Production auto-deployed the merge from Java listener PID `20156` to `47288`. `/` remained 200 and readiness settled from 503 to 200.
+- Issues #1139, #1140, #1141, and #1157 are closed. The campaign has 26 open issues remaining.
 
 ## Blockers
 
-None. Docker is unavailable on this native-Mongo host, but the Compose contract passed its checked structural regression and both disposable and production migration acceptance passed.
+None. Docker is unavailable on this native-Mongo host, but the Compose contract passed its checked structural regression and both disposable and production migration acceptance passed. Protected SYSTEM release metadata remains inaccessible to non-elevated sessions by design; production acceptance uses listener transition plus public health evidence.
 
 ## Validation
 
@@ -83,5 +86,5 @@ None. Docker is unavailable on this native-Mongo host, but the Compose contract 
 ## Next Steps
 
 1. Reconcile the live open-issue inventory against the approved campaign spec.
-2. Select and plan the next coherent dependency-aware batch from the 30 remaining issues.
+2. Select and plan the next coherent dependency-aware batch from the 26 remaining issues.
 3. Continue the same local verification, PR/CI, merge, production acceptance, and Builder closure loop without routine approval pauses.
