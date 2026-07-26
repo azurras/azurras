@@ -17,9 +17,9 @@ Resolve every currently open issue in `azurras/christopherbell.dev` through curr
 ## Related Specs and Plans
 
 - Project spec: [Complete All Open christopherbell.dev Issues](../specs/2026-07-25-complete-all-open-christopherbell-dev-issues.md) (`ready-for-execution`, approved 2026-07-25).
-- Implementation plans: [GitHub Automation Issues 1144-1150](../implementation-plans/2026-07-25-github-automation-issues-1144-1150.md) (`complete`); [Public Delivery Issues 1122-1124 and 1138](../implementation-plans/2026-07-25-public-delivery-issues-1122-1124-1138.md) (`complete`); [Browser Security Issues 1125-1130](../implementation-plans/2026-07-25-browser-security-issues-1125-1130.md) (`complete`); remaining dependency-aware plans follow as each sub-batch reaches execution.
+- Implementation plans: [GitHub Automation Issues 1144-1150](../implementation-plans/2026-07-25-github-automation-issues-1144-1150.md) (`complete`); [Public Delivery Issues 1122-1124 and 1138](../implementation-plans/2026-07-25-public-delivery-issues-1122-1124-1138.md) (`complete`); [Browser Security Issues 1125-1130](../implementation-plans/2026-07-25-browser-security-issues-1125-1130.md) (`complete`); [Public Content Issues 1131-1137](../implementation-plans/2026-07-25-public-content-issues-1131-1137.md) (`complete`); [Production Foundations Issues 1143, 1151, 1153, and 1154](../implementation-plans/2026-07-25-production-foundations-issues-1143-1151-1153-1154.md) (`ready-for-execution`).
 
-- Current batch plan: [Public Content Issues 1131-1137](../implementation-plans/2026-07-25-public-content-issues-1131-1137.md) (`complete`).
+- Current batch plan: [Production Foundations Issues 1143, 1151, 1153, and 1154](../implementation-plans/2026-07-25-production-foundations-issues-1143-1151-1153-1154.md) (`ready-for-execution`).
 
 ## Spoke Repositories
 
@@ -64,10 +64,13 @@ Resolve every currently open issue in `azurras/christopherbell.dev` through curr
 - Public-content PR [#1251](https://github.com/azurras/christopherbell.dev/pull/1251) merged as `4b82116a0ed489c74eed144a478f1b3a3944ada2`; all platform, dependency-review, and CodeQL gates passed, including the post-merge `main` runs.
 - Production auto-deployed the merge to PID `29012`. The public blog, 12-image gallery, usage page, archive repairs, local Bootstrap assets, narrowed CSP, anonymous GET boundaries, and denied POST probes passed live HTTPS and rendered-browser acceptance with zero warning/error console entries.
 - Issues #1131-#1137 are closed. The campaign has 34 open issues remaining.
+- The four unfinished Batch 1 foundations (#1143, #1151, #1153, and #1154) have no comments or attachments. Their exact issue bodies were revalidated and a fresh worktree was created at `A:\Projects\christopherbell.dev-worktrees\production-foundations-1143-1154` from `origin/main` merge `4b82116a`.
+- The first 1,003-test Java baseline had one unrelated command-center timing failure; the complete 12-test owning class passed immediately on isolated rerun. The production-foundations plan records that characterization and requires a clean authoritative suite before publication.
+- The production-foundations plan passed mechanical validation and execution-readiness review with no blockers. It selects one redacted pre-refresh settings validator, explicit mail intent, official pinned `mongo:8.3.2` Compose service, and a repository-native immutable migration runner with an atomic lease.
 
 ## Blockers
 
-None for the completed public-content sub-batch. The controlled Chrome tab remains unauthenticated, but no completed acceptance case required authentication; sign-in will be revisited only when a remaining issue needs an authenticated browser flow.
+None for the production-foundations sub-batch. Docker may be unavailable on this native-Mongo host; the Compose contract remains structurally testable and runtime migration acceptance will use an exact disposable native Mongo database.
 
 ## Validation
 
@@ -76,6 +79,6 @@ None for the completed public-content sub-batch. The controlled Chrome tab remai
 
 ## Next Steps
 
-1. Start the next dependency-aware sub-batch from the 34 remaining issues.
-2. Continue each batch through merge, production acceptance where applicable, and closure.
-3. Record final campaign closure and session memory after all issues are resolved.
+1. Execute the production-foundations RED contracts and implementation plan for #1143, #1151, #1153, and #1154.
+2. Carry the batch through disposable-database runtime acceptance, PR/CI, merge, production migration verification, and closure.
+3. Continue the remaining dependency-aware batches from the resulting 30-issue backlog.
