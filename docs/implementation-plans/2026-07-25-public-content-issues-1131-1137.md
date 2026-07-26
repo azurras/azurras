@@ -4,9 +4,9 @@
 
 **Goal:** Restore the public blog, photo gallery, usage page, and The Bell archive while replacing Bootstrap CDN delivery with one pinned self-hosted dependency.
 
-**Architecture:** Public read APIs remain versioned and return the existing `Response` envelope. ES-module normalizers unwrap those envelopes and DOM renderers treat configured strings as text. Bootstrap 5.3.3 is packaged as a verified WebJar, imported once through `main.css`, and exposed through GET-only public asset matchers.
+**Architecture:** Public read APIs remain versioned and return the existing `Response` envelope. ES-module normalizers unwrap those envelopes and DOM renderers treat configured strings as text. Bootstrap 5.3.3 is packaged as a pinned WebJar, imported once through `main.css`, exposed through GET-only public asset matchers, and reviewed by the repository's existing dependency-review workflow.
 
-**Tech Stack:** Java 25, Spring Boot 4.1, Spring Security 7.1, Thymeleaf, vanilla ES modules, Node test runner, Gradle dependency verification, Bootstrap WebJar 5.3.3.
+**Tech Stack:** Java 25, Spring Boot 4.1, Spring Security 7.1, Thymeleaf, vanilla ES modules, Node test runner, Gradle, GitHub Dependency Review, Bootstrap WebJar 5.3.3.
 
 ## Global Constraints
 
@@ -502,9 +502,9 @@ Implementation notes:
 - Before-Edit Brief:
   - Behavior: all pages receive Bootstrap 5.3.3 from the application with no Bootstrap CDN request.
   - Invariants: `main.css` is the single CSS entry; pages already using Bootstrap JS keep the bundle.
-  - Boundary/API: only exact-version GET WebJar paths are anonymous; Gradle records dependency hashes.
-  - Effects and failures: missing/tampered dependencies fail verification or live asset checks.
-  - Tests and evidence: resource scan, matcher test, dependency verification, live CSS/JS, and page smoke.
+  - Boundary/API: only exact-version GET WebJar paths are anonymous; Gradle pins the artifact version.
+  - Effects and failures: missing dependencies fail resolution/live asset checks and vulnerable dependency changes fail CI review.
+  - Tests and evidence: resource scan, matcher test, dependency insight, Dependency Review CI, live CSS/JS, and page smoke.
 
 #### Code Edit 4.1
 - File: `website/build.gradle.kts`
@@ -517,7 +517,7 @@ implementation("org.webjars:bootstrap:5.3.3")
 ```
 
 Verification:
-- Generate only expected SHA-256 metadata, inspect it, then run dependency verification normally.
+- Inspect `dependencyInsight` for the exact selected WebJar version and require the existing Dependency Review CI job to pass.
 
 #### Code Edit 4.2
 - File: `website/src/main/resources/static/css/main.css`
@@ -582,25 +582,20 @@ Proposed:
 Verification:
 - Browser-security integration and local console/resource checks remain green.
 
-#### Code Edit 4.5
-- File: `gradle/verification-metadata.xml`
-- Lines: after 1
-- Action: add
-
-Proposed:
-```text
-Gradle-generated SHA-256 entries for org.webjars:bootstrap:5.3.3 and newly resolved transitive artifacts only.
-```
+#### Evidence 4.5
+- File: `.github/workflows/dependency-review.yml`
+- Lines: 1-19
+- Action: verify existing repository control
 
 Verification:
-- Regenerate with the wrapper, inspect the diff, and run without metadata-writing flags.
+- Confirm the repository has no `gradle/verification-metadata.xml`, inspect `dependencyInsight` for the exact selected WebJar version, and require the existing Dependency Review CI job to pass on the pull request.
 
 ## Code Changes
 
 - Controllers/security: public GET APIs/WebJar plus usage mapping; remove obsolete read authorization.
 - Browser modules: central photo route, standard envelope unwrapping, no tag polling, real alt text.
 - Templates: usage link, repaired archive, no dead HTTP assets or placeholder navigation.
-- Build/static: verified Bootstrap WebJar, single CSS import, local JS bundles, narrower CSP.
+- Build/static: pinned Bootstrap WebJar, single CSS import, local JS bundles, narrower CSP.
 - Tests: focused Java anonymous-route/envelope/matcher coverage and Node component/resource regressions.
 
 ## Files and Modules
@@ -609,7 +604,7 @@ Verification:
 - `website/src/main/resources/static/js/{components,lib}`
 - `website/src/main/resources/templates/{photo,thebell}` and Bootstrap-loading templates
 - `website/src/main/resources/static/css/main.css`, `static/dev/feed-harness.html`
-- `website/build.gradle.kts`, `gradle/verification-metadata.xml`, matching Java/Node tests and owning READMEs
+- `website/build.gradle.kts`, `.github/workflows/dependency-review.yml` (verification only), matching Java/Node tests and owning READMEs
 
 ## Unit Testing
 
@@ -633,7 +628,7 @@ Verification:
 - Gallery content images have description/name/fallback alt text.
 - Usage and archive routes return 200 with valid local links/assets and no insecure image/placeholders.
 - No Bootstrap CDN URL remains; exact-version local CSS/JS return 200.
-- Focused/full tests, syntax, dependency verification, diff, CI, deploy, and production smoke all pass.
+- Focused/full tests, syntax, dependency insight, Dependency Review CI, diff, deploy, and production smoke all pass.
 
 ## Rollback or Recovery
 
