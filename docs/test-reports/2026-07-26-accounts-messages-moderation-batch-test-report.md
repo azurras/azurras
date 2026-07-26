@@ -12,7 +12,7 @@ GitHub issues `cbell504/website#1155`, `#1156`, and `#1158` through `#1168`.
 
 - Repository: `A:\Projects\christopherbell.dev-worktrees\accounts-messages-moderation-1155-1168`
 - Branch: `codex/accounts-messages-moderation-1155-1168`
-- Commit under test: `c42e61584c4b8566d27d17ab2dfec7e72e8bf403`
+- Commit under test: `02eba3ba2b37dfc81f1a9802d87430124e105cd9`
 
 ## App / Environment
 
@@ -20,7 +20,7 @@ GitHub issues `cbell504/website#1155`, `#1156`, and `#1158` through `#1168`.
 - Profile: `local`
 - Base URL: `http://127.0.0.1:8090`
 - Production URL/port preserved during testing: `http://127.0.0.1:8080`
-- Isolated MongoDB database: `codex_batch5_20260726`
+- Isolated MongoDB database: `codex_batch5_review_20260726`
 - MongoDB URI: `mongodb://127.0.0.1:27017`
 - Mail delivery: disabled with `APP_MAIL_ENABLED=false`
 - Gradle home: `A:\Projects\.gradle-codex-batch5`
@@ -33,15 +33,15 @@ The app was started from the isolated feature worktree with these explicit setti
 $env:SERVER_PORT='8090'
 $env:SPRING_PROFILES_ACTIVE='local'
 $env:SPRING_MONGODB_URI='mongodb://127.0.0.1:27017'
-$env:SPRING_MONGODB_DATABASE='codex_batch5_20260726'
+$env:SPRING_MONGODB_DATABASE='codex_batch5_review_20260726'
 $env:APP_MAIL_ENABLED='false'
 $env:GRADLE_USER_HOME='A:\Projects\.gradle-codex-batch5'
 .\gradlew.bat :website:bootRun --no-daemon
 ```
 
-The alternate-port application listened as Java PID `57364`. Standard output was captured in
-`build/local-smoke-8090.log` and standard error in `build/local-smoke-8090.err.log` inside the
-worktree. PID `57364` was stopped after testing and port `8090` was confirmed free. Production
+The final alternate-port application listened as Java PID `57968`. Standard output was captured in
+`build/local-review-8090.log` and standard error in `build/local-review-8090.err.log` inside the
+worktree. PID `57968` was stopped after testing and port `8090` was confirmed free. Production
 Java PID `47288` remained listening on port `8080` throughout the test.
 
 ## Test Cases
@@ -58,6 +58,13 @@ Java PID `47288` remained listening on port `8080` throughout the test.
 | 8 | Report page API rejects an anonymous caller | PASS |
 | 9 | Moderation audit page API rejects an anonymous caller | PASS |
 | 10 | Report resolution rejects an anonymous caller before accepting the supplied mutation | PASS |
+| 11 | Legacy and additive account-deletion routes both preserve their protected boundary | PASS |
+| 12 | Legacy and additive report-submission routes both preserve their protected boundary | PASS |
+| 13 | Deletion removes retained like/edit identity and uses bounded private-state pages | PASS |
+| 14 | Moderation audit retries are durable, idempotent, and redact sensitive reason content | PASS |
+| 15 | Worker cancellation timeout preserves private media artifacts for retry | PASS |
+| 16 | Failed notification persistence releases dedupe state and expired claims can retry immediately | PASS |
+| 17 | Post edits remain original-author-only, including for administrators | PASS |
 
 ## Data Sent
 
@@ -76,6 +83,14 @@ GET /api/admin/activity/2026-07-26?page=0&size=25
 POST /api/reports/2025-09-03/example/resolve
 Content-Type: application/json
 {"resolution":"CLOSE_NO_ACTION","reason":"Verified policy review."}
+DELETE /api/accounts/2025-09-03/example
+DELETE /api/accounts/2026-07-26/example
+POST /api/reports/2025-09-03
+Content-Type: application/json
+{"postId":"example","reason":"spam"}
+POST /api/reports/2026-07-26
+Content-Type: application/json
+{"postId":"example","reason":"spam"}
 ```
 
 The Back Office response body was also checked for `id="activityFilters"`,
@@ -97,6 +112,10 @@ GET /api/notifications/2026-07-26?size=25                    -> 403
 GET /api/reports/2026-07-26?page=0&size=25                   -> 403
 GET /api/admin/activity/2026-07-26?page=0&size=25            -> 403
 POST /api/reports/2025-09-03/example/resolve                 -> 403
+DELETE /api/accounts/2025-09-03/example                     -> 403
+DELETE /api/accounts/2026-07-26/example                     -> 403
+POST /api/reports/2025-09-03                               -> 403
+POST /api/reports/2026-07-26                               -> 403
 ```
 
 The empty stable feed response was:
@@ -118,16 +137,21 @@ script mount.
 
 ## Pass / Fail
 
-PASS. The candidate app started against an isolated database, exposed the stable public feed
-contract, rejected malformed cursor input, preserved every new protected API boundary, and
-rendered the new audit ledger controls. Production traffic was not interrupted.
+PASS. The final candidate app started against an isolated database, exposed the stable public feed
+contract, preserved the legacy and additive protected API boundaries, and rendered the new audit
+ledger controls. Reviewer-driven regressions proved privacy-safe deletion, durable audit and
+notification retries, author-only edits, cancellation acknowledgement, and old-client response
+compatibility. Production traffic was not interrupted.
 
 ## Evidence
 
-- `./gradlew.bat :website:check` exited `0` on commit `c42e6158`.
-- Java test XML: 137 suites, 1,145 tests, 0 failures, 0 errors, 3 skipped.
+- `./gradlew.bat :website:check` exited `0` on commit `02eba3ba`.
+- Java test XML: 137 suites, 1,154 tests, 0 failures, 0 errors, 3 skipped.
 - JavaScript tests: 231 passed, 0 failed.
-- Runtime startup log identified local profile, port `8090`, isolated worktree, and PID `57364`.
+- Runtime startup log identified local profile, port `8090`, isolated worktree, and PID `57968`.
+- Focused review-remediation suites passed before the complete check, including account deletion,
+  account/report moderation audit, admin activity, notifications, post editing/controllers,
+  report controllers, uploads, and media playback.
 - Runtime HTTP evidence is recorded verbatim in the response table above.
 - After shutdown, only production PID `47288` remained listening on ports `8080`/`8090`.
 
