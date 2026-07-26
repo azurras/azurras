@@ -46,3 +46,11 @@ Complete every open `azurras/christopherbell.dev` GitHub issue autonomously unde
 ### Follow-ups
 - Commit and push this memory checkpoint, generate exact closure text for #1131-#1137, and reconcile Builder work records.
 - Inventory the remaining open GitHub issues against the campaign spec, select the next coherent batch, create a fresh isolated worktree, and continue the full delivery loop without requesting routine approval.
+
+## 22:22 - Public content issues 1131-1137
+
+### Closure Reconciliation
+
+- Saved the completed spoke update at `C:\Users\Christopher\Developer\builder\docs\spoke-updates\2026-07-25-public-content-issues-1131-1137.md`.
+- Updated the active campaign ledger to mark the public-content plan complete, record PR #1251 and production PID `29012`, and reduce the remaining issue count from 41 to 34.
+- The batch has no remaining blocker or acceptance gap. The controlled Chrome authentication mismatch is retained only as contextual state for a future authenticated flow, not as a campaign blocker.

@@ -19,7 +19,7 @@ Resolve every currently open issue in `azurras/christopherbell.dev` through curr
 - Project spec: [Complete All Open christopherbell.dev Issues](../specs/2026-07-25-complete-all-open-christopherbell-dev-issues.md) (`ready-for-execution`, approved 2026-07-25).
 - Implementation plans: [GitHub Automation Issues 1144-1150](../implementation-plans/2026-07-25-github-automation-issues-1144-1150.md) (`complete`); [Public Delivery Issues 1122-1124 and 1138](../implementation-plans/2026-07-25-public-delivery-issues-1122-1124-1138.md) (`complete`); [Browser Security Issues 1125-1130](../implementation-plans/2026-07-25-browser-security-issues-1125-1130.md) (`complete`); remaining dependency-aware plans follow as each sub-batch reaches execution.
 
-- Current batch plan: [Public Content Issues 1131-1137](../implementation-plans/2026-07-25-public-content-issues-1131-1137.md) (`ready-for-execution`).
+- Current batch plan: [Public Content Issues 1131-1137](../implementation-plans/2026-07-25-public-content-issues-1131-1137.md) (`complete`).
 
 ## Spoke Repositories
 
@@ -61,10 +61,13 @@ Resolve every currently open issue in `azurras/christopherbell.dev` through curr
 - Production auto-deployed the merge to PID `26680`. Public HTTPS headers, CSRF boundaries, DTO validation, cookie clearing, and fail-closed migration from the old browser JWT session passed live acceptance.
 - Issues #1125-#1130 are closed. The campaign has 41 open issues remaining.
 - Batch 3 issues #1131-#1137 have no comments or attachments and were revalidated against current main. An isolated worktree was created at `A:\Projects\christopherbell.dev-worktrees\public-content-1131-1137`; the full Java baseline and all 195 browser tests pass.
+- Public-content PR [#1251](https://github.com/azurras/christopherbell.dev/pull/1251) merged as `4b82116a0ed489c74eed144a478f1b3a3944ada2`; all platform, dependency-review, and CodeQL gates passed, including the post-merge `main` runs.
+- Production auto-deployed the merge to PID `29012`. The public blog, 12-image gallery, usage page, archive repairs, local Bootstrap assets, narrowed CSP, anonymous GET boundaries, and denied POST probes passed live HTTPS and rendered-browser acceptance with zero warning/error console entries.
+- Issues #1131-#1137 are closed. The campaign has 34 open issues remaining.
 
 ## Blockers
 
-None for the completed browser-security sub-batch. The user needs one fresh browser login after the intentional credential-storage migration; the login tab is already open at the `/shared` return target.
+None for the completed public-content sub-batch. The controlled Chrome tab remains unauthenticated, but no completed acceptance case required authentication; sign-in will be revisited only when a remaining issue needs an authenticated browser flow.
 
 ## Validation
 
@@ -73,6 +76,6 @@ None for the completed browser-security sub-batch. The user needs one fresh brow
 
 ## Next Steps
 
-1. Start the next dependency-aware sub-batch from the 41 remaining issues.
+1. Start the next dependency-aware sub-batch from the 34 remaining issues.
 2. Continue each batch through merge, production acceptance where applicable, and closure.
 3. Record final campaign closure and session memory after all issues are resolved.
