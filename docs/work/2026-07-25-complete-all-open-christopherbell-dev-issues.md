@@ -19,6 +19,8 @@ Resolve every currently open issue in `azurras/christopherbell.dev` through curr
 - Project spec: [Complete All Open christopherbell.dev Issues](../specs/2026-07-25-complete-all-open-christopherbell-dev-issues.md) (`ready-for-execution`, approved 2026-07-25).
 - Implementation plans: [GitHub Automation Issues 1144-1150](../implementation-plans/2026-07-25-github-automation-issues-1144-1150.md) (`complete`); [Public Delivery Issues 1122-1124 and 1138](../implementation-plans/2026-07-25-public-delivery-issues-1122-1124-1138.md) (`complete`); [Browser Security Issues 1125-1130](../implementation-plans/2026-07-25-browser-security-issues-1125-1130.md) (`complete`); remaining dependency-aware plans follow as each sub-batch reaches execution.
 
+- Current batch plan: [Public Content Issues 1131-1137](../implementation-plans/2026-07-25-public-content-issues-1131-1137.md) (`ready-for-execution`).
+
 ## Spoke Repositories
 
 - `christopherbell-dev`: `A:\Projects\christopherbell.dev`; authoritative checkout is dirty and must remain untouched.
@@ -58,6 +60,7 @@ Resolve every currently open issue in `azurras/christopherbell.dev` through curr
 - Browser-security PR [#1249](https://github.com/azurras/christopherbell.dev/pull/1249) merged as `b6c361d1d916337679a37f04caa46c3475215e71`; all platform, dependency-review, and CodeQL gates passed.
 - Production auto-deployed the merge to PID `26680`. Public HTTPS headers, CSRF boundaries, DTO validation, cookie clearing, and fail-closed migration from the old browser JWT session passed live acceptance.
 - Issues #1125-#1130 are closed. The campaign has 41 open issues remaining.
+- Batch 3 issues #1131-#1137 have no comments or attachments and were revalidated against current main. An isolated worktree was created at `A:\Projects\christopherbell.dev-worktrees\public-content-1131-1137`; the full Java baseline and all 195 browser tests pass.
 
 ## Blockers
 
