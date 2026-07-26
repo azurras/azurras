@@ -15,7 +15,9 @@ complete
 
 - Repository: `A:\Projects\christopherbell.dev-worktrees\request-limits-api-errors-1139-1141-1157`
 - Branch: `codex/request-limits-api-errors-1139-1141-1157`
-- Commit under test: `d70e05d9` (`Improve request limits and API errors`)
+- Commits under test:
+  - `d70e05d9` (`Improve request limits and API errors`)
+  - `fb1f1c55` (`Address request boundary review findings`), final head
 - Base: `a5dc7a6381dd507e96cc2e045930acacf88089d7`
 
 ## App / Environment
@@ -27,7 +29,7 @@ complete
 - Base URL: `http://127.0.0.1:8090`
 - Production port: `8080`; listener PID `20156` remained running and unchanged throughout local verification
 - MongoDB: `mongodb://localhost:27017`
-- Disposable database: `christopherbell_request_limits_test_20260726001412`
+- Final-head disposable database: `christopherbell_request_limits_final_20260726003951`
 - Request-size override: `app.request-size.default-max=1KB`
 - Runtime rate rule: one `POST /api/accounts/2024-12-15/login` token per `5s`, with `rate-limit.max-buckets=20`
 - Isolated Gradle home: `A:\Projects\.gradle-codex-request-limits-api-errors`
@@ -59,14 +61,16 @@ java -jar website\build\libs\website.jar `
   --rate-limit.rules[0].paths[0]=/api/accounts/2024-12-15/login
 ```
 
-The first diagnostic run used PID `55164`; it was stopped after finding the chunked early-reader defect. The corrected packaged app used PID `56392`. PID `56392` was stopped after the final checks. Runtime logs are build-owned files:
+The first diagnostic run used PID `55164`; it was stopped after finding the chunked early-reader defect. The corrected initial implementation used PID `56392`. After independent review fixes, the packaged final head was rebuilt and exercised again as PID `50588`. Every test process was stopped after its checks. Runtime logs are build-owned files:
 
 - `website/build/request-limits-runtime-20260726001412.log`
 - `website/build/request-limits-runtime-20260726001412.err.log`
 - `website/build/request-limits-runtime-20260726001812.log`
 - `website/build/request-limits-runtime-20260726001812.err.log`
+- `website/build/request-limits-final-20260726003951.log`
+- `website/build/request-limits-final-20260726003951.err.log`
 
-The exact disposable database was dropped with `mongosh` after the corrected run. The result was `{ ok: 1, dropped: 'christopherbell_request_limits_test_20260726001412' }`. Final listener enumeration showed only production port `8080`, PID `20156`; no listener remained on `8090`.
+The exact final-head disposable database was dropped with `mongosh`. The result was `{ ok: 1, dropped: 'christopherbell_request_limits_final_20260726003951' }`. Final listener enumeration showed only production port `8080`, PID `20156`; no listener remained on `8090`.
 
 ## Test Cases
 
@@ -85,6 +89,10 @@ After a fresh process start, sent the same small login request twice. Verified t
 ### 4. Automated RED/GREEN and repository regression
 
 Witnessed compile RED for the missing typed request/error-writer APIs, ten exact service RED failures while generic wrappers remained, and a focused RED for an unknown-length downstream reader that consumed only one byte. After implementation, ran focused tests and the full clean repository gate.
+
+### 5. Independent review fixes
+
+An independent code review identified three important boundary concerns: linear rate-bucket cleanup under a global lock, heap buffering of unknown-length shared-upload chunks, and duplicate rule names sharing bucket identity. Focused RED tests reproduced the latter two concerns; existing characterization tests protected the store refactor. The final implementation uses ordered expiry plus access-ordered bounded eviction, preserves streaming for the feature-owned shared-upload route, validates unique rule names, and includes rule index in bucket identity.
 
 ## Data Sent
 
@@ -151,25 +159,29 @@ Witnessed compile RED for the missing typed request/error-writer APIs, ten exact
 | Known-length oversized JSON | PASS | Returned standard, redacted `413 REQUEST_TOO_LARGE` before downstream work. |
 | Unknown-length chunked oversized JSON | PASS | Corrected run returned `HTTP/1.1 413` even though the malformed JSON parser could otherwise stop early. |
 | Exhausted login rate rule | PASS | First request reached validation; second returned `429` with retry, limit, remaining, reset, and standard body. |
-| Rate bucket expiry/bounds | PASS | Focused tests cover sliding expiry, active-cardinality hard bound, access refresh, and extreme-duration overflow. |
+| Rate bucket expiry/bounds | PASS | Focused tests cover sliding expiry, active-cardinality hard bound, access refresh, different-window expiry ordering, and extreme-duration overflow. |
+| Review boundary fixes | PASS | Duplicate rule names are rejected, shared-upload chunks retain unknown-length streaming, and ordered expiry avoids a full bucket scan on each request. |
 | Typed service failures | PASS | Ten targeted operational paths preserve causes in `ServiceUnavailableException` or `InternalServiceException`; safe global mappings pass. |
 | Full repository regression | PASS | `cleanTest check` completed successfully on the final tree. |
-| Cleanup and production isolation | PASS | PID `56392` stopped, disposable database dropped, port `8090` released, and production PID `20156` remained on `8080`. |
+| Cleanup and production isolation | PASS | Final-head PID `50588` stopped, its disposable database was dropped, port `8090` released, and production PID `20156` remained on `8080`. |
 
 ## Evidence
 
 - Initial focused compile RED: missing `ApiErrorResponseWriter` and typed constructor contracts.
 - Service RED: `106 tests completed, 10 failed`; the ten failures were exactly the generic service wrapper paths.
 - Unknown-length early-reader RED: `1 test completed, 1 failed` for `unknownLengthOverflowIsRejectedWhenDownstreamReadsOnlyOneByte`.
+- Review RED: duplicate rule-name validation and unknown-length shared-upload streaming each failed before their fixes; the bucket-store refactor began from a passing characterization baseline.
+- Final focused review-fix matrix: 23 tests passed, including different-window expiry ordering, allowed-response headers, and fractional retry-delay rounding.
 - Final focused matrix: all request-size, rate-limit, configuration, exception-handler, account, vehicle, and restaurant tests passed.
 - Final full command: `.\gradlew.bat cleanTest check --no-daemon --console=plain`.
-- Final full result: `BUILD SUCCESSFUL in 1m 38s`; 1,074 website tests and 95 library tests, 1,169 total, zero failures, three expected skips; `website:verifySensorRuntime` and `website:check` passed.
+- Final full result on `fb1f1c55`: `BUILD SUCCESSFUL in 1m 39s`; 1,078 website tests and 95 library tests, 1,173 total, zero failures, three expected skips; `website:verifySensorRuntime` and `website:check` passed.
 - Runtime root smoke: `GET http://127.0.0.1:8090/` returned `200` before acceptance requests.
-- Corrected runtime evidence: known-length `413`, raw chunked `413`, first small login `400`, second small login `429` with all four expected rate headers.
-- Cleanup evidence: MongoDB returned `{ ok: 1, dropped: 'christopherbell_request_limits_test_20260726001412' }`; final listener enumeration retained only `8080 -> PID 20156`.
+- Final-head runtime evidence on `fb1f1c55`: known-length `413`, raw chunked `413`, first small login `400`, second small login `429` with `Retry-After: 5`, `X-RateLimit-Limit: 1`, `X-RateLimit-Remaining: 0`, and `X-RateLimit-Reset: 1785044428`.
+- Cleanup evidence: MongoDB returned `{ ok: 1, dropped: 'christopherbell_request_limits_final_20260726003951' }`; final listener enumeration retained only `8080 -> PID 20156`.
 
 ## Bugs / Follow-ups
 
 - Resolved during testing: the first raw chunked request returned `400 REQUEST_ERROR` because a malformed JSON parser stopped before the streaming wrapper observed limit-plus-one bytes. A focused RED test reproduced that downstream early-reader path. Unknown-length bodies now pre-read at most limit-plus-one bytes and replay only accepted bodies; the corrected raw request returned `413`.
 - Resolved during full regression: MVC slices initially failed because the servlet writer used the legacy Jackson 2 mapper type. Switching to the application-native Jackson 3 `tools.jackson.databind.ObjectMapper` restored all 13 affected tests.
+- Resolved after independent review: rate-bucket expiration now uses an expiry-ordered index instead of an all-bucket scan, unknown-length shared-upload chunks preserve their existing streaming contract, and duplicate configured rule names cannot share bucket state.
 - No known acceptance gap remains. Production deployment is intentionally deferred until the PR is merged and CI is green.
