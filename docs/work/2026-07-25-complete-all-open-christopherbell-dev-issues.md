@@ -19,7 +19,7 @@ Resolve every currently open issue in `azurras/christopherbell.dev` through curr
 - Project spec: [Complete All Open christopherbell.dev Issues](../specs/2026-07-25-complete-all-open-christopherbell-dev-issues.md) (`ready-for-execution`, approved 2026-07-25).
 - Implementation plans: [GitHub Automation Issues 1144-1150](../implementation-plans/2026-07-25-github-automation-issues-1144-1150.md) (`complete`); [Public Delivery Issues 1122-1124 and 1138](../implementation-plans/2026-07-25-public-delivery-issues-1122-1124-1138.md) (`complete`); [Browser Security Issues 1125-1130](../implementation-plans/2026-07-25-browser-security-issues-1125-1130.md) (`complete`); [Public Content Issues 1131-1137](../implementation-plans/2026-07-25-public-content-issues-1131-1137.md) (`complete`); [Production Foundations Issues 1143, 1151, 1153, and 1154](../implementation-plans/2026-07-25-production-foundations-issues-1143-1151-1153-1154.md) (`complete`); [Request Limits, Rate Limiting, and API Errors Issues 1139-1141 and 1157](../implementation-plans/2026-07-25-request-limits-rate-limiting-api-errors-issues-1139-1141-1157.md) (`complete`); [Accounts, Messages, Notifications, Posts, and Moderation Issues 1155-1168](../implementation-plans/2026-07-26-accounts-messages-notifications-posts-moderation-issues-1155-1168.md) (`complete`).
 
-- Current batch plan: [WFL and Location Imports Issues 1169-1175](../implementation-plans/2026-07-26-wfl-location-imports-issues-1169-1175.md) (`ready-for-execution`).
+- Completed Batch 6 plan: [WFL and Location Imports Issues 1169-1175](../implementation-plans/2026-07-26-wfl-location-imports-issues-1169-1175.md) (`complete`).
 
 ## Spoke Repositories
 
@@ -82,6 +82,10 @@ Resolve every currently open issue in `azurras/christopherbell.dev` through curr
 - Issues #1155, #1156, and #1158-#1168 are closed. The campaign has 13 open issues remaining: #1169-#1181.
 - Live inventory reconfirmed #1169-#1181 as the exact remaining issues. The approved specification retains two final batches: WFL/location #1169-#1175, then VIN/scheduling/link previews #1176-#1181.
 - Batch 6 uses clean worktree `A:\Projects\christopherbell.dev-worktrees\wfl-location-imports-1169-1175` on `codex/wfl-location-imports-1169-1175` from merge `5835a3c2`; baseline `:website:check` passed in 1m46s with all 231 JavaScript tests.
+- Batch 6 PR [#1256](https://github.com/azurras/christopherbell.dev/pull/1256) passed all platform, Dependency Review, underlying CodeQL, and aggregate CodeQL gates and merged as `abd2051e76155e5c01137ebec10c2d7550ec3556` from final branch head `a861c4b5d0d751c46e2a8cfab8ec86f17c37d0ae`.
+- Final Batch 6 `:website:check` passed 1,170 Java tests with zero failures or errors, three expected skips, 233 JavaScript tests, and sensor-runtime verification. Independent review found no remaining actionable findings.
+- Native SYSTEM auto-deployment replaced production Java listener PID `6624` with `41176`; local and external roots/freshness returned 200 while protected WFL operator APIs returned 403.
+- Issues #1169-#1175 are closed. The campaign has six open issues remaining, exactly #1176-#1181.
 
 ## Blockers
 
@@ -94,6 +98,6 @@ None. Docker is unavailable on this native-Mongo host, but the Compose contract 
 
 ## Next Steps
 
-1. Reconcile the live open-issue inventory against the approved campaign spec.
-2. Select and plan the next coherent dependency-aware batch from the 13 remaining issues, #1169-#1181.
-3. Continue the same local verification, PR/CI, merge, production acceptance, and Builder closure loop without routine approval pauses.
+1. Reconcile the live details and trusted comments for the final six issues, #1176-#1181.
+2. Save and validate the final VIN/scheduling/link-preview implementation plan from merge `abd2051e`.
+3. Execute the same local verification, PR/CI, merge, production acceptance, and Builder campaign closeout loop without routine approval pauses.
