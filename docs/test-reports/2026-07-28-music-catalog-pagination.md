@@ -62,6 +62,7 @@ The process ran hidden with output under `A:\Temp\music-pagination-runtime`. The
 
 ## Response Received
 
+- Candidate root status code: 200.
 - Candidate root: HTTP 200.
 - Candidate Music page: HTTP 200 and `id="music-pagination"` present.
 - Candidate anonymous catalog: HTTP 403.
