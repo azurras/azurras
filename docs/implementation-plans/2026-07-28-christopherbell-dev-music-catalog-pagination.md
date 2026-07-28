@@ -22,7 +22,7 @@
 
 ## Document Status
 
-ready-for-execution
+complete
 
 ## Objective
 
@@ -170,10 +170,10 @@ public record MusicCatalogResult(
 Verification:
 - `$env:GRADLE_USER_HOME='A:\Temp\gradle-music-pagination'; .\gradlew.bat :website:test --tests "*MusicCatalog*" --tests "*MusicReadController*" --no-daemon`
 
-- [ ] Write and run the backend RED tests.
-- [ ] Implement page/count/facet criteria and stable `id` tie ordering.
-- [ ] Resolve optional playlist IDs through the authorized library service and add favorite filtering.
-- [ ] Prove `radioCandidates(10_000)` remains independent, run focused tests, and commit Task 1.
+- [x] Write and run the backend RED tests.
+- [x] Implement page/count/facet criteria and stable `id` tie ordering.
+- [x] Resolve optional playlist IDs through the authorized library service and add favorite filtering.
+- [x] Prove `radioCandidates(10_000)` remains independent, run focused tests, and commit Task 1.
 
 ### Task 2 - Render complete numbered pages and deliver
 
@@ -256,10 +256,10 @@ Verification:
 - `node --test website/src/test/js/music.test.js`
 - `node --check website/src/main/resources/static/js/music.js`
 
-- [ ] Write and run the frontend RED tests.
-- [ ] Add typed page URL construction, validated state, compact page-window rendering, and accessible controls.
-- [ ] Make All Music, Favorites, and playlists request complete server-filtered pages without touching the media player.
-- [ ] Run focused and full checks, validate on a non-8080 port, commit/push, open one PR, merge after green CI/CodeQL, and smoke production totals plus radio.
+- [x] Write and run the frontend RED tests.
+- [x] Add typed page URL construction, validated state, compact page-window rendering, and accessible controls.
+- [x] Make All Music, Favorites, and playlists request complete server-filtered pages without touching the media player.
+- [x] Run focused and full checks, validate on a non-8080 port, commit/push, open one PR, merge after green CI/CodeQL, and smoke production totals plus radio.
 
 ## Code Changes
 
