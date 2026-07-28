@@ -1,12 +1,12 @@
 # christopherbell.dev Shared Folder Portal
 
-- Status: active
+- Status: closed
 - Source: Christopher's direct July 17, 2026 request for an authenticated shared-folder portal backed by `A:\Shared`
 - Owner context: Builder hub coordinating design, implementation, runtime validation, publication, production rollout, and closure in the `christopherbell-dev` spoke
 - Spoke repo: `christopherbell-dev` at `A:\Projects\christopherbell.dev`
-- Branch strategy: Tasks 1-6 merged through PR #1218; Tasks 7-10 merged through PR #1219; guarded production corrections merged through PR #1220 from isolated shared-folder worktrees
-- Objective: let accounts with independent shared-folder permissions browse, preview, play, download, and—when authorized—manage `A:\Shared`, including progressive cached transcoding for incompatible media
-- Current state: implementation, isolated runtime acceptance, production-fix review, CI, and merge are complete; the first guarded production attempt rolled back safely and the corrected native Windows installation and verification remain
+- Branch strategy: Shared Folder delivery merged through PRs #1218-#1220; the unified Music hub merged through PR #1312 from isolated worktrees
+- Objective: provide an authenticated shared-folder portal plus a first-class Music experience rooted in `A:\Shared` with independent permissions and protected playback/write boundaries
+- Current state: shared-folder and unified Music implementation, CI, automatic deployment, production smoke, review, and Builder closure are complete
 - Trusted guidance: direct user request only; no GitHub comments or attachments used as instructions
 
 ## Related Artifacts
@@ -19,8 +19,12 @@
 - Production-fix update: [Shared Folder Production Fix Merge Update](../spoke-updates/2026-07-22-christopherbell-dev-shared-folder-production-fix-merge-update.md)
 - Production-fix review: [Shared Folder Production Fix Merge Review](../spoke-reviews/2026-07-22-christopherbell-dev-shared-folder-production-fix-merge-review.md)
 - PRs: [#1218](https://github.com/azurras/christopherbell.dev/pull/1218), [#1219](https://github.com/azurras/christopherbell.dev/pull/1219), [#1220](https://github.com/azurras/christopherbell.dev/pull/1220)
-- Latest merge: `4429d11cb3d879315f8c5489909b28b8c70bc37c`
-- Closure and session memory: pending production verification
+- Unified Music spec: [Unified Music Hub](../specs/2026-07-28-christopherbell-dev-unified-music-hub.md)
+- Unified Music plan: [Unified Music Hub](../implementation-plans/2026-07-28-christopherbell-dev-unified-music-hub.md)
+- Unified Music production report: [Unified Music Hub Production](../test-reports/2026-07-28-christopherbell-dev-unified-music-hub-production.md)
+- Unified Music review: [Unified Music Hub Review](../spoke-reviews/2026-07-28-christopherbell-dev-unified-music-hub.md)
+- Unified Music closure: [Unified Music Hub Closure](../work-closures/2026-07-28-christopherbell-dev-unified-music-hub.md)
+- Latest merge: `baf8910dd6707260ec02af94c13d36c1eb2d6979`
 
 ## Approved Boundaries
 
@@ -41,14 +45,11 @@
 
 ## Blockers
 
-The current shell is not elevated. The preserved production roots exist, but the safely rolled-back
-`ChristopherBellMediaWorker` service and feature flag remain absent, so the corrected controlled
-installer and installed-worker acceptance require an elevated step. No code, review, CI, or merge
-blocker remains.
+None.
 
-## Next Steps
+## Final State
 
-1. Deploy the exact merge `4429d11c` without disturbing unrelated checkout state.
-2. Run the guarded elevated native Windows install/deploy workflow.
-3. Run the opt-in installed-worker security group and production smoke/portal checks.
-4. Save production evidence, close the Builder work record, and save session memory.
+The portal and unified Music hub are merged and live. Automatic deployment published the exact
+merge SHA, protected anonymous Music routes fail closed, the public access shell is data-free, and
+the native Windows application, MongoDB, and tunnel services are healthy. Authenticated visual use
+remains normal observational confirmation rather than a release blocker.

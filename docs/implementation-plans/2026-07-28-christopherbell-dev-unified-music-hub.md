@@ -29,7 +29,7 @@
 
 ## Document Status
 
-ready-for-execution
+complete
 
 ## Objective
 
@@ -144,10 +144,10 @@ public enum AccountPermission {
 Verification:
 - `./gradlew.bat :website:test --tests "*MusicAccessServiceTest" --tests "*AccountServiceTest"`
 
-- [ ] Write failing tests for every role/capability combination and cross-family preservation.
-- [ ] Implement the enum, access service, DTO, account endpoint, and audit event.
-- [ ] Add the Music checkboxes to the existing user drawer with admin-disabled defaults.
-- [ ] Run focused Java and Node tests and commit the independently passing permission slice.
+- [x] Write failing tests for every role/capability combination and cross-family preservation.
+- [x] Implement the enum, access service, DTO, account endpoint, and audit event.
+- [x] Add the Music checkboxes to the existing user drawer with admin-disabled defaults.
+- [x] Run focused Java and Node tests and commit the independently passing permission slice.
 
 ### Task 2 - Add durable browser sessions with sliding inactivity and revocation
 
@@ -209,10 +209,10 @@ public class BrowserAuthenticationCookies {
 Verification:
 - `./gradlew.bat :website:test --tests "*BrowserSession*" --tests "*JwtAuthenticationFilterTest" --tests "*AccountControllerTest"`
 
-- [ ] Write fake-clock failures for idle expiry, absolute expiry, rotation, and excluded background traffic.
-- [ ] Implement hashed opaque sessions and bearer/cookie credential separation.
-- [ ] Add revocation hooks to logout and sensitive account mutations.
-- [ ] Run security tests and commit the browser-session slice.
+- [x] Write fake-clock failures for idle expiry, absolute expiry, rotation, and excluded background traffic.
+- [x] Implement hashed opaque sessions and bearer/cookie credential separation.
+- [x] Add revocation hooks to logout and sensitive account mutations.
+- [x] Run security tests and commit the browser-session slice.
 
 ### Task 3 - Build the bounded Mongo Music catalog and server metadata probe
 
@@ -270,10 +270,10 @@ public record MusicTrack(
 Verification:
 - `./gradlew.bat :website:test --tests "*MusicCatalog*" --tests "*MusicProbe*" --tests "*MusicArtwork*"`
 
-- [ ] Write probe-boundary and reconciliation failures from fixed filesystem fixtures.
-- [ ] Implement documents, indexes, validated FFprobe invocation, and bounded scanner state.
-- [ ] Add artwork extraction/thumbnail caching with byte and dimension limits.
-- [ ] Run catalog tests and commit the catalog slice.
+- [x] Write probe-boundary and reconciliation failures from fixed filesystem fixtures.
+- [x] Implement documents, indexes, validated FFprobe invocation, and bounded scanner state.
+- [x] Add artwork extraction/thumbnail caching with byte and dimension limits.
+- [x] Run catalog tests and commit the catalog slice.
 
 ### Task 4 - Add Music entry auditing and stream-only read APIs
 
@@ -312,10 +312,10 @@ Proposed:
 Verification:
 - `./gradlew.bat :website:test --tests "*MusicAccess*" --tests "*MusicReadControllerTest" --tests "*ContentViewControllerTest"`
 
-- [ ] Write denied-access, trusted-IP, aggregation, and negative-download tests.
-- [ ] Implement public access probe, audit persistence/query, and Back Office panel.
-- [ ] Implement revision-checked range streaming and Music-specific transcode admission.
-- [ ] Run focused security/controller tests and commit the access/stream slice.
+- [x] Write denied-access, trusted-IP, aggregation, and negative-download tests.
+- [x] Implement public access probe, audit persistence/query, and Back Office panel.
+- [x] Implement revision-checked range streaming and Music-specific transcode admission.
+- [x] Run focused security/controller tests and commit the access/stream slice.
 
 ### Task 5 - Replace the basic radio with a server-owned smart timeline and shared queue
 
@@ -365,10 +365,10 @@ public record MusicRadioState(
 Verification:
 - `./gradlew.bat :website:test --tests "*MusicRadio*" --tests "*MusicQueue*" && node --test website/src/test/js/site-media-player.test.js`
 
-- [ ] Write deterministic selection and timeline failures first.
-- [ ] Implement durable station/queue/history state and atomic transitions.
-- [ ] Switch the player from shared-folder radio endpoints to Music radio endpoints and delete duration reporting.
-- [ ] Run radio/player tests and commit the station slice.
+- [x] Write deterministic selection and timeline failures first.
+- [x] Implement durable station/queue/history state and atomic transitions.
+- [x] Switch the player from shared-folder radio endpoints to Music radio endpoints and delete duration reporting.
+- [x] Run radio/player tests and commit the station slice.
 
 ### Task 6 - Add global playlists, favorites, exclusions, and listening history
 
@@ -414,10 +414,10 @@ public record MusicPlaylist(
 Verification:
 - `./gradlew.bat :website:test --tests "*MusicPlaylist*" --tests "*MusicPreference*" --tests "*MusicHistory*"`
 
-- [ ] Write global-state, authorization, conflict, and bounds tests.
-- [ ] Implement playlist, preference, and history services/controllers.
-- [ ] Wire preference projections into smart-radio selection.
-- [ ] Run focused tests and commit the shared-library slice.
+- [x] Write global-state, authorization, conflict, and bounds tests.
+- [x] Implement playlist, preference, and history services/controllers.
+- [x] Wire preference projections into smart-radio selection.
+- [x] Run focused tests and commit the shared-library slice.
 
 ### Task 7 - Add safe direct metadata editing, private backups, and undo
 
@@ -463,10 +463,10 @@ public record MusicMetadataUpdate(
 Verification:
 - `./gradlew.bat :website:test --tests "*MusicMetadata*" --tests "*MusicBackup*" --tests "*MusicTagProcess*"`
 
-- [ ] Write revision, process, preservation, atomicity, and undo failures first.
-- [ ] Implement strict request validation and configured process boundary.
-- [ ] Implement private checksum-bound backups, staged probe validation, atomic replace, audit, refresh, and cleanup.
-- [ ] Run fixture tests and commit the metadata slice.
+- [x] Write revision, process, preservation, atomicity, and undo failures first.
+- [x] Implement strict request validation and configured process boundary.
+- [x] Implement private checksum-bound backups, staged probe validation, atomic replace, audit, refresh, and cleanup.
+- [x] Run fixture tests and commit the metadata slice.
 
 ### Task 8 - Build the responsive Music hub and expanded/compact player handoff
 
@@ -516,10 +516,10 @@ export function topLevelNavItems(isAuthenticated) {
 Verification:
 - `node --test website/src/test/js/music.test.js website/src/test/js/site-media-player.test.js website/src/test/js/nav.test.js`
 
-- [ ] Write response, permission, navigation, and player-handoff failures first.
-- [ ] Build the responsive shell and pure state/render helpers.
-- [ ] Add expanded player presentation while retaining the existing compact bar and media owner.
-- [ ] Verify desktop and mobile flows through the local app and commit the UI/player slice.
+- [x] Write response, permission, navigation, and player-handoff failures first.
+- [x] Build the responsive shell and pure state/render helpers.
+- [x] Add expanded player presentation while retaining the existing compact bar and media owner.
+- [x] Verify desktop and mobile flows through the local app and commit the UI/player slice.
 
 ### Task 9 - Integrate configuration, run full verification, deliver, and deploy
 
@@ -564,10 +564,10 @@ Verification:
 - `Invoke-Pester ops/production/windows/tests -CI`
 - Start with `SPRING_PROFILES_ACTIVE=prod` on a non-8080 port and exercise anonymous denial, authorized catalog/radio/stream, writer mutation, session renewal exclusion, and player navigation.
 
-- [ ] Add startup validation, production defaults, dedicated rate limits, and non-interactive deployment smoke.
-- [ ] Run all automated suites and fix every regression.
-- [ ] Run alternate-port desktop/mobile/local runtime verification and save the Builder test report.
-- [ ] Commit/push the spoke branch, open one PR, wait for CI/CodeQL, merge, verify automatic production deployment, smoke production, close work, and save session memory.
+- [x] Add startup validation, production defaults, dedicated rate limits, and non-interactive deployment smoke.
+- [x] Run all automated suites and fix every regression.
+- [x] Run alternate-port desktop/mobile/local runtime verification and save the Builder test report.
+- [x] Commit/push the spoke branch, open one PR, wait for CI/CodeQL, merge, verify automatic production deployment, smoke production, close work, and save session memory.
 
 ## Code Changes
 
