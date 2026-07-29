@@ -2,7 +2,7 @@
 
 ## Document Status
 
-Ready for review.
+Ready for execution.
 
 ## Purpose
 
@@ -234,4 +234,4 @@ Each phase uses test-first RED/GREEN evidence, complete validator tests, direct 
 
 ## Open Questions
 
-None. The user selected the Java-standard-library tokenizer plus shallow recognizer approach on 2026-07-29. Exact lexical APIs and task boundaries will be fixed by the implementation plan after this design is approved for execution.
+None. The user selected the Java-standard-library tokenizer plus shallow recognizer approach and approved this written design on 2026-07-29. Exact lexical APIs and task boundaries are fixed by independently reviewed implementation plans before each phase executes.
