@@ -17,6 +17,7 @@ Resolve every currently open issue in `azurras/christopherbell.dev` through curr
 ## Related Specs and Plans
 
 - Project spec: [Complete christopherbell.dev Issues 1258-1307](../specs/2026-07-29-complete-christopherbell-dev-issues-1258-1307.md) (`ready-for-execution`).
+- Batch 5 spec: [Shared-Folder Integrity and Retention Issues 1290-1297](../specs/2026-07-29-shared-folder-integrity-retention-issues-1290-1297.md) (`ready-for-execution`).
 - Batch 1 plan: [Account Security and Lifecycle Issues 1258-1264](../implementation-plans/2026-07-29-account-security-lifecycle-issues-1258-1264.md) (`ready-for-execution`).
 - Batch 2 plan: [Public SEO and Accessibility Issues 1265-1272](../implementation-plans/2026-07-29-public-seo-accessibility-issues-1265-1272.md) (`complete`).
 - Batch 3 plan: [Social Relationship and Feed Scalability Issues 1273-1279](../implementation-plans/2026-07-29-social-relationship-and-feed-scalability-issues-1273-1279.md) (`complete`).
@@ -30,6 +31,7 @@ Resolve every currently open issue in `azurras/christopherbell.dev` through curr
 - Batch 2 worktree: `A:\Projects\christopherbell.dev-worktrees\issues-1265-1272-20260729` on `codex/issues-1265-1272-20260729`; rebased onto refreshed `origin/main` commit `5de2a8b02941ff7e95b6f2648b7bada9397f68b9` and merged by PR #1321 as `f31535f29312d24573a6031b0162aa8ebc4b5318`.
 - Batch 3 worktree: `A:\Projects\christopherbell.dev-worktrees\issues-1273-1279-rebased-20260729` on `codex/issues-1273-1279-rebased-20260729`; based on refreshed `origin/main` commit `a6a88e91f35bcbf9eeadeaf06cbf93df80ce0a5f` and merged by PR #1323 as `e3afbf3c9eeb65525f573f299f82287ef8665554`.
 - Batch 4 worktree: `A:\Projects\christopherbell.dev-worktrees\issues-1280-1289-20260729` on `codex/issues-1280-1289-20260729`; rebased onto refreshed `origin/main` commit `e3f7c676e8bf73a11056b9f009723ba9628025e8` and merged by PR #1325 as `b28031d535effef1fcbd547ba8f7dffdd4e76193`.
+- Batch 5 worktree: `A:\Projects\christopherbell.dev-worktrees\issues-1290-1297-20260729` on `codex/issues-1290-1297-20260729`, based on refreshed `origin/main` commit `b28031d535effef1fcbd547ba8f7dffdd4e76193`.
 
 ## Dispatched Tasks
 
@@ -59,6 +61,7 @@ Resolve every currently open issue in `azurras/christopherbell.dev` through curr
 - Batch 4 implemented participant-safe account deletion; atomic capped and revisioned WFL mutations; creator-only resets; bounded lifecycle, audit, and TTL; constant-query list hydration; indexed inventory and duplicate cursors; safe website validation; and anonymous ID-only storage without ZIP or coordinates. Final `:website:check` passed 1,489 Java tests with zero failures/errors and 3 skipped; a direct browser run passed 288/288.
 - PR [#1325](https://github.com/azurras/christopherbell.dev/pull/1325) passed Ubuntu, macOS, Windows, CodeQL, and dependency review and squash-merged as `b28031d535effef1fcbd547ba8f7dffdd4e76193`. Production rotated from PID 48420 to PID 52804, served the exact normalized merged client asset, reported liveness/readiness 200, applied migration 011 with the expected checksum/indexes, and retained zero unsafe websites or missing lifecycle fields.
 - Issues #1280-#1289 are closed with merge, CI, runtime, production migration, and test-report evidence. Issue #1298 was already closed by PR #1324, leaving 17 campaign issues open: #1290-#1297 and #1299-#1307.
+- Batch 5 design chooses asynchronous bounded immutable catalog generations with last-known-good fallback, generation-bound search cursors, post-commit invalidation, stream-terminal auditing, optimistic radio CAS with trusted Music metadata, and cleanup-before-TTL retention.
 - The user explicitly authorized autonomous continuation without routine approval pauses.
 
 ## Blockers
