@@ -6,11 +6,13 @@ Ready for execution. The user approved the integrated remediation design on 2026
 
 ## Purpose
 
-Remediate every attacker-reachable finding from the complete security review of `azurras/christopherbell.dev` at immutable revision `f77c5f5bb644cc75cf98b27e722efdc00cd036f1`, prove each security boundary with regression evidence, and deliver the result through PR, CI, merge, production-safe verification, and Builder closeout.
+Remediate every attacker-reachable finding from the complete security review of `azurras/christopherbell.dev` at immutable revision `f77c5f5bb644cc75cf98b27e722efdc00cd036f1` plus the complete follow-up security review of the ActivityPub delta through `6c1501070ff518bc040583c4576c2df201dcd3ed`, prove each security boundary with regression evidence, and deliver the result through PR, CI, merge, production-safe verification, and Builder closeout.
 
 ## Background
 
 The repository-wide scan accounted for all 1,105 tracked files and produced 18 candidates. Validation and attack-path analysis retained 15 findings: five high, seven medium, and three low. Three operator/admin-only correctness candidates were suppressed because no untrusted principal could reach them. Baseline `:website:check`, GitHub CI, and CodeQL passed at the scanned revision.
+
+Before implementation, refreshed `origin/main` added a 93-file ActivityPub federation delta. Every changed file received a full-file review receipt. Focused validation retained three additional findings: the public outbox omits the creation-time federation-eligibility flag, signup preselects federation consent instead of requiring affirmative opt-in, and federation predicates omit the independently mutable account approval state. The outbound transport, DNS pinning, request signing, encrypted-key handling, retry bounds, and configuration gates survived review.
 
 The dirty authoritative checkout at `A:\Projects\christopherbell.dev` must remain untouched. Work executes in `A:\Projects\christopherbell.dev-worktrees\security-audit-20260728` on branch `codex/security-audit-20260728`, based on refreshed `origin/main`.
 
@@ -25,6 +27,7 @@ The dirty authoritative checkout at `A:\Projects\christopherbell.dev` must remai
 - Prevent upload-resume metadata from crossing account boundaries in a shared browser.
 - Return stable public error contracts without stack-trace amplification for routine client failures.
 - Make the production trusted-proxy chain explicit and fail startup for invalid CIDRs.
+- Require affirmative federation enrollment, enforce current account approval throughout federation, and preserve the creation-time per-post publication boundary in the public outbox.
 - Pin executable build inputs through immutable GitHub Action SHAs, a Gradle distribution checksum, and strict Gradle dependency verification.
 - Preserve current public behavior except where it is unsafe, add regression tests first, and complete alternate-port and production verification.
 
@@ -81,6 +84,15 @@ The dirty authoritative checkout at `A:\Projects\christopherbell.dev` must remai
 - `gradle/verification-metadata.xml` must contain reviewed SHA-256 checksums for all resolved build, plugin, test, packaging, and sensor-runtime artifacts.
 - CI must execute dependency verification in strict mode, and the repository must document the intentional metadata-update workflow.
 
+### Federation privacy and moderation
+
+- Signup federation enrollment must default to unchecked and must become enabled only after an explicit affirmative choice.
+- Consent copy must accurately describe public identity, posts, and local relationship collections without implying that enrollment is automatic.
+- Federation enrollment, discovery, creation-time publication eligibility, queued delivery, and live delivery must require the account to be both `ACTIVE` and approved.
+- Revoking account approval must make public federation discovery fail closed and prevent subsequent delivery without relying on a separate consent mutation.
+- Public ActivityPub outbox page and count queries must include only posts whose persisted `federationOutboundEligible` value is explicitly true.
+- Historical null or false eligibility values must remain excluded even if the account enables federation later.
+
 ## Proposed Approach
 
 Deliver one integrated PR with cohesive commits grouped by boundary:
@@ -90,7 +102,8 @@ Deliver one integrated PR with cohesive commits grouped by boundary:
 3. Enforce WFL creator authority and an atomic/optimistic bounded membership transition, then centralize safe restaurant website parsing for ingestion and rendering.
 4. Introduce an outbound preview transport seam that resolves once and connects only to the approved address while retaining the original origin identity; centralize safe preview image URL parsing.
 5. Namespace upload resume state by current account.
-6. Pin workflows and Gradle inputs, then run focused, full, packaged-runtime, alternate-port, and production checks.
+6. Make federation enrollment affirmative, bind federation activity to current approval, and enforce creation-time post eligibility for public outboxes.
+7. Pin workflows and Gradle inputs, then run focused, full, packaged-runtime, alternate-port, and production checks.
 
 Each behavioral change begins with a failing public-boundary test. Security checks live inside service, authentication, parsing, or transport boundaries rather than only in controllers or UI code. Compatibility adapters are limited to legacy password verification and defensive rendering of existing URL data.
 
@@ -106,6 +119,8 @@ Each behavioral change begins with a failing public-boundary test. Security chec
 - `website/src/main/resources/static/js/**`
 - `website/src/main/resources/application-prod.yml`
 - corresponding Java and JavaScript tests
+- `website/src/main/java/dev/christopherbell/federation/**`
+- `website/src/main/resources/templates/signup.html`
 - `.github/workflows/**`
 - `gradle/wrapper/gradle-wrapper.properties`
 - `gradle/verification-metadata.xml`
@@ -124,7 +139,7 @@ Each behavioral change begins with a failing public-boundary test. Security chec
 
 ## Acceptance Criteria
 
-- All 15 validated findings have a corresponding code/config fix and regression evidence.
+- All 18 validated findings have a corresponding code/config fix and regression evidence.
 - No suppressed candidate is presented as remediated security work.
 - Focused tests and full `:website:check` pass with zero failures.
 - Strict dependency verification and the Gradle wrapper checksum succeed from a clean isolated Gradle home.
