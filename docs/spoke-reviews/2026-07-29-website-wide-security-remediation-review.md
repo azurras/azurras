@@ -3,6 +3,7 @@
 - Repository: `azurras/christopherbell.dev`
 - Branch/head: `codex/security-audit-20260728` at `5a2186ea5ea2b946faecead2b514f408bab6031e`
 - Base: `e3afbf3c9eeb65525f573f299f82287ef8665554`
+- PR/merge: [#1324](https://github.com/azurras/christopherbell.dev/pull/1324), squash-merged as `e3f7c676e8bf73a11056b9f009723ba9628025e8`
 - Related work: [website-wide security audit and remediation](../work/2026-07-28-website-wide-security-audit-and-remediation.md)
 - Test evidence: [website-wide security remediation test report](../test-reports/2026-07-29-website-wide-security-remediation.md)
 
@@ -28,8 +29,8 @@ The implementation makes trust boundaries and failure behavior explicit, separat
 
 ## Risks
 
-The principal delivery risk is operational rather than code correctness: production runs on the same Windows host and protected deployment configuration is intentionally unreadable from the non-elevated shell. The alternate-port candidate test avoided production secrets and did not alter the live listener. Normal deployment controls and post-deployment checks are still required after merge.
+The principal delivery risk was operational rather than code correctness: production runs on the same Windows host and protected deployment configuration is intentionally unreadable from the non-elevated shell. The alternate-port candidate test avoided production secrets, and the privileged auto-deployer subsequently rotated the live listener. Verification used service, listener, exact-asset, database, internal, and external evidence without weakening ACLs. No residual delivery risk remains.
 
 ## Merge Readiness
 
-ready for publication and CI. Merge remains contingent on the branch still being based on current `origin/main`, required GitHub checks passing, and no trusted `azurras` review requesting a change.
+merged and production-verified. All PR and post-merge checks passed, no trusted `azurras` review requested a change, and the production listener serves bytes matching merge `e3f7c676`.

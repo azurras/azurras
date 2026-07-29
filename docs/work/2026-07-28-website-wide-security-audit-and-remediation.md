@@ -1,6 +1,6 @@
 # Website-Wide Security Audit and Remediation
 
-- Status: active
+- Status: closed
 - Owner: Codex root agent
 - Started: 2026-07-28
 
@@ -19,32 +19,35 @@ Review every file in the current `azurras/christopherbell.dev` repository for se
 
 - `azurras/christopherbell.dev`
 - Authoritative dirty checkout: `A:\Projects\christopherbell.dev` (preserve unchanged)
-- Isolated worktree: pending creation from refreshed `origin/main`
+- Isolated worktree: `A:\Projects\christopherbell.dev-worktrees\security-audit-20260728`
 
 ## Related Artifacts
 
-- Security scan report: pending
-- Test report: pending
-- Spoke review: pending
-- Closure record: pending
+- Original assessment report: `C:\Users\Christopher\AppData\Local\Temp\codex-security-scans\christopherbell.dev\edf3a439e6bdffae22090a33ab8b17d354c6ee34_20260729T113526\report.md`
+- Final clean rescan: `C:\Users\Christopher\AppData\Local\Temp\codex-security-scans\christopherbell.dev\5a2186ea5ea2b946faecead2b514f408bab6031e_20260729T170846\report.md`
+- [Test report](../test-reports/2026-07-29-website-wide-security-remediation.md)
+- [Spoke review](../spoke-reviews/2026-07-29-website-wide-security-remediation-review.md)
+- [Closure record](../work-closures/2026-07-29-website-wide-security-audit-and-remediation.md)
 
 ## Current State
 
-Codex Security capability preflight returned `ready`. The session has three usable worker slots versus the profile suggestion of six; this is a speed warning only and does not reduce required coverage.
+PR [#1324](https://github.com/azurras/christopherbell.dev/pull/1324) was squash-merged as `e3f7c676e8bf73a11056b9f009723ba9628025e8`. The final security rescan closed all 26 review rows with zero remaining findings. Production automatically deployed the merge, rotated the port 8080 listener from PID 60136 to PID 48420, and passed internal and external smoke checks. Issues #1281, #1282, #1283, #1288, #1298, #1306, and #1307 are closed by the merge.
 
 ## Blockers
 
-None.
+None. The production ACL correctly denied this non-elevated shell direct access to protected deployment configuration and release metadata; verification used the guarded auto-deployer, listener/service evidence, exact live-asset comparison, database ping, and public behavior without weakening the ACL.
 
 ## Validation
 
-- Capability preflight: passed (`ready`)
-- Repository inventory and baseline tests: pending
+- Original complete scan: 25 deep-review rows closed; validated findings were remediated or reconciled with newer mainline fixes.
+- Final clean rescan: 26 of 26 rows closed; zero candidates or remaining findings.
+- Strict clean build: 1,575 Java tests, 0 failures, 0 errors, 4 skipped.
+- Browser suite: 279 passed, 0 failed.
+- PR CI, Dependency Review, and CodeQL: passed.
+- Post-merge main CI and CodeQL: passed on Linux, macOS, and Windows.
+- Alternate-port packaged runtime: eight cases passed; live port 8080 remained unchanged.
+- Production: merge SHA remained current main; listener rotated; exact live JavaScript matched the merge; MongoDB ping returned `ok: 1`; website, media worker, MongoDB, and cloudflared services were Running/Automatic; internal and external roots returned 200; security-sensitive denial and federation-default checks passed.
 
 ## Next Steps
 
-1. Create the isolated current-main worktree.
-2. Inventory and review every repository file.
-3. Validate candidates and analyze attack paths.
-4. Implement and verify each validated fix.
-5. Deliver, merge, production-verify, and close the work record.
+None. Resume only if a new finding, regression, or dependency update creates new scope.

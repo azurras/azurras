@@ -96,4 +96,17 @@ All eight runtime cases passed. The candidate started from the exact remediated 
 
 ## Bugs / Follow-ups
 
-No runtime defect or remaining security finding was observed. Production deployment and post-deployment verification remain delivery steps, not test gaps in this candidate report.
+No runtime defect or remaining security finding was observed. No test follow-up remains.
+
+## Production Verification
+
+- PR [#1324](https://github.com/azurras/christopherbell.dev/pull/1324) was squash-merged as `e3f7c676e8bf73a11056b9f009723ba9628025e8` after all PR checks passed.
+- Post-merge main CI and CodeQL passed; Linux, macOS, and Windows builds were green.
+- The privileged automatic deployment rotated the live port 8080 listener from PID 60136 to PID 48420 at 12:37 local time.
+- `origin/main` resolved to the merge SHA. Live `/js/lib/restaurant-website.js` matched the merge's Git blob exactly with SHA-256 `b8486fca98a0159fa4fa00679d7e88fdd3ba1e3e249831b2f1773c528b570de7`.
+- MongoDB returned `{"ok":1}` to a local ping. `ChristopherBellDev`, `ChristopherBellMediaWorker`, `MongoDB`, and `cloudflared` were Running with Automatic startup.
+- Internal and external `/` requests returned 200 and 4,041 bytes. The external response retained CSP and `nosniff` headers.
+- External `/signup` returned 200, contained the affirmative-consent copy, and rendered `federatePublicVoidPosts` unchecked.
+- External owner-bound upload and WFL state-changing probes returned 403; the unknown ActivityPub outbox returned 404; the new restaurant URL helper returned 200.
+- No schema migration or new database index was introduced by this remediation. Existing database availability was verified without changing data.
+- Protected deployment configuration, logs, and release metadata remained inaccessible to the non-elevated shell as designed; no ACL was changed.

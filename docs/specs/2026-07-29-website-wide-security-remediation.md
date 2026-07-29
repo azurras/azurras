@@ -2,7 +2,7 @@
 
 ## Document Status
 
-In progress. The user approved the integrated remediation design on 2026-07-29; the specification was reconciled with current main during execution.
+complete
 
 ## Purpose
 
