@@ -108,24 +108,35 @@ package dev.christopherbell.configuration.security;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.asyncDispatch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.request;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import dev.christopherbell.account.AccountRepository;
 import dev.christopherbell.configuration.security.browser.BrowserSessionRepository;
+import dev.christopherbell.configuration.security.browser.InteractiveBrowserRequest;
 import jakarta.servlet.DispatcherType;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 @WebMvcTest(AsyncDispatcherSecurityIntegrationTest.ProtectedController.class)
 @Import({
@@ -135,6 +146,7 @@ import org.springframework.web.bind.annotation.RestController;
 })
 class AsyncDispatcherSecurityIntegrationTest {
   @Autowired private SecurityFilterChain securityFilterChain;
+  @Autowired private MockMvc mockMvc;
   @MockitoBean private AccountRepository accounts;
   @MockitoBean private BrowserSessionRepository browserSessions;
 
@@ -148,6 +160,19 @@ class AsyncDispatcherSecurityIntegrationTest {
   void asyncAndErrorRedispatchesDoNotRequireSecondAuthentication() throws Exception {
     assertTrue(passesAuthorization(DispatcherType.ASYNC));
     assertTrue(passesAuthorization(DispatcherType.ERROR));
+  }
+
+  @Test
+  @WithMockUser
+  void authenticatedStreamingRequestCompletesThroughAsyncRedispatch() throws Exception {
+    var result = mockMvc.perform(get("/test/protected-stream"))
+        .andExpect(request().asyncStarted())
+        .andReturn();
+
+    result.getAsyncResult();
+    mockMvc.perform(asyncDispatch(result))
+        .andExpect(status().isOk())
+        .andExpect(content().string("ready"));
   }
 
   private boolean passesAuthorization(DispatcherType dispatcherType) throws Exception {
@@ -176,6 +201,12 @@ class AsyncDispatcherSecurityIntegrationTest {
     String protectedEndpoint() {
       return "protected";
     }
+
+    @GetMapping("/test/protected-stream")
+    ResponseEntity<StreamingResponseBody> protectedStream() {
+      return ResponseEntity.ok(output ->
+          output.write("ready".getBytes(StandardCharsets.UTF_8)));
+    }
   }
 }
 ```
@@ -183,7 +214,7 @@ class AsyncDispatcherSecurityIntegrationTest {
 Verification:
 
 - RED: `./gradlew.bat :website:test --tests 'dev.christopherbell.configuration.security.AsyncDispatcherSecurityIntegrationTest'`
-- Expected before production edit: `protectedInitialRequestStillRequiresAuthentication` passes; `asyncAndErrorRedispatchesDoNotRequireSecondAuthentication` fails because the downstream chain is not invoked.
+- Expected before production edit: `protectedInitialRequestStillRequiresAuthentication` passes; `asyncAndErrorRedispatchesDoNotRequireSecondAuthentication` fails because the downstream chain is not invoked. The streaming test documents the end-to-end production-chain contract and may fail with the same denial depending on MockMvc security-context propagation.
 
 #### Code Edit 1.2
 
@@ -319,6 +350,7 @@ Proposed:
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
 import ch.qos.logback.classic.Level;
@@ -331,7 +363,9 @@ import dev.christopherbell.libs.api.exception.InvalidTokenException;
 import dev.christopherbell.libs.api.exception.ResourceExistsException;
 import dev.christopherbell.libs.api.exception.ResourceNotFoundException;
 import dev.christopherbell.libs.api.exception.ServiceUnavailableException;
+import dev.christopherbell.libs.api.model.Response;
 import java.io.ByteArrayInputStream;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -339,25 +373,46 @@ import org.springframework.http.HttpInputMessage;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.web.ErrorResponseException;
 ```
 
 ```java
 @Test
-void routineClientErrorLogsAtDebugWithoutThrowable() {
-  var event = capture(() -> handler.handleInvalidRequestException(
-      new InvalidRequestException("raw validation detail")));
+void ordinaryClientErrorsLogAtDebugWithoutThrowable() {
+  var cases = List.<Runnable>of(
+      () -> handler.handleInvalidRequestException(
+          new InvalidRequestException("raw validation detail")),
+      () -> handler.handleResourceNotFoundException(
+          new ResourceNotFoundException("raw lookup detail")),
+      () -> handler.handleResourceExistsException(
+          new ResourceExistsException("raw conflict detail")),
+      () -> handler.handleErrorResponseException(
+          new ErrorResponseException(HttpStatus.NOT_ACCEPTABLE)),
+      () -> handler.handleErrorResponseException(
+          new ErrorResponseException(HttpStatus.UNSUPPORTED_MEDIA_TYPE)));
 
-  assertEquals(Level.DEBUG, event.getLevel());
-  assertEquals(null, event.getThrowableProxy());
+  for (var action : cases) {
+    var event = capture(action);
+    assertEquals(Level.DEBUG, event.getLevel());
+    assertNull(event.getThrowableProxy());
+  }
 }
 
 @Test
-void securityRelevantClientErrorLogsAtWarnWithoutThrowable() {
-  var event = capture(() -> handler.handleAccessDeniedException(
-      new AccessDeniedException("authorization internals")));
+void securityRelevantClientErrorsLogAtWarnWithoutThrowable() {
+  var cases = List.<Runnable>of(
+      () -> handler.handleInvalidTokenException(
+          new InvalidTokenException("token internals")),
+      () -> handler.handleAccessDeniedException(
+          new AccessDeniedException("authorization internals")),
+      () -> handler.handleErrorResponseException(
+          new ErrorResponseException(HttpStatus.TOO_MANY_REQUESTS)));
 
-  assertEquals(Level.WARN, event.getLevel());
-  assertEquals(null, event.getThrowableProxy());
+  for (var action : cases) {
+    var event = capture(action);
+    assertEquals(Level.WARN, event.getLevel());
+    assertNull(event.getThrowableProxy());
+  }
 }
 
 @Test
@@ -365,6 +420,31 @@ void unexpectedFailureLogsAtErrorWithThrowable() {
   var failure = new IllegalStateException("database unavailable");
 
   var event = capture(() -> handler.handleGenericException(failure));
+
+  assertEquals(Level.ERROR, event.getLevel());
+  assertNotNull(event.getThrowableProxy());
+  assertEquals(failure.getClass().getName(), event.getThrowableProxy().getClassName());
+}
+
+@Test
+void frameworkServerFailureLogsAtErrorWithThrowable() {
+  var failure = new ErrorResponseException(
+      HttpStatus.INTERNAL_SERVER_ERROR,
+      new IllegalStateException("framework internals"));
+
+  var event = capture(() -> handler.handleErrorResponseException(failure));
+
+  assertEquals(Level.ERROR, event.getLevel());
+  assertNotNull(event.getThrowableProxy());
+  assertEquals(failure.getClass().getName(), event.getThrowableProxy().getClassName());
+}
+
+@Test
+void serviceUnavailableLogsAtErrorWithThrowable() {
+  var failure = new ServiceUnavailableException(
+      "storage unavailable", new IllegalStateException("database host secret"));
+
+  var event = capture(() -> handler.handleServiceUnavailableException(failure));
 
   assertEquals(Level.ERROR, event.getLevel());
   assertNotNull(event.getThrowableProxy());
@@ -404,9 +484,8 @@ private ILoggingEvent capture(Runnable action) {
   }
 }
 
-private String message(Object response) {
-  var body = (dev.christopherbell.libs.api.model.Response<?>) response;
-  return body.getMessages().getFirst().getDescription();
+private String message(Response<?> response) {
+  return response.getMessages().getFirst().getDescription();
 }
 
 private HttpInputMessage emptyInput() {
@@ -420,8 +499,7 @@ private HttpInputMessage emptyInput() {
 Verification:
 
 - RED: `./gradlew.bat :cbell-lib:test --tests 'dev.christopherbell.libs.api.controller.ControllerExceptionHandlerTest'`
-- Expected before production edit: routine invalid request is `WARN`, and the domain handlers expose supplied messages instead of the stable literals.
-- During implementation, keep the test helper type-safe; if the domain exception constructors differ from the proposed signatures, use the existing constructor shape without weakening literal description assertions.
+- Expected before production edit: ordinary 400/404/406/409/415 cases are `WARN`, and the domain handlers expose supplied messages instead of the stable literals.
 
 #### Code Edit 2.2
 
@@ -432,10 +510,23 @@ Verification:
 Current:
 
 ```java
+import dev.christopherbell.libs.api.exception.InternalServiceException;
+import dev.christopherbell.libs.api.exception.InvalidRequestException;
+import dev.christopherbell.libs.api.exception.InvalidTokenException;
+import dev.christopherbell.libs.api.exception.ResourceExistsException;
+import dev.christopherbell.libs.api.exception.ResourceNotFoundException;
+import dev.christopherbell.libs.api.exception.ServiceUnavailableException;
+import dev.christopherbell.libs.api.model.Message;
+import dev.christopherbell.libs.api.model.Response;
+import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-// ...
-import java.util.List;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.web.ErrorResponseException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 ```
 
 ```java
@@ -463,7 +554,9 @@ log.warn("{} status={} type={}", REQUEST_ERROR, e.getStatusCode().value(),
 
 ```java
 log.warn("{} type={}", RESOURCE_EXISTS, e.getClass().getSimpleName());
-// corresponding RESOURCE_NOT_FOUND, INVALID_REQUEST, and INVALID_TOKEN WARN calls
+log.warn("{} type={}", RESOURCE_NOT_FOUND, e.getClass().getSimpleName());
+log.warn("{} type={}", INVALID_REQUEST, e.getClass().getSimpleName());
+log.warn("{} type={}", INVALID_TOKEN, e.getClass().getSimpleName());
 ```
 
 Proposed:
@@ -487,36 +580,65 @@ private static final Set<Integer> SECURITY_RELEVANT_CLIENT_STATUSES = Set.of(
 ```java
 var frameworkStatus = statusForFrameworkException(e);
 if (frameworkStatus != null) {
-  logClientFailure(REQUEST_ERROR, frameworkStatus, e);
+  logHttpFailure(REQUEST_ERROR, frameworkStatus, e);
   return errorResponse(
       REQUEST_ERROR, publicFrameworkDescription(e, frameworkStatus), frameworkStatus);
 }
 ```
 
 ```java
-logClientFailure(ACCESS_DENIED, HttpStatus.FORBIDDEN, e);
+logHttpFailure(ACCESS_DENIED, HttpStatus.FORBIDDEN, e);
 ```
 
 ```java
-logClientFailure(REQUEST_ERROR, e.getStatusCode(), e);
+logHttpFailure(REQUEST_ERROR, e.getStatusCode(), e);
 ```
 
 ```java
-logClientFailure(RESOURCE_EXISTS, HttpStatus.CONFLICT, e);
-// Return "The resource already exists."
+logHttpFailure(RESOURCE_EXISTS, HttpStatus.CONFLICT, e);
+return Response.builder()
+    .messages(List.of(Message.builder()
+        .code(RESOURCE_EXISTS)
+        .description("The resource already exists.")
+        .build()))
+    .success(false)
+    .build();
 
-logClientFailure(RESOURCE_NOT_FOUND, HttpStatus.NOT_FOUND, e);
-// Return "The requested resource was not found."
+logHttpFailure(RESOURCE_NOT_FOUND, HttpStatus.NOT_FOUND, e);
+return Response.builder()
+    .messages(List.of(Message.builder()
+        .code(RESOURCE_NOT_FOUND)
+        .description("The requested resource was not found.")
+        .build()))
+    .success(false)
+    .build();
 
-logClientFailure(INVALID_REQUEST, HttpStatus.BAD_REQUEST, e);
-// Return "The request is invalid."
+logHttpFailure(INVALID_REQUEST, HttpStatus.BAD_REQUEST, e);
+return Response.builder()
+    .messages(List.of(Message.builder()
+        .code(INVALID_REQUEST)
+        .description("The request is invalid.")
+        .build()))
+    .success(false)
+    .build();
 
-logClientFailure(INVALID_TOKEN, HttpStatus.UNAUTHORIZED, e);
-// Return "Authentication is required."
+logHttpFailure(INVALID_TOKEN, HttpStatus.UNAUTHORIZED, e);
+return Response.builder()
+    .messages(List.of(Message.builder()
+        .code(INVALID_TOKEN)
+        .description("Authentication is required.")
+        .build()))
+    .success(false)
+    .build();
 ```
 
 ```java
-private void logClientFailure(String code, HttpStatusCode status, Exception failure) {
+private void logHttpFailure(String code, HttpStatusCode status, Exception failure) {
+  if (status.is5xxServerError()) {
+    log.error("{} status={} type={}", code, status.value(),
+        failure.getClass().getSimpleName(), failure);
+    return;
+  }
   if (SECURITY_RELEVANT_CLIENT_STATUSES.contains(status.value())) {
     log.warn("{} status={} type={}", code, status.value(),
         failure.getClass().getSimpleName());
@@ -563,7 +685,7 @@ Verification:
 
 - GREEN: `./gradlew.bat :cbell-lib:test --tests 'dev.christopherbell.libs.api.controller.ControllerExceptionHandlerTest'`
 - Controller-boundary regressions: `./gradlew.bat :website:test --tests 'dev.christopherbell.restaurant.RestaurantControllerTest' --tests 'dev.christopherbell.account.AccountControllerTest' --tests 'dev.christopherbell.vehicle.VehicleControllerTest'`
-- Mutation check: changing ordinary 400 to WARN, attaching its throwable, lowering unexpected 500 below ERROR, removing its throwable, or returning the supplied domain message must fail at least one focused test.
+- Mutation check: changing ordinary 400 to WARN, attaching its throwable, lowering generic or framework 500 below ERROR, removing its throwable, or returning the supplied domain message must fail at least one focused test.
 - Focused commit: `Classify expected request failures below error`.
 
 ### Task 3 - Run proportionate checks and alternate-port runtime acceptance
@@ -626,7 +748,7 @@ Sequence / dependencies:
 ## Code Changes
 
 - `SecurityConfig` gains one explicit dispatcher authorization rule covering only `ASYNC` and `ERROR` before existing URL matchers.
-- `ControllerExceptionHandler` gains one private severity classifier for expected 4xx outcomes and stable domain descriptions.
+- `ControllerExceptionHandler` gains one private HTTP-severity classifier that preserves causal 5xx errors, bounds security-relevant 4xx warnings, lowers ordinary 4xx outcomes, and returns stable domain descriptions.
 - No response envelope, authentication credential, URL matcher, streaming implementation, or Mission Control reader changes are planned.
 
 ## Files and Modules
