@@ -1,12 +1,10 @@
 # ChristopherBell.dev ActivityPub Production Discovery Activation
 
+- Status: closed
+
 ## Objective
 
 Activate the already-implemented read-only ActivityPub discovery surface in production without enabling inbound mutations or uncontrolled outbound delivery. Automate creation and preservation of the required encryption secret, expose deployment preflight evidence, and retain a fail-closed outbound gate until an operator-controlled peer inbox is configured.
-
-## Status
-
-in_progress
 
 ## Owner and Context
 
@@ -28,7 +26,7 @@ in_progress
 
 ## Current State
 
-Discovery, inbound, and outbound federation are disabled in production. Discovery and controlled outbound behavior are implemented and tested. No real operator-controlled peer inbox is configured locally, so this gate will activate discovery only and prepare a safe outbound preflight without inventing a destination.
+Read-only discovery is active in production at merge `8405cd77d0f1743fe33d70cc80b47e37048090a0`. Inbound and outbound remain disabled, peers remain empty, and production contains zero federation delivery jobs, opted-in identities, and outbound-eligible posts. No real operator-controlled peer inbox is configured locally, so outbound activation remains a separate future gate.
 
 ## Security Boundaries
 
@@ -40,14 +38,17 @@ Discovery, inbound, and outbound federation are disabled in production. Discover
 
 ## Validation
 
-- Focused and full automated checks.
-- Alternate-port production-profile startup and public discovery checks.
-- Noninteractive deployment through the existing push-to-main path.
-- Post-deploy root, WebFinger, NodeInfo, actor visibility, service, listener, migration, and outbound inactivity checks.
+- Full `:website:check`: 1,390 Java tests, zero failures/errors, three skipped; JavaScript checks and boot packaging passed.
+- Pester 5.9.0 deployment suite: 37 passed, zero failed/skipped.
+- Alternate-port `prod,deploy-smoke` restart proved root and NodeInfo 200, foreign WebFinger 404, inbox POST 403, and a stable 32-byte secret.
+- PR 1318 passed Windows, Ubuntu, macOS, dependency review, and CodeQL checks.
+- Automatic production deployment rotated the listener from PID 16956 to PID 39760 without prompts.
+- Canonical/apex roots and NodeInfo return 200 publicly; foreign WebFinger returns 404 and inbox POST returns 403.
+- Production services are Running/Automatic and federation state remains empty.
 
-## Next Steps
+## Completion
 
-1. Save and validate the activation design and implementation plan.
-2. Implement in an isolated spoke worktree with tests.
-3. Open one PR, merge after green CI, and verify the automatic production deployment.
-4. Save test, review, closure, and session-memory evidence.
+- Pull request: [azurras/christopherbell.dev#1318](https://github.com/azurras/christopherbell.dev/pull/1318)
+- Test report: [ActivityPub Production Discovery Activation Test Report](../test-reports/2026-07-29-activitypub-production-discovery-activation.md)
+- Spoke review: [ActivityPub Production Discovery Activation Review](../spoke-reviews/2026-07-29-christopherbell-dev-activitypub-production-discovery-activation-review.md)
+- Closure: [ActivityPub Production Discovery Activation Closure](../work-closures/2026-07-29-christopherbell-dev-activitypub-production-discovery-activation.md)

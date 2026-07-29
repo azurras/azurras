@@ -70,11 +70,11 @@ The public feed may show a quiet keep-alive count because it explains the remain
 
 ## Release Sequence
 
-Release status as of July 28, 2026:
+Release status as of July 29, 2026:
 
 - Release 1 - Keep Alive Relaunch: complete and production-verified at merge `7e958e737b34563d6d49a078243437d5fa9e3377` through PR `azurras/christopherbell.dev#1314`.
 - Release 2 - Public Discovery: complete and production-verified at merge `f77c5f5bb644cc75cf98b27e722efdc00cd036f1` through PR `azurras/christopherbell.dev#1315`.
-- Release 3 - ActivityPub Federation: discovery foundation and controlled-peer outbound delivery are complete and production-verified through PRs `azurras/christopherbell.dev#1316` and `#1317`, latest merge `6c1501070ff518bc040583c4576c2df201dcd3ed`; production federation remains disabled, and explicit production activation is the next gate.
+- Release 3 - ActivityPub Federation: discovery foundation, controlled-peer outbound delivery, and production read-only discovery activation are complete and production-verified through PRs `azurras/christopherbell.dev#1316`, `#1317`, and `#1318`, latest merge `8405cd77d0f1743fe33d70cc80b47e37048090a0`. Discovery is live; inbound and outbound remain disabled until their separate controlled interoperability gates pass.
 
 ### Release 1: Keep Alive Relaunch
 
