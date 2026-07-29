@@ -10,7 +10,7 @@ GitHub issues `azurras/christopherbell.dev` #1258 through #1264.
 
 ## Branch
 
-`codex/all-open-issues-20260729`, based on `origin/main` commit `8405cd77d0f1743fe33d70cc80b47e37048090a0`; implementation commits `fc294f7d` and `1fe4fcdd`.
+`codex/all-open-issues-20260729`, based on `origin/main` commit `8405cd77d0f1743fe33d70cc80b47e37048090a0`; implementation commits `fc294f7d`, `1fe4fcdd`, and `a098da97`.
 
 ## App / Environment
 
@@ -35,6 +35,8 @@ PID 35468 was stopped afterward, port 8093 was confirmed free, and the disposabl
 
 After independent code review, the amended build was launched again as hidden PID `43212` against disposable database `cbell_issue_1258_1264_review_20260729`. The second run verified padded legacy-password rejection work, deterministic concurrent legacy upgrades, and immediate validity of both concurrently issued bearer tokens. Runtime log: `A:\GradleUserHomes\cbdev-issues-1258-1307\runtime-8093-review-20260729-081641.out.log`. PID 43212 was stopped, port 8093 was confirmed free, and the second disposable database was dropped.
 
+After final review identified a whole-document login save race, commit `a098da97` replaced it with a conditional atomic Mongo update and minted tokens from the returned current account. The final build ran as hidden PID `51028` against `cbell_issue_1258_1264_atomic_20260729`; account creation, current-format login, and authenticated `/me` all passed. Runtime log: `A:\GradleUserHomes\cbdev-issues-1258-1307\runtime-8093-atomic-20260729.out.log`. PID 51028 was stopped, port 8093 was confirmed free, and the exact disposable database was dropped.
+
 ## Test Cases
 
 | Case | Expected behavior | Result |
@@ -48,6 +50,7 @@ After independent code review, the amended build was launched again as hidden PI
 | Malformed JSON | Stable public parser error | Pass |
 | Legacy timing parity | Legacy wrong-password work is padded to the current PBKDF2 work factor | Pass |
 | Concurrent legacy upgrade | Two valid concurrent logins converge on one deterministic current hash and both tokens remain valid | Pass |
+| Login/moderation race | Login updates only credential/login fields and mints from the atomically returned current role/status/permissions | Pass |
 | Cleanup | Fixture, process, and disposable DB removed | Pass |
 
 ## Data Sent
@@ -72,13 +75,14 @@ After independent code review, the amended build was launched again as hidden PI
 - Malformed JSON returned status code 400 with response body description `The request body is malformed or invalid.`
 - Three legacy wrong-password requests took 176.4 ms total versus 145.3 ms for three unknown-account requests, a 1.21 ratio after padding both paths to the current 210,000-iteration work factor.
 - Concurrent legacy logins both returned 200; both bearer tokens immediately returned 200 from `/me`; the stored credential used the current self-describing format and no legacy salt remained.
+- Final atomic-path smoke returned root 200, create 201 with `Location`, login 200, and authenticated `/me` 200. The stored account had the current 210,000-iteration format, no legacy salt, and a populated `lastLoginOn`.
 - Post-delete database query returned zero matching test accounts.
 
 ## Pass / Fail
 
 All runtime cases passed. No listener, account fixture, or disposable database remains.
 
-Supporting checks passed after the review amendments: `:cbell-lib:test` 101 tests with 0 failures and 0 errors; final `:website:check` 1,390 Java tests with 0 failures, 0 errors, and 3 skipped; `:website:jsTest` 269 tests with 0 failures and 0 errors; `:website:verifySensorRuntime`; and `node --check` for `back-office.js` and `music.js`. The final combined check reported `BUILD SUCCESSFUL` in 1m37s.
+Supporting checks passed after all review amendments: `:cbell-lib:test` 101 tests with 0 failures and 0 errors; final `:website:check` 1,392 Java tests with 0 failures, 0 errors, and 3 skipped; `:website:jsTest` 269 tests with 0 failures and 0 errors; `:website:verifySensorRuntime`; and `node --check` for `back-office.js` and `music.js`. The final combined check reported `BUILD SUCCESSFUL` in 1m42s.
 
 ## Evidence
 
@@ -86,9 +90,9 @@ Supporting checks passed after the review amendments: `:cbell-lib:test` 101 test
 - Post-review runtime log named under Local Run Details.
 - Java XML: `website/build/test-results/test/` and `cbell-lib/build/test-results/test/`.
 - JS XML: `website/build/test-results/jsTest/results.xml`.
-- Cleanup output: `STOPPED_PID=35468`, `STOPPED_PID=43212`, `PORT_8093_LISTENING=False`, both database drops `{ ok: 1 }`, and both disposable databases absent.
+- Cleanup output: `STOPPED_PID=35468`, `STOPPED_PID=43212`, PID 51028 stopped, `PORT_8093_LISTENING=False`, all database drops `{ ok: 1 }`, and all disposable databases absent.
 - Production continuity: `ChristopherBellDev` remained Running; local port-8080 root and `https://www.christopherbell.dev/` returned status code 200.
 
 ## Bugs / Follow-ups
 
-The first alternate launch exposed that `application-local.yml` has an explicit `spring.mongodb.database`, so a database name embedded only in the URI is insufficient. It was stopped immediately. Its one test account was deleted, all 20 pre-existing accounts were restored to their prior effective approval state, and the premature V008 record was removed. Verification showed 20 accounts, 20 with `isApproved=true`, zero test accounts, and zero V008 records. Both accepted reruns set both Mongo variables and proved V008 existed only in their disposable databases. Independent review identified and the second commit corrected legacy-versus-unknown rejection work disparity, current-format authentication with a null legacy salt, and nondeterministic concurrent legacy upgrades. No unresolved Batch 1 defect remains.
+The first alternate launch exposed that `application-local.yml` has an explicit `spring.mongodb.database`, so a database name embedded only in the URI is insufficient. It was stopped immediately. Its one test account was deleted, all 20 pre-existing accounts were restored to their prior effective approval state, and the premature V008 record was removed. Verification showed 20 accounts, 20 with `isApproved=true`, zero test accounts, and zero V008 records. All accepted reruns set both Mongo variables and proved V008 existed only in their disposable databases. Independent review identified and corrected legacy-versus-unknown rejection work disparity, current-format authentication with a null legacy salt, nondeterministic concurrent legacy upgrades, and an unconstrained login save that could overwrite simultaneous moderation. No unresolved Batch 1 defect remains.
