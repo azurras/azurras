@@ -1,6 +1,6 @@
 # christopherbell.dev Repository Documentation Coverage
 
-- Status: active
+- Status: blocked
 - Owner: Codex root agent
 - Started: 2026-07-29
 
@@ -34,11 +34,11 @@ Document every first-party source and text file in `azurras/christopherbell.dev`
 
 ## Current State
 
-The user approved the saved language-aware, CI-enforced specification on 2026-07-29. The execution has been decomposed at independently testable boundaries. Phase 1 is active in an isolated worktree. Its read-only baseline is green; deterministic Git-backed source discovery is the next task. Later plans add Java/non-Java validation and remediate the resulting exact findings.
+The user approved the saved language-aware, CI-enforced specification on 2026-07-29. The execution has been decomposed at independently testable boundaries. Phase 1 implemented deterministic Git-backed source discovery and passed its full test/build gates, but its mandatory final scoped re-review retained load-bearing exclusion and subprocess-cleanup findings after the single permitted fix wave. The branch and worktree are preserved while a new corrective phase awaits authorization; later Java/non-Java validation and documentation remediation have not started.
 
 ## Blockers
 
-None.
+- The Phase 1 SDD contract permits exactly one final-review fix wave. Its scoped re-review still found three foundational gaps: missing `.nar`, `.ear`, and `.tar.gz` archive exclusions; an interrupted output-reader cleanup path without a second bounded termination verification; and related null-input/bounded-cleanup Javadoc omissions. A new corrective phase requires explicit authorization before later validators can safely depend on discovery.
 
 ## Validation
 
@@ -51,11 +51,17 @@ None.
 - Ran `$env:GRADLE_USER_HOME = 'A:\Projects\christopherbell.dev-worktrees\.gradle-documentation-coverage'; .\gradlew.bat --no-daemon build`: exit 0 in 4m25s, 1,494 tests, 0 failures, 0 errors, and 3 skipped.
 - Ran `Invoke-Pester -Path 'A:\Projects\christopherbell.dev-worktrees\repository-documentation-coverage-20260729\ops\production\windows\tests' -CI -Output Detailed -PassThru`: exit 0, 243 passed, 0 failed, 4 skipped, and 247 total.
 - The dirty authoritative checkout's status changed through unrelated external activity between controller setup and Task 1. Task 1 captured SHA-256 `c706e834ea40c9f523941c350570b68c5663fa4f3200528fa54d870a816e0ceb` both before and after validation, proving the task did not mutate it.
+- Discovery commits: `ab072e37c73aa97d678560dad2a8b85c13bb524d`, `d7bc644f39d9fab527cdc39b3377e71670674c9a`, `1153ad82b20a922c75c0f677f555856b78c31fa0`, and final fix-wave commit `e4784620bdfa072fb07415ea1d4e6fce688d0d27`.
+- Final fix-wave focused/module verification: 49 validator tests, 48 passed, 0 failures/errors, and 1 Unix-only skip on Windows; direct private-member Javadocs exited 0 with no warnings; `git diff --check` exited 0.
+- Final fix-wave root build: exit 0 in 2m00s with 1,543 tests, 1,539 passed, 0 failures/errors, and 4 skipped.
+- Mandatory scoped re-review verdict: `RESIDUAL_LOAD_BEARING_FINDINGS`; no pull request, push, merge, or integration was performed.
 
 ## Next Steps
 
-1. Implement and independently review the deterministic Git-backed discovery foundation test-first.
-2. Save and execute the Java documentation checker plan against the discovery boundary.
-3. Add non-Java/README validation and document the repository in reviewable subsystem commits.
-4. Run full local verification, deliver through PR and CI, merge, and verify post-merge main.
-5. Save test, review, session-memory, and closure artifacts; refresh indexes; close the work record.
+1. Obtain explicit authorization for a new corrective phase because the single permitted final-review fix wave is exhausted.
+2. Correct and independently review the residual archive-policy, reader-termination, and Javadoc gaps.
+3. Reconcile the preserved branch with the one upstream `main` commit after the foundation is review-clean.
+4. Save and execute the Java documentation checker plan against the corrected discovery boundary.
+5. Add non-Java/README validation and document the repository in reviewable subsystem commits.
+6. Run full local verification, deliver through PR and CI, merge, and verify post-merge main.
+7. Save test, review, session-memory, and closure artifacts; refresh indexes; close the work record.
