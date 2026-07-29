@@ -20,7 +20,7 @@
 
 ## Document Status
 
-in-progress
+complete
 
 ## Objective
 
@@ -749,8 +749,8 @@ Publication unit:
 - [x] Verify service state, live SHA, local `/`, public `/`, security headers, and authenticated Mission Control health.
 - [x] Observe a bounded live log window longer than the former approximately 16-second recurrence interval and confirm the exact async access-denied / committed-response / `/error` signature does not recur.
 - [x] Confirm the live `ERROR` entry was a genuine upstream Overpass 504 and retained its causal stack; unrelated true errors were not suppressed.
-- [ ] Close/update GitHub issue #1261 with commits, PR, CI, merge, deployment, test report, live log evidence, known gaps, and session memory.
-- [ ] Save session memory, close Builder hub work as applicable, update indexes, validate Builder state, and push Builder checkpoints.
+- [x] Update already-closed GitHub issue #1261 with commits, PR, CI, merge, deployment, test report, live log evidence, known gaps, and session memory in `issuecomment-5120588176`.
+- [x] Save session memory, confirm no standalone Builder hub work record requires closure, update indexes, validate Builder state, and push Builder checkpoints.
 
 ## Code Changes
 

@@ -52,3 +52,12 @@ Address the production log flood so routine expected failures do not appear as e
 
 - Post the prepared evidence update to already-closed issue #1261, then mark the final plan checklist and Builder closeout complete.
 - The startup OpenStreetMap import currently records a real upstream 504. It is intentionally still visible and is not an issue-1261 regression; investigate separately only if the user scopes that operational failure.
+
+## 11:23 - Issue 1261 true-error logging completed
+
+### Final Closure Update
+
+- Posted the corrective production evidence to the already-closed trusted issue as `https://github.com/azurras/christopherbell.dev/issues/1261#issuecomment-5120588176`.
+- The update records PR #1322, merge `a6a88e91`, all CI/CodeQL results, exact production release verification, Mission Control log evidence, the Builder test report, and this session memory.
+- Marked the implementation plan `complete`. No standalone Builder hub work record was opened for this focused issue, so a hub work-closure artifact is not applicable.
+- Known issue-1261 gaps: none. The separate genuine OpenStreetMap startup-import 504 remains visible for separately scoped operational triage.
