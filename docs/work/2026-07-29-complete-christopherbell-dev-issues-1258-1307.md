@@ -18,12 +18,14 @@ Resolve every currently open issue in `azurras/christopherbell.dev` through curr
 
 - Project spec: [Complete christopherbell.dev Issues 1258-1307](../specs/2026-07-29-complete-christopherbell-dev-issues-1258-1307.md) (`ready-for-execution`).
 - Batch 1 plan: [Account Security and Lifecycle Issues 1258-1264](../implementation-plans/2026-07-29-account-security-lifecycle-issues-1258-1264.md) (`ready-for-execution`).
+- Batch 2 plan: [Public SEO and Accessibility Issues 1265-1272](../implementation-plans/2026-07-29-public-seo-accessibility-issues-1265-1272.md) (`ready-for-execution`).
 - Later batch implementation plans will be linked after each current-source inspection and review.
 
 ## Spoke Repositories
 
 - `christopherbell-dev`: authoritative checkout `A:\Projects\christopherbell.dev`; it is dirty, ahead 3, behind 90, and must remain untouched.
 - Batch 1 worktree: `A:\Projects\christopherbell.dev-worktrees\all-open-issues-20260729` on `codex/all-open-issues-20260729`, created from refreshed `origin/main` commit `8405cd77d0f1743fe33d70cc80b47e37048090a0`; merged by PR #1319 as `e393687d10c40b856f35d669c25bf3ea65c5c083`.
+- Batch 2 worktree: `A:\Projects\christopherbell.dev-worktrees\issues-1265-1272-20260729` on `codex/issues-1265-1272-20260729`, created from refreshed `origin/main` merge commit `e393687d10c40b856f35d669c25bf3ea65c5c083`.
 
 ## Dispatched Tasks
 
@@ -41,6 +43,8 @@ Resolve every currently open issue in `azurras/christopherbell.dev` through curr
 - Independent review found and drove fixes for credential timing, null legacy salt handling, deterministic concurrent upgrades, whole-document login lost updates, and stale JWT-to-browser-session exchange. The final `fc294f7d..9be7ef2c` review reported no remaining Critical or Important blocker.
 - PR [#1319](https://github.com/azurras/christopherbell.dev/pull/1319) passed Ubuntu, macOS, Windows, all CodeQL languages, and dependency review, then squash-merged as `e393687d10c40b856f35d669c25bf3ea65c5c083`.
 - Production rotated from PID 39760 to PID 48484 and serves asset URLs containing the merge SHA. Local root, readiness, and public root return 200; V008 is APPLIED with the expected checksum; all 20 accounts remain; no retired approval field or test account remains; MongoDB, ChristopherBellDev, and cloudflared are Running/Automatic.
+- Issues #1258-#1264 are closed with merge, CI, runtime, production, test-report, and session-memory evidence; 43 campaign issues remain open.
+- Batch 2 source inspection confirmed post metadata/expiration-aware 404 handling is partly present, while profile and restaurant views remain generic. The reviewed design centralizes view indexing metadata, makes missing dynamic resources true non-indexable 404s, and replaces the static sitemap with an explicit route/data registry and 50,000-URL shard contract.
 - The user explicitly authorized autonomous continuation without routine approval pauses.
 
 ## Blockers
@@ -55,7 +59,7 @@ None.
 
 ## Next Steps
 
-1. Close #1258-#1264 with the merged, tested, production-verified evidence.
-2. Refresh `origin/main`, create the Batch 2 isolated worktree, and save its literal reviewed implementation plan.
+1. Execute the reviewed Batch 2 plan test-first in its isolated worktree.
+2. Publish, independently review, CI-validate, merge, production-verify, and close #1265-#1272.
 3. Implement, test, publish, merge, close, and production-verify the remaining batches in dependency order.
 4. Refresh Builder indexes, close this record, and save final campaign memory after all 50 issues are closed.
