@@ -119,9 +119,10 @@ Line terminators are normalized for position accounting without changing token s
 1. `//` begins a line comment.
 2. `/*` begins a block comment or JSDoc.
 3. Otherwise, `/` begins a regex only where the previous significant token permits an expression start, including after opening delimiters, separators, assignment/operators, and expression-leading keywords such as `return`, `throw`, `case`, `yield`, and `await`.
-4. In value-ending contexts—identifier, literal, closing delimiter, postfix increment/decrement—`/` is division or a division-assignment punctuator.
+4. In proven value-ending contexts—identifier, literal, closing bracket, a value-parenthesis closure, or postfix increment/decrement—`/` is division or a division-assignment punctuator.
+5. A slash immediately after an ordinary closing brace is lexically ambiguous until the structural layer proves object-versus-block ownership. Phase A therefore fails closed at that slash instead of guessing; Phase B may later supply proved brace context and broaden the classification with fixtures.
 
-Regex flags are consumed as identifier-part characters after the closing slash. Fixtures must include division chains, regex character classes containing slash-like punctuation, escaped slashes, and repository-native regexes.
+Regex flags are consumed as identifier-part characters after the closing slash. Fixtures must include division chains, regex character classes containing slash-like punctuation, escaped slashes, ambiguous post-brace failure, and repository-native regexes.
 
 Template raw text is inert. `${` transitions into ordinary tokenization with a dedicated interpolation brace owner. Closing the interpolation returns to template raw state; nested object literals, blocks, templates, strings, comments, and regexes inside interpolation must preserve the correct owner.
 
