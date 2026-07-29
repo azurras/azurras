@@ -27,14 +27,14 @@ Document every first-party source and text file in `azurras/christopherbell.dev`
 ## Related Artifacts
 
 - Project specification: [Repository-Wide Documentation Coverage](../specs/2026-07-29-christopherbell-dev-repository-wide-documentation-coverage.md) (`ready-for-execution`, approved 2026-07-29).
-- Implementation plan: pending.
+- Phase 1 implementation plan: [Repository Documentation Discovery Foundation](../implementation-plans/2026-07-29-repository-documentation-discovery-foundation.md) (`ready-for-execution`).
 - Test report: pending.
 - Spoke update and review: pending.
 - Closure record: pending.
 
 ## Current State
 
-The user approved the saved language-aware, CI-enforced specification on 2026-07-29. Coverage includes complete Java contract tags where applicable, language-native equivalent documentation outside Java, purpose documentation for every first-party file, owning-README documentation for comment-free formats, and an accurate Mermaid state or flow diagram in every README. Implementation planning is in progress.
+The user approved the saved language-aware, CI-enforced specification on 2026-07-29. The execution has been decomposed at independently testable boundaries. The ready Phase 1 plan creates the isolated worktree, records a green baseline, and adds deterministic Git-backed source discovery; later plans add Java/non-Java validation and remediate the resulting exact findings.
 
 ## Blockers
 
