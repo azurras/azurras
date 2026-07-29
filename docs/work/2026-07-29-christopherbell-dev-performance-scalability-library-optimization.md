@@ -23,19 +23,25 @@ spoke changes only after separate explicit user authorization.
 
 ## Related Specs and Plans
 
-- Project spec: [christopherbell.dev Performance, Scalability, and Library Optimization](../specs/2026-07-29-christopherbell-dev-performance-scalability-library-optimization.md) (`ready-for-review`).
+- Project spec: [christopherbell.dev Performance, Scalability, and Library Optimization](../specs/2026-07-29-christopherbell-dev-performance-scalability-library-optimization.md) (approved).
 - Related active campaign: [Complete christopherbell.dev Issues 1258-1307](2026-07-29-complete-christopherbell-dev-issues-1258-1307.md).
-- Implementation plan: pending written-spec review and approval.
+- Implementation plans:
+  - [Authentication Request Efficiency](../implementation-plans/2026-07-29-christopherbell-dev-authentication-request-efficiency.md)
+  - [Backend Query and Resource Bounds](../implementation-plans/2026-07-29-christopherbell-dev-backend-query-resource-bounds.md)
+  - [Browser Delivery Optimization](../implementation-plans/2026-07-29-christopherbell-dev-browser-delivery-optimization.md)
+  - [Shared Library Boundaries](../implementation-plans/2026-07-29-christopherbell-dev-shared-library-boundaries.md)
 
 ## Spoke Repositories
 
 - `christopherbell-dev`: authoritative checkout `A:\Projects\christopherbell.dev`;
   it was dirty, ahead 3, and behind 93 during the design review and remains
   untouched.
-- Evidence checkout:
-  `A:\Projects\christopherbell.dev-worktrees\repository-documentation-coverage-20260729`
+- Final planning checkout:
+  `A:\Projects\christopherbell.dev-worktrees\performance-planning-20260729`
   at refreshed `origin/main` commit
-  `5de2a8b02941ff7e95b6f2648b7bada9397f68b9`.
+  `f31535f29312d24573a6031b0162aa8ebc4b5318`.
+- The earlier evidence checkout acquired unrelated documentation changes during
+  planning and was preserved without cleanup or reuse.
 
 ## Dispatched Tasks
 
@@ -60,6 +66,9 @@ read-only investigation.
   focused `static/js/lib` consolidation where semantics match.
 - Forty-three issues from #1258-#1307 remain open; many already own feed, WFL,
   Shared Folder, and build scaling work and will not be duplicated.
+- The user approved the written specification. Four ordered implementation
+  plans now pass Builder's literal Code Edit validation and human
+  execution-readiness review.
 
 ## Validation
 
@@ -70,24 +79,22 @@ read-only investigation.
   headers, and all current GitHub issue titles and relevant historical issues.
 - No spoke source file, database, process, service, listener, issue, or pull
   request was changed during the investigation.
-- Builder artifact indexes and hub validation will be refreshed before this
-  planning checkpoint is committed.
+- All four implementation plans pass the checked-in implementation-plan
+  validator; Builder artifact indexes and hub validation are refreshed before
+  this planning checkpoint is committed.
 
 ## Blockers
 
-- The written specification requires user review before implementation planning.
 - Spoke implementation is not authorized by the design approvals recorded so
   far and requires a separate explicit user instruction.
 
 ## Next Steps
 
-1. Ask the user to review the written specification.
-2. After approval, create and validate a literal line-range implementation plan
-   against refreshed current mainline.
-3. Ask for explicit execution authorization after the implementation plan is
-   reviewed.
-4. If authorized, execute independent optimization batches with focused tests, full
-   `:website:check`, alternate-port runtime acceptance, pull-request CI, merge,
-   and production-safe verification.
-5. Record Builder test, update, review, session-memory, and closure artifacts as
+1. Ask for explicit execution authorization and the preferred execution mode.
+2. If authorized, execute the authentication and backend plans first, the
+   browser plan independently, and the shared-library plan after backend lease
+   consumers land.
+3. Run focused tests, full `:website:check`, alternate-port runtime acceptance,
+   pull-request CI, merge, and production-safe verification.
+4. Record Builder test, update, review, session-memory, and closure artifacts as
    implementation proceeds.

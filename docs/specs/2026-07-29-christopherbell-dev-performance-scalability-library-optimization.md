@@ -2,7 +2,7 @@
 
 ## Document Status
 
-Ready for review.
+Approved; implementation plans ready for execution.
 
 ## Purpose
 
@@ -17,10 +17,10 @@ only stable abstractions with multiple consumers.
 ## Background
 
 The website is a Java 25 and Spring Boot 4.1 monolith backed by MongoDB, with
-Thymeleaf pages and browser-native JavaScript modules. The design review used a
-clean current-mainline checkout at
-`A:\Projects\christopherbell.dev-worktrees\repository-documentation-coverage-20260729`
-on `origin/main` commit `5de2a8b02941ff7e95b6f2648b7bada9397f68b9`.
+Thymeleaf pages and browser-native JavaScript modules. The final planning
+review used a clean detached current-mainline checkout at
+`A:\Projects\christopherbell.dev-worktrees\performance-planning-20260729`
+on `origin/main` commit `f31535f29312d24573a6031b0162aa8ebc4b5318`.
 The dirty authoritative checkout at `A:\Projects\christopherbell.dev` was not
 modified.
 
@@ -440,6 +440,6 @@ reviewed and current mainline is refreshed.
 ## Open Questions
 
 None. The user approved the hot-path-first strategy, backend priorities,
-frontend split, both library boundaries, and verification/rollout design on
-2026-07-29. The written specification remains at the required user-review gate
-before implementation planning.
+frontend split, both library boundaries, verification/rollout design, and the
+written specification on 2026-07-29. Four validated implementation plans are
+ready; spoke execution still requires a separate explicit user instruction.
