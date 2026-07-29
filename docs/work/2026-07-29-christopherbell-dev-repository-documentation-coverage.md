@@ -27,16 +27,16 @@ Document every first-party source and text file in `azurras/christopherbell.dev`
 ## Related Artifacts
 
 - Project specification: [Repository-Wide Documentation Coverage](../specs/2026-07-29-christopherbell-dev-repository-wide-documentation-coverage.md) (`ready-for-execution`, approved 2026-07-29).
-- Phase 1 implementation plan: [Repository Documentation Discovery Foundation](../implementation-plans/2026-07-29-repository-documentation-discovery-foundation.md) (`ready-for-execution`).
-- Corrective design: [Documentation Discovery Corrective Design](../specs/2026-07-29-documentation-discovery-corrective-design.md) (`ready-for-execution`, written spec approved 2026-07-29).
-- Corrective implementation plan: [Documentation Discovery Corrective Phase](../implementation-plans/2026-07-29-documentation-discovery-corrective-phase.md) (`ready-for-execution`, independently reviewed 2026-07-29).
+- Phase 1 implementation plan: [Repository Documentation Discovery Foundation](../implementation-plans/2026-07-29-repository-documentation-discovery-foundation.md) (`complete`).
+- Corrective design: [Documentation Discovery Corrective Design](../specs/2026-07-29-documentation-discovery-corrective-design.md) (`complete`).
+- Corrective implementation plan: [Documentation Discovery Corrective Phase](../implementation-plans/2026-07-29-documentation-discovery-corrective-phase.md) (`complete`).
 - Test report: pending.
 - Spoke update and review: pending.
 - Closure record: pending.
 
 ## Current State
 
-The user approved the corrective written design on 2026-07-29. Its literal-line-range implementation plan passes mechanical validation and independent execution-readiness review with no blockers. The preserved discovery branch remains at `e4784620bdfa072fb07415ea1d4e6fce688d0d27`; later Java/non-Java validation and documentation remediation have not started.
+The discovery foundation and corrective phase are complete and review-clean at `644763701d5438062ee93594ae9a5695b1659715`. Deterministic Git discovery now has named exclusions, complete repository-native archive coverage, path safety, bounded process/reader ownership, deterministic interruption tests, and warning-free private Javadocs. The Java documentation checker is the next independently planned phase; non-Java validation and documentation remediation have not started.
 
 ## Blockers
 
@@ -58,12 +58,16 @@ None. The previously blocked residual findings are the explicitly authorized sco
 - Final fix-wave root build: exit 0 in 2m00s with 1,543 tests, 1,539 passed, 0 failures/errors, and 4 skipped.
 - Mandatory scoped re-review verdict: `RESIDUAL_LOAD_BEARING_FINDINGS`; no pull request, push, merge, or integration was performed.
 - Corrective plan validation passed; independent plan review returned `ready` with no blockers and one accepted warning that the single-deadline property is statically reviewed rather than measured by a timing-sensitive second test.
+- Corrective commits: `bc91c5768a572955da532a5cf5f7cb2d7259776a`, `010524e65a7b1c55d4976a0d3642159e2062c514`, `236503c2c22bb65ce057909f1712534c69d59843`, and `644763701d5438062ee93594ae9a5695b1659715`.
+- Final focused/module verification: 61 validator tests, 60 passed, 0 failures/errors, and 1 Unix-only skip on Windows; direct private Javadocs covered 3 production sources with no warnings.
+- Final root build: 1,555 tests, 1,551 passed, 0 failures/errors, and 4 skipped.
+- Final scoped re-review: both deterministic join-handshake and root-archive findings `ADDRESSED`; no regression introduced; verdict `ALL_FINDINGS_ADDRESSED`.
+- Isolated worktree clean at `64476370`, ahead 8 and behind 3 of current `origin/main`; no rebase, pull, push, PR, or merge performed.
 
 ## Next Steps
 
-1. Execute and independently review the ready corrective implementation plan.
-2. Reconcile the preserved branch with upstream `main` after the foundation is review-clean.
-3. Save and execute the Java documentation checker plan against the corrected discovery boundary.
-4. Add non-Java/README validation and document the repository in reviewable subsystem commits.
-5. Run full local verification, deliver through PR and CI, merge, and verify post-merge main.
-6. Save test, review, session-memory, and closure artifacts; refresh indexes; close the work record.
+1. Save and execute the Java documentation checker plan against the corrected discovery boundary.
+2. Add non-Java/README validation and document the repository in reviewable subsystem commits.
+3. Reconcile the campaign branch with upstream `main` before delivery.
+4. Run full local verification, deliver through PR and CI, merge, and verify post-merge main.
+5. Save test, review, session-memory, and closure artifacts; refresh indexes; close the work record.
