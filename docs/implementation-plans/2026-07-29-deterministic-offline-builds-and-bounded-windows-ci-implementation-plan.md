@@ -4,7 +4,7 @@
 
 **Goal:** Resolve #1302-#1305 with commit-stable artifact versions, a verified reusable sensor cache, Windows Pester in `check`, and bounded concurrency-aware CI.
 
-**Architecture:** Root Gradle providers resolve an explicit release version or exact Git identity. Website build logic owns a checksum-first cache resolver with an injected download effect and four-path verification task. Windows-only task wiring preserves other platforms. Parsed YAML/source contract tests make the build and CI rules executable.
+**Architecture:** Root Gradle providers resolve an explicit release version or exact Git identity. Website build logic owns a checksum-first cache resolver with an injected download effect and four-path verification task. Windows-only task wiring preserves other platforms and excludes Pester only for a strict protected production-deployment marker or the exact legacy `LocalSystem` bootstrap context. Parsed YAML/source contract tests make the build and CI rules executable.
 
 **Tech Stack:** Gradle 9.6.1 Kotlin DSL, Java 25, JUnit 5, AssertJ, PowerShell 7, Windows PowerShell 5.1, Pester 5.9.0, GitHub Actions.
 
@@ -460,6 +460,112 @@ Verification:
 - Packaged alternate-port runtime smoke.
 - `gh pr checks <number> --watch`; merged-main CI/CodeQL; exact-SHA production health/services.
 
+### Task 6 - Repair the protected deployment boundary discovered after merge
+
+Sequence / dependencies:
+- After Task 5 mainline checks; required because production retained the prior healthy release when its `LocalSystem` packager could not import user-scoped Pester 5.9.0.
+
+Implementation notes:
+- Required skill: `write-jane-street-style-code` before any code edits.
+- Before-Edit Brief:
+  - Behavior: ordinary Windows and CI builds keep all three Pester dependencies; only the protected deployment build skips them while retaining every other `build` verification.
+  - Invariants: explicit marker is exact and validated; bootstrap fallback requires Windows, `LocalSystem`, and the production Gradle-home suffix together; no generic missing-Pester fallback.
+  - Boundary/API: `CHRISTOPHERBELL_PRODUCTION_DEPLOYMENT=1` from the deploy module; existing installed tools bootstrap through their already-set Gradle home and service identity.
+  - Effects and failures: no new external effect; invalid explicit marker fails configuration; production still packages through `:website:build` and candidate smoke.
+  - Tests and evidence: establish focused Java RED, prove context truth table through a Gradle verification task, rerun full local build/Pester, then repeat PR/mainline/production exact-SHA verification.
+
+#### Code Edit 6.1
+- File: `website/src/test/java/dev/christopherbell/configuration/BuildAutomationConfigurationTest.java`
+- Lines: after 33
+- Action: add
+
+Proposed:
+```java
+@Test
+void productionPackagingExemptsOnlyTheProtectedWindowsDeploymentContext() throws IOException {
+  var build = Files.readString(REPOSITORY_ROOT.resolve("website/build.gradle.kts"));
+  var deploy = Files.readString(REPOSITORY_ROOT.resolve(
+      "ops/production/windows/modules/Production.Deploy.psm1"));
+
+  assertThat(build).contains(
+      "CHRISTOPHERBELL_PRODUCTION_DEPLOYMENT",
+      "SYSTEM",
+      "christopherbell.dev\\\\gradle-home",
+      "verifyProductionDeploymentBuildContext");
+  assertThat(deploy).contains("CHRISTOPHERBELL_PRODUCTION_DEPLOYMENT = '1'");
+}
+```
+
+Verification:
+- `.\gradlew.bat :website:test --tests '*BuildAutomationConfigurationTest.productionPackagingExemptsOnlyTheProtectedWindowsDeploymentContext'` must fail before implementation and pass after it.
+
+#### Code Edit 6.2
+- File: `website/build.gradle.kts`
+- Lines: 401-569
+- Action: replace
+
+Current:
+```kotlin
+val windowsPesterVerification = listOf(
+    sharedFolderWorkerPester,
+    sharedFolderOperationsPwshPester,
+    sharedFolderOperationsWindowsPowerShellPester)
+
+tasks.named("check") {
+    dependsOn("jsTest")
+    if (System.getProperty("os.name").startsWith("Windows", ignoreCase = true)) {
+        dependsOn(windowsPesterVerification)
+    }
+}
+```
+
+Proposed:
+```kotlin
+fun protectedProductionBuild(username: String?, gradleHome: String): Boolean =
+    username.equals("SYSTEM", ignoreCase = true) &&
+        normalizedWindowsPath(gradleHome).endsWith("\\christopherbell.dev\\gradle-home")
+
+val explicitProductionDeployment = providers
+    .environmentVariable("CHRISTOPHERBELL_PRODUCTION_DEPLOYMENT")
+    .map(::strictDeploymentMarker)
+val productionDeploymentBuild = explicitProductionDeployment.orElse(provider {
+    isWindows && protectedProductionBuild(System.getenv("USERNAME"), gradle.gradleUserHomeDir.path)
+})
+```
+
+Wire the three Pester task dependencies only when Windows and `productionDeploymentBuild` is false. Add `verifyProductionDeploymentBuildContext` with a truth table covering explicit true, invalid marker, ordinary user, wrong home, non-Windows, and the exact legacy bootstrap; attach it to `check` without making it depend on Pester.
+
+Verification:
+- `.\gradlew.bat :website:verifyProductionDeploymentBuildContext`
+- An ordinary `.\gradlew.bat :website:build --dry-run` lists all three Pester tasks; an exact simulated bootstrap context omits them while retaining the remaining verification and packaging tasks.
+
+#### Code Edit 6.3
+- File: `ops/production/windows/modules/Production.Deploy.psm1`
+- Lines: 36-37
+- Action: replace
+
+Current:
+```powershell
+$environment = @{ GRADLE_USER_HOME=(Join-Path $Config.programDataRoot 'gradle-home'); NODE_EXE=$Config.nodeExe }
+Invoke-CheckedProcess (Join-Path $worktree 'gradlew.bat') @('--no-daemon',':website:build') $worktree $environment | Out-Null
+```
+
+Proposed:
+```powershell
+$environment = @{
+    GRADLE_USER_HOME = Join-Path $Config.programDataRoot 'gradle-home'
+    NODE_EXE = $Config.nodeExe
+    CHRISTOPHERBELL_PRODUCTION_DEPLOYMENT = '1'
+}
+Invoke-CheckedProcess (Join-Path $worktree 'gradlew.bat') @('--no-daemon',':website:build') $worktree $environment | Out-Null
+```
+
+Verification:
+- `.\gradlew.bat :website:verifyProductionDeploymentBuildContext`
+- Full ordinary Windows `build` still produces all three Pester NUnit reports.
+- Simulated exact bootstrap context runs `:website:build --dry-run` without scheduling Pester but still schedules Java, JavaScript, deterministic-version, sensor, and packaging tasks.
+- New PR and merged-main checks green; protected auto-deployer advances exact release SHA and all internal/public/service evidence passes.
+
 ## Code Changes
 
 - `BuildAutomationConfigurationTest.java`: add Gradle contract tests (1.1).
@@ -467,6 +573,8 @@ Verification:
 - `build.gradle.kts`: replace date/run versioning; add verification (2.1).
 - `website/build.gradle.kts`: cache/download/verification and Windows Pester wiring (3.1, 4.1).
 - `.github/workflows/ci.yml`: concurrency, Pester, and timeouts (4.2).
+- `website/build.gradle.kts` and `Production.Deploy.psm1`: strict protected-deployment Pester boundary plus legacy self-bootstrap compatibility (6.2-6.3).
+- `BuildAutomationConfigurationTest.java`: deployment boundary regression contract (6.1).
 
 ## Files and Modules
 
@@ -490,7 +598,7 @@ Separate concern commits allow targeted revert. Production retains automatic pre
 
 ## Risks
 
-Cold upstream availability (timeouts/warm cache); Kotlin DSL/provider interactions (focused/full tasks); dual-shell module discovery (pinned install/local XML); timeout sizing (large observed margin); concurrency expression syntax (parsed YAML/live PR); mainline movement (rebase/retest).
+Cold upstream availability (timeouts/warm cache); Kotlin DSL/provider interactions (focused/full tasks); dual-shell module discovery (pinned install/local XML); timeout sizing (large observed margin); concurrency expression syntax (parsed YAML/live PR); protected tool-copy bootstrap compatibility (exact context truth table and production evidence); mainline movement (rebase/retest).
 
 ## Completion Criteria
 
