@@ -16,9 +16,11 @@ authentication request-efficiency plan.
 ## Branch
 
 - Candidate branch: `codex/performance-authentication-efficiency`
-- Final candidate commit tested at runtime: `f90e6d7b`.
-- Final full-gate commit: the same `f90e6d7b` candidate; `:website:check`
-  passed after live account validation and rotation-race recovery were restored.
+- Final candidate commit tested at runtime: `df3b23e1`.
+- Merged production commit: `3a8e249a45e50e53f1ddc6fa1c520dcc82adee03`
+  through PR #1329.
+- Final full-gate commit: `df3b23e1`; `:website:check` passed after live account
+  validation was folded into one bounded Mongo aggregation.
 - Baseline commit: `e3afbf3c9eeb65525f573f299f82287ef8665554`
 
 ## App / Environment
@@ -31,6 +33,8 @@ authentication request-efficiency plan.
   `christopherbell_perf_auth_before_safe_20260729`.
 - Corrected candidate database:
   `christopherbell_perf_auth_after_safe_20260729`.
+- Final joined-lookup database:
+  `christopherbell_perf_auth_join_20260729`.
 - Both the Mongo URI and the higher-precedence `spring.mongodb.database`
   property named the exact disposable database.
 - Port 8080 was never targeted by a test command. Its externally managed listener
@@ -53,6 +57,13 @@ mutation, PID 44836 was stopped, port 8092 was confirmed free, and the exact dat
 was dropped and verified empty. This final measurement supersedes the earlier
 candidate query and latency values below wherever they differ.
 
+The final joined-lookup candidate `df3b23e1` was measured as PID `62140` on
+8092 against exact disposable database `christopherbell_perf_auth_join_20260729`.
+It preserved live account validation while resolving the session and minimal current
+account security state in one `browser_sessions` aggregation. PID 62140 was stopped,
+port 8092 was confirmed free, and the exact database was dropped and verified empty.
+Production 8080 stayed on PID 49588 throughout this candidate run.
+
 The same temporary, property-gated Mongo command listener and request-correlation
 filter was applied to both worktrees. It recorded request ID, path, collection, and
 command only. Secret scans found no password, JWT secret, bearer value, or browser
@@ -63,11 +74,11 @@ and never committed.
 
 | Case | Expected | Result |
 | --- | --- | --- |
-| Full candidate gate | Java, JavaScript, packaging, sensor runtime, and policy pass on final rebased commit | Pass: `BUILD SUCCESSFUL in 2m 15s` |
+| Full candidate gate | Java, JavaScript, packaging, sensor runtime, and policy pass on final rebased commit | Pass: `BUILD SUCCESSFUL in 1m 58s` |
 | Static assets with credentials | Real unversioned and SHA-versioned assets return 200 with zero auth Mongo commands | Pass |
-| Normal cookie authentication | One `browser_sessions` read plus one live `accounts` read; stale authority fails closed | Pass |
+| Normal cookie authentication | One bounded `browser_sessions` aggregate, zero separate account reads, and live account validation | Pass |
 | Activity coalescing | Five requests inside five minutes perform no session write | Pass |
-| Baseline comparison | Baseline and candidate both validate the account; candidate removes repeated full session updates | Pass |
+| Baseline comparison | Baseline and candidate both validate the account; candidate removes a network round trip and repeated full session updates | Pass |
 | Login/logout | Browser cookies set at login and zero-aged at logout | Pass |
 | Revoked cookie | Old cookie fails closed after logout | Pass: 401 and authentication cookies cleared |
 | Descriptive latency | Same endpoint, headers, host, and 30-request method on both builds | Pass; no statistical claim made |
@@ -106,23 +117,25 @@ and cleared the authentication cookies.
 | Browser login | 200; HttpOnly auth cookie and UI-state cookie set | 200; same transition |
 | Unversioned static asset | 200; auth commands 0 | 200; auth commands 0 |
 | Real SHA-versioned static asset | 200; auth commands 0 | 200; auth commands 0 |
-| Protected account authorization | 403; session find 1, account find 1 | 403; session find 1, account find 1, session writes 0 |
-| Five interactive requests | each 403; session find 1, account find 1, session update 1 | each 403; session find 1, account find 1, session writes 0 |
+| Protected account authorization | 403; session find 1, account find 1 | 403; one `browser_sessions` aggregate, account find 0, session writes 0 |
+| Five interactive requests | each 403; session find 1, account find 1, session update 1 | each 403; one aggregate, account find 0, session writes 0 |
 | Logout | 200; auth cookies zero-aged | 200; auth cookies zero-aged |
 | Old cookie after logout | 401; auth cookies cleared | 401; auth cookies cleared |
 
 The actual asset paths were
 `/e3afbf3c9eeb65525f573f299f82287ef8665554/js/app.js` and
-`/f90e6d7b/js/app.js` for the authoritative final rerun.
+`/df3b23e1/js/app.js` for the authoritative final joined-lookup rerun.
 
 ## Pass / Fail
 
 All corrected isolated functional and performance cases passed. Security review
 showed that separate account mutation and session deletion cannot guarantee durable
-revocation if deletion fails, so the final candidate intentionally retains one live
-account validation read per cookie request. It still removes repeated full session
-updates inside the five-minute activity window and performs zero authentication work
-for recognized static assets. Final latency values are descriptive local samples only.
+revocation if deletion fails. The final candidate therefore retains live account
+validation but performs it inside the same bounded Mongo aggregation that loads the
+session. Ordinary cookie authentication now has one database round trip, zero
+separate account reads, and no activity write inside the five-minute coalescing
+window. Recognized static assets perform zero authentication work. Final latency
+values are descriptive local samples only.
 
 Overall report status is complete. The discarded URI-only baseline run created one
 known test account in the production-named database; explicit authority was obtained,
@@ -139,7 +152,9 @@ GRADLE_USER_HOME=...performance-authentication-20260729-task5
 PASS in 26.6 s
 
 ./gradlew.bat :website:check --no-daemon
-PASS in 2m 15s on final rebased commit f90e6d7b
+PASS in 1m 58s on final rebased commit df3b23e1
+1,551 Java tests, 0 failures, 0 errors, 3 skipped
+289 JavaScript tests passed; packaging and sensor-runtime verification passed
 ```
 
 An earlier final-gate attempt paired `--offline` with a new empty Gradle cache and
@@ -161,8 +176,7 @@ baseline-safe-protected  /api/accounts/2024-12-15  browser_sessions find
 baseline-safe-protected  /api/accounts/2024-12-15  accounts         find
 
 candidate-safe-protected /api/accounts/2024-12-15  browser_sessions find
-candidate-final-protected /api/accounts/2024-12-15 browser_sessions find
-candidate-final-protected /api/accounts/2024-12-15 accounts         find
+candidate-join-protected /api/accounts/2024-12-15 browser_sessions aggregate
 ```
 
 For baseline interactive requests 1 through 5, each correlation contained exactly:
@@ -173,12 +187,10 @@ accounts         find
 browser_sessions update
 ```
 
-The earlier pre-security-review candidate interactive correlations contained one
-session read and no account read. They are superseded. For final `f90e6d7b`
-interactive requests 1 through 5, each correlation contained exactly one
-`browser_sessions find`, one `accounts find`, and no session write. Final candidate
-logout contained `browser_sessions find` and `accounts find` followed by
-`browser_sessions delete`; the old-cookie request returned 401 and cleared cookies.
+For final `df3b23e1` interactive requests 1 through 5, each correlation contained
+exactly one bounded `browser_sessions aggregate`, zero separate `accounts find`
+commands, and no session write. Final candidate logout returned 200; the revoked
+cookie produced one aggregate, returned 401, and cleared cookies.
 
 No Mongo event exists for either candidate static-asset correlation. The retained
 HTTP summary recorded status 200 for both actual paths. Raw HTTP headers and
@@ -193,10 +205,11 @@ raw captures.
 | Baseline | 30 | 4.914 | 8.735 | 3.325 | 19.313 |
 | Pre-review candidate `ed87db40` (superseded) | 30 | 4.927 | 5.606 | 3.846 | 14.832 |
 | Final candidate `f90e6d7b` | 30 | 6.531 | 8.391 | 5.571 | 20.436 |
+| Joined-lookup candidate `df3b23e1` | 30 | 6.365 | 8.488 | 5.010 | 16.735 |
 
-Against baseline, the final observed p50 was 1.617 ms higher and p95 was 0.344 ms
-lower. This sample does not demonstrate an authentication-read speedup; its purpose
-is to verify the retained static and write-coalescing gains without weakening safety.
+Against baseline, the joined-lookup observed p50 was 1.451 ms higher and p95 was
+0.247 ms lower. The sample is descriptive; the proven scalability improvement is
+the reduction from two database commands to one while retaining live validation.
 
 ### Cleanup evidence
 
@@ -214,6 +227,11 @@ The final remeasurement similarly dropped only
 `christopherbell_perf_auth_final_safe_20260729` (`ok: 1`); reconnecting returned zero
 collections, accounts, and sessions. PID 44836 was stopped, diagnostics were removed,
 and the candidate worktree was clean.
+
+The joined-lookup measurement dropped only
+`christopherbell_perf_auth_join_20260729` (`ok: 1`); reconnecting returned zero
+collections, accounts, and sessions. PID 62140 was stopped, 8092 was free,
+diagnostics were removed, and the candidate worktree was clean.
 
 Under explicit production-cleanup authority, a read-only exact match first confirmed:
 
@@ -260,13 +278,16 @@ deletions are recoverable only through the existing production backup process.
    sessions and account were deleted in that order, and exact follow-up counts were
    zero. No further cleanup remains.
 4. Whole-branch review proved that save-then-revoke cannot safely support snapshot-only
-   authentication when session deletion fails. Final code restores ACTIVE-account and
-   fingerprint validation on every cookie request, retains explicit revocation as
-   defense in depth, and adds failed-revocation/no-op-retry coverage. Consequently,
-   the earlier one-session-read/zero-account-read result is superseded and is not a
-   final performance claim.
+   authentication when session deletion fails. Final code validates ACTIVE account
+   state and fingerprint through one bounded `$lookup` aggregation, retains explicit
+   revocation as defense in depth, and adds failed-revocation/no-op-retry coverage.
 5. Concurrent rotation review added a CAS-loss reload that accepts only the winner's
    strictly live previous-overlap credential and emits no losing cookie mutation.
    Revoke, expiry, invalid-token, current-token-only, account-fingerprint, and Mongo
-   failure paths remain fail closed. The final exact-head gate passed 1,513 Java tests
+   failure paths remain fail closed. The final exact-head gate passed 1,551 Java tests
    with zero failures/errors and 3 skips, plus JavaScript, boot JAR, and sensor runtime.
+6. PR #1329 passed Windows, Linux, macOS, dependency review, and CodeQL before merge.
+   Post-merge CI and CodeQL passed at `3a8e249a`. Automatic deployment rotated the
+   production listener from PID 49588 to PID 61024; local and public liveness/readiness
+   returned `UP`, the apex and `www` roots returned 200, and rendered asset URLs carried
+   the exact merged SHA.
