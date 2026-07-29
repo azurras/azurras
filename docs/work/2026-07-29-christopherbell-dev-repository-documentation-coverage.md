@@ -31,13 +31,14 @@ Document every first-party source and text file in `azurras/christopherbell.dev`
 - Corrective design: [Documentation Discovery Corrective Design](../specs/2026-07-29-documentation-discovery-corrective-design.md) (`complete`).
 - Corrective implementation plan: [Documentation Discovery Corrective Phase](../implementation-plans/2026-07-29-documentation-discovery-corrective-phase.md) (`complete`).
 - Java checker implementation plan: [Java Documentation Checker](../implementation-plans/2026-07-29-java-documentation-checker.md) (`complete`).
+- JavaScript scanner design: [JavaScript Documentation Scanner Design](../specs/2026-07-29-javascript-documentation-scanner-design.md) (`ready-for-review`).
 - Test report: pending.
 - Spoke update and review: pending.
 - Closure record: pending.
 
 ## Current State
 
-The discovery foundation, corrective phase, and Java documentation checker are complete and review-clean at `d4a77e2e2a58906b968f61972ea964cdc10a8833`. The Java checker uses Java 25 syntax-tree and documentation APIs without dependency compilation, aggregates stable validated violations, covers every required source declaration and enum constant, enforces complete tags, and has exact regression coverage for parser ownership and AST edge cases. Non-Java validation and documentation remediation have not started.
+The discovery foundation, corrective phase, and Java documentation checker are complete and review-clean at `d4a77e2e2a58906b968f61972ea964cdc10a8833`. The Java checker uses Java 25 syntax-tree and documentation APIs without dependency compilation, aggregates stable validated violations, covers every required source declaration and enum constant, enforces complete tags, and has exact regression coverage for parser ownership and AST edge cases. The JavaScript tokenizer/recognizer design is ready for written-spec review; other non-Java validation and documentation remediation have not started.
 
 ## Blockers
 
