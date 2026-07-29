@@ -175,7 +175,7 @@ test('Tools gates moved destinations and sorts every visible item alphabetically
     ['Music', 'Raising Canes Box Index', 'VIN Decoder', "What's For Lunch", 'ZIP Coordinates']
   );
   assert.deepEqual(
-    toolsMenuItems({ isAdmin: true, hasMusicRead: true, hasSharedFolderRead: true })
+    toolsMenuItems({ isAdmin: true, hasSharedFolderRead: true })
       .map((item) => item.label),
     ['Back Office', 'Command Center', 'Music', 'Raising Canes Box Index', 'Shared Folder',
       'VIN Decoder', "What's For Lunch", 'ZIP Coordinates']
@@ -264,7 +264,7 @@ export function toolsMenuItems({
             { href: '/back-office', label: 'Back Office' },
             { href: '/command-center', label: 'Command Center' },
         ] : []),
-        ...(hasMusicRead ? [{ href: '/music', label: 'Music' }] : []),
+        ...(isAdmin || hasMusicRead ? [{ href: '/music', label: 'Music' }] : []),
         { href: '/canes-box-tracker', label: 'Raising Canes Box Index' },
         ...(hasSharedFolderRead ? [{ href: '/shared', label: 'Shared Folder' }] : []),
         { href: '/vin-decoder', label: 'VIN Decoder' },
