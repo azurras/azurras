@@ -26,7 +26,7 @@ Document every first-party source and text file in `azurras/christopherbell.dev`
 
 ## Related Artifacts
 
-- Project specification: pending save.
+- Project specification: [Repository-Wide Documentation Coverage](../specs/2026-07-29-christopherbell-dev-repository-wide-documentation-coverage.md) (`ready-for-review`).
 - Implementation plan: pending.
 - Test report: pending.
 - Spoke update and review: pending.
