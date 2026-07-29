@@ -12,7 +12,7 @@ Remediate every attacker-reachable finding from the complete security review of 
 
 The repository-wide scan accounted for all 1,105 tracked files and produced 18 candidates. Validation and attack-path analysis retained 15 findings: five high, seven medium, and three low. Three operator/admin-only correctness candidates were suppressed because no untrusted principal could reach them. Baseline `:website:check`, GitHub CI, and CodeQL passed at the scanned revision.
 
-Before implementation, refreshed `origin/main` added a 93-file ActivityPub federation delta. Every changed file received a full-file review receipt. Focused validation retained three additional findings: the public outbox omits the creation-time federation-eligibility flag, signup preselects federation consent instead of requiring affirmative opt-in, and federation predicates omit the independently mutable account approval state. The outbound transport, DNS pinning, request signing, encrypted-key handling, retry bounds, and configuration gates survived review.
+Before implementation, refreshed `origin/main` added a 93-file ActivityPub federation delta. Every changed file received a full-file review receipt. Focused validation found three additional gaps: the public outbox omits the creation-time federation-eligibility flag, signup preselects federation consent instead of requiring affirmative opt-in, and federation predicates omit the independently mutable account approval state. Attack-path policy retained the outbox and approval gaps as two reportable low-severity findings; it rejected the signup default from the security count because the clearly disclosed choice affects only the registering user. The user-approved remediation still includes changing signup to affirmative opt-in as privacy hardening. The outbound transport, DNS pinning, request signing, encrypted-key handling, retry bounds, and configuration gates survived review.
 
 The dirty authoritative checkout at `A:\Projects\christopherbell.dev` must remain untouched. Work executes in `A:\Projects\christopherbell.dev-worktrees\security-audit-20260728` on branch `codex/security-audit-20260728`, based on refreshed `origin/main`.
 
@@ -139,7 +139,7 @@ Each behavioral change begins with a failing public-boundary test. Security chec
 
 ## Acceptance Criteria
 
-- All 18 validated findings have a corresponding code/config fix and regression evidence.
+- All 17 reportable findings have a corresponding code/config fix and regression evidence, and the approved self-only federation signup hardening has its own regression evidence without being presented as a reportable vulnerability.
 - No suppressed candidate is presented as remediated security work.
 - Focused tests and full `:website:check` pass with zero failures.
 - Strict dependency verification and the Gradle wrapper checksum succeed from a clean isolated Gradle home.
