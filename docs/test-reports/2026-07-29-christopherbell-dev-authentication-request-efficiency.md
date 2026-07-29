@@ -2,12 +2,11 @@
 
 ## Document Status
 
-blocked
+complete
 
 The corrected isolated candidate passed every functional, query-count, and cleanup
-criterion. Closure is blocked only on separate authority to inspect and remove one
-known disposable test identity that an earlier misconfigured run may have created in
-the production-named database.
+criterion. The one known disposable identity created by an earlier misconfigured run
+was removed under explicit authority, with exact zero-match verification afterward.
 
 ## Story/Issue
 
@@ -66,7 +65,7 @@ and never committed.
 | Revoked cookie | Old cookie fails closed after logout | Pass: 401 and authentication cookies cleared |
 | Descriptive latency | Same endpoint, headers, host, and 30-request method on both builds | Pass; no statistical claim made |
 | Corrected data cleanup | Stop exact PIDs and drop only the two exact safe databases | Pass |
-| Discarded initial run cleanup | Assess/remove possible production-named test identity | Blocked pending authority |
+| Discarded initial run cleanup | Remove only the exact production-named test identity and sessions | Pass: 1 account and 2 sessions deleted; zero remain |
 
 ## Data Sent
 
@@ -87,6 +86,12 @@ Credentials, cookie values, bearer values, password text, and the JWT secret wer
 not retained in this report.
 
 ## Response Received
+
+The running baseline and candidate each returned status code: 200 for `/login`,
+browser login, both real static assets, and logout. The authenticated USER request
+to the ADMIN-only account endpoint returned status code: 403 after successful
+authentication. Reusing the revoked cookie after logout returned status code: 401
+and cleared the authentication cookies.
 
 | Flow | Baseline | Candidate |
 | --- | --- | --- |
@@ -111,9 +116,10 @@ full session updates inside the five-minute activity window. The candidate's loc
 p50 was effectively unchanged; its observed p95 was lower. These are descriptive
 local samples only.
 
-Overall report status remains blocked because the discarded URI-only baseline run
-may have created one known test account in the production-named database. No
-production database inspection or cleanup occurred after discovery.
+Overall report status is complete. The discarded URI-only baseline run created one
+known test account in the production-named database; explicit authority was obtained,
+the exact identity was verified, and only that account and its browser sessions were
+deleted.
 
 ## Evidence
 
@@ -189,6 +195,29 @@ christopherbell_perf_auth_after_safe_20260729   ok: 1
 Reconnects to both exact names returned zero collections. Candidate and baseline
 tracked worktrees were clean after diagnostic removal; 8091 and 8092 had no listener.
 
+Under explicit production-cleanup authority, a read-only exact match first confirmed:
+
+```text
+database: christopherbell
+account id: 87bb9e7d-ed0b-4d97-acbb-8cc15ab7e77b
+email: perf-auth-20260729@example.test
+username: perfauthbaseline20260729
+browser sessions: 2
+```
+
+The cleanup deleted the two sessions before deleting the single fully matched account.
+Immediate exact verification returned:
+
+```text
+deletedBrowserSessions: 2
+deletedAccounts: 1
+remainingAccount: 0
+remainingBrowserSessions: 0
+```
+
+No other production collection or identity was inspected or changed. These direct
+deletions are recoverable only through the existing production backup process.
+
 ## Bugs / Follow-ups
 
 1. Candidate startup initially exposed a real Spring proxy defect: a final
@@ -200,8 +229,7 @@ tracked worktrees were clean after diagnostic removal; 8091 and 8092 had no list
    the Mongo URI. `application-local.yml` supplied a higher-precedence explicit
    database, so those runs were invalid and discarded. Corrected runs supplied both
    properties and proved isolation before mutation.
-3. Separate authority is required before inspecting or deleting the known initial
-   test identity:
+3. Explicit authority was obtained to remove the known initial test identity:
    - account ID: `87bb9e7d-ed0b-4d97-acbb-8cc15ab7e77b`
    - email: `perf-auth-20260729@example.test`
    - username: `perfauthbaseline20260729`
@@ -209,5 +237,6 @@ tracked worktrees were clean after diagnostic removal; 8091 and 8092 had no list
    - creation endpoint: `POST /api/accounts/2024-12-15/create`
    - a later candidate attempt with the same email returned `RESOURCE_EXISTS` and
      did not create a second account.
-
-Do not use those identifiers against production without explicit user authority.
+   Exact pre-delete matching found that one account and two browser sessions. The
+   sessions and account were deleted in that order, and exact follow-up counts were
+   zero. No further cleanup remains.
