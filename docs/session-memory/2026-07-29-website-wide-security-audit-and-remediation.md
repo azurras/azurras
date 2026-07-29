@@ -39,7 +39,7 @@ Builder remained the workflow hub at `C:\Users\Christopher\Developer\builder`. T
 
 ### Current State
 
-PR #1324 is merged and production-verified. The central work record, specification, implementation plan, test report, spoke review, and closure are complete. The original scan report is under `edf3a439e6bdffae22090a33ab8b17d354c6ee34_20260729T113526`; the clean rescan is under `5a2186ea5ea2b946faecead2b514f408bab6031e_20260729T170846`. The authoritative spoke checkout retains its pre-existing dirty state and was not modified.
+PR #1324 is merged and production-verified. The central work record, specification, implementation plan, test report, spoke review, and closure are complete. The repository-wide 15-finding report is under `f77c5f5bb644cc75cf98b27e722efdc00cd036f1_20260728T222511`; the ActivityPub delta report is under `6c1501070ff518bc040583c4576c2df201dcd3ed_20260729T113714`; the pre-final branch report is under `edf3a439e6bdffae22090a33ab8b17d354c6ee34_20260729T113526`; and the clean rescan is under `5a2186ea5ea2b946faecead2b514f408bab6031e_20260729T170846`. The authoritative spoke checkout retains its pre-existing dirty state and was not modified.
 
 ### Follow-ups
 

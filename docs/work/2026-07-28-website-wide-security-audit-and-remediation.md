@@ -23,7 +23,9 @@ Review every file in the current `azurras/christopherbell.dev` repository for se
 
 ## Related Artifacts
 
-- Original assessment report: `C:\Users\Christopher\AppData\Local\Temp\codex-security-scans\christopherbell.dev\edf3a439e6bdffae22090a33ab8b17d354c6ee34_20260729T113526\report.md`
+- Repository-wide assessment report: `C:\Users\Christopher\AppData\Local\Temp\codex-security-scans\christopherbell.dev\f77c5f5bb644cc75cf98b27e722efdc00cd036f1_20260728T222511\report.md`
+- ActivityPub freshness-delta report: `C:\Users\Christopher\AppData\Local\Temp\codex-security-scans\christopherbell.dev\6c1501070ff518bc040583c4576c2df201dcd3ed_20260729T113714\report.md`
+- Pre-final remediation-branch report: `C:\Users\Christopher\AppData\Local\Temp\codex-security-scans\christopherbell.dev\edf3a439e6bdffae22090a33ab8b17d354c6ee34_20260729T113526\report.md`
 - Final clean rescan: `C:\Users\Christopher\AppData\Local\Temp\codex-security-scans\christopherbell.dev\5a2186ea5ea2b946faecead2b514f408bab6031e_20260729T170846\report.md`
 - [Test report](../test-reports/2026-07-29-website-wide-security-remediation.md)
 - [Spoke review](../spoke-reviews/2026-07-29-website-wide-security-remediation-review.md)
@@ -39,7 +41,9 @@ None. The production ACL correctly denied this non-elevated shell direct access 
 
 ## Validation
 
-- Original complete scan: 25 deep-review rows closed; validated findings were remediated or reconciled with newer mainline fixes.
+- Repository-wide scan: 15 validated findings (5 high, 7 medium, 3 low); fixes were implemented here or reconciled with newer mainline fixes.
+- ActivityPub freshness scan: two low findings; one was fixed and one became not applicable after current main removed the retired approval state. Approved affirmative-consent privacy hardening was also delivered.
+- Pre-final branch scan: one Low/P3 dependency-metadata bootstrap finding, fixed in commit `5a2186ea`.
 - Final clean rescan: 26 of 26 rows closed; zero candidates or remaining findings.
 - Strict clean build: 1,575 Java tests, 0 failures, 0 errors, 4 skipped.
 - Browser suite: 279 passed, 0 failed.

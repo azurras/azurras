@@ -34,6 +34,9 @@ The refreshed final scan closed 26 of 26 review rows with zero remaining candida
 - Strict clean build: 1,575 Java tests, 0 failures, 0 errors, 4 skipped.
 - Browser JavaScript: 279 passed, 0 failed.
 - Strict dependency metadata: 395 components and 727 artifacts verified; wrapper distribution checksum pinned.
+- Repository-wide scan: 15 validated findings (5 high, 7 medium, 3 low), each fixed by this delivery or reconciled with verified newer-mainline remediation.
+- ActivityPub freshness scan: two low findings; the outbox boundary was fixed and the retired approval-state candidate became not applicable on current main.
+- Pre-final branch scan: one Low/P3 metadata-bootstrap finding, fixed before delivery.
 - Final security rescan: 26/26 rows closed, zero findings.
 - Packaged candidate on port 8081: eight runtime cases passed; temporary test database removed.
 - PR CI: Linux, macOS, Windows, Dependency Review, and all CodeQL analyses passed.
