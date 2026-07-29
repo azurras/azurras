@@ -73,8 +73,8 @@ The public feed may show a quiet keep-alive count because it explains the remain
 Release status as of July 28, 2026:
 
 - Release 1 - Keep Alive Relaunch: complete and production-verified at merge `7e958e737b34563d6d49a078243437d5fa9e3377` through PR `azurras/christopherbell.dev#1314`.
-- Release 2 - Public Discovery: next approved release.
-- Release 3 - ActivityPub Federation: approved, pending Release 2 completion.
+- Release 2 - Public Discovery: complete and production-verified at merge `f77c5f5bb644cc75cf98b27e722efdc00cd036f1` through PR `azurras/christopherbell.dev#1315`.
+- Release 3 - ActivityPub Federation: next approved release.
 
 ### Release 1: Keep Alive Relaunch
 

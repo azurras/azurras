@@ -26,7 +26,7 @@
 
 ## Document Status
 
-ready-for-execution
+complete
 
 ## Objective
 
@@ -202,9 +202,9 @@ Additional changes:
 Verification:
 - `$env:GRADLE_USER_HOME='A:\Temp\gradle-void-discovery'; .\gradlew.bat :website:test --tests "*PostServiceTest*" --tests "*PostExpirationService*" --no-daemon`
 
-- [ ] Add and witness Task 1 RED tests.
-- [ ] Implement topic extraction/storage and revival mutation semantics.
-- [ ] Run focused tests and commit Task 1.
+- [x] Add and witness Task 1 RED tests.
+- [x] Implement topic extraction/storage and revival mutation semantics.
+- [x] Run focused tests and commit Task 1.
 
 ### Task 2 - Add bounded Explore and topic query APIs
 
@@ -302,9 +302,9 @@ Additional changes:
 Verification:
 - `$env:GRADLE_USER_HOME='A:\Temp\gradle-void-discovery'; .\gradlew.bat :website:test --tests "*VoidDiscovery*" --tests "*V004EnsureVoidDiscoveryIndexes*" --no-daemon`
 
-- [ ] Add and witness Task 2 RED query/controller/migration tests.
-- [ ] Implement bounded discovery APIs and indexes.
-- [ ] Run focused tests and commit Task 2.
+- [x] Add and witness Task 2 RED query/controller/migration tests.
+- [x] Implement bounded discovery APIs and indexes.
+- [x] Run focused tests and commit Task 2.
 
 ### Task 3 - Add privacy-aware people discovery and new-account limits
 
@@ -394,9 +394,9 @@ Additional changes:
 Verification:
 - `$env:GRADLE_USER_HOME='A:\Temp\gradle-void-discovery'; .\gradlew.bat :website:test --tests "*NewAccountVoidMutationLimiter*" --tests "*AccountFollowService*" --tests "*PostServiceTest*" --no-daemon`
 
-- [ ] Add and witness Task 3 RED suggestion/limiter tests.
-- [ ] Implement privacy exclusions, deterministic anonymous rotation, and service-level limits.
-- [ ] Run focused tests and commit Task 3.
+- [x] Add and witness Task 3 RED suggestion/limiter tests.
+- [x] Implement privacy exclusions, deterministic anonymous rotation, and service-level limits.
+- [x] Run focused tests and commit Task 3.
 
 ### Task 4 - Render the public Explore and topic experience
 
@@ -481,9 +481,9 @@ Additional changes:
 Verification:
 - `node --test website/src/test/js/void-discovery.test.js website/src/test/js/nav-messages-link.test.js website/src/test/js/a11y-markup.test.js`
 
-- [ ] Add and witness Task 4 RED view/JavaScript tests.
-- [ ] Implement independent sections, topic pages, navigation, and responsive styles.
-- [ ] Run focused tests and commit Task 4.
+- [x] Add and witness Task 4 RED view/JavaScript tests.
+- [x] Implement independent sections, topic pages, navigation, and responsive styles.
+- [x] Run focused tests and commit Task 4.
 
 ### Task 5 - Validate, publish, deploy, and close Release 2
 
@@ -500,10 +500,10 @@ Operational steps:
 - Confirm the automatic deployment reaches the exact merge SHA without prompts; smoke Explore, topic pages, Feed, Music persistent player, Messages, and Back Office.
 - Update the program spec, complete this plan, save session memory, refresh indexes, validate Builder, and commit/push Builder `main`.
 
-- [ ] Focused and full automated validation passes.
-- [ ] Correctly isolated non-8080 runtime and browser verification passes.
-- [ ] One PR passes required checks, merges, and deploys automatically.
-- [ ] Production exact-SHA smoke and Builder closure artifacts pass.
+- [x] Focused and full automated validation passes.
+- [x] Correctly isolated non-8080 runtime and browser verification passes.
+- [x] One PR passes required checks, merges, and deploys automatically.
+- [x] Production exact-SHA smoke and Builder closure artifacts pass.
 
 ## Code Changes
 
