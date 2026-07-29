@@ -23,7 +23,7 @@ Resolve every currently open issue in `azurras/christopherbell.dev` through curr
 ## Spoke Repositories
 
 - `christopherbell-dev`: authoritative checkout `A:\Projects\christopherbell.dev`; it is dirty, ahead 3, behind 90, and must remain untouched.
-- Campaign worktree: `A:\Projects\christopherbell.dev-worktrees\all-open-issues-20260729` on `codex/all-open-issues-20260729`, created from refreshed `origin/main` commit `8405cd77d0f1743fe33d70cc80b47e37048090a0`.
+- Batch 1 worktree: `A:\Projects\christopherbell.dev-worktrees\all-open-issues-20260729` on `codex/all-open-issues-20260729`, created from refreshed `origin/main` commit `8405cd77d0f1743fe33d70cc80b47e37048090a0`; merged by PR #1319 as `e393687d10c40b856f35d669c25bf3ea65c5c083`.
 
 ## Dispatched Tasks
 
@@ -36,8 +36,11 @@ Resolve every currently open issue in `azurras/christopherbell.dev` through curr
 - The campaign is divided into seven dependency-aware batches: account security; public SEO/accessibility; social feeds; WFL; shared-folder integrity; command center; and build/supply-chain.
 - The full clean-mainline `:website:check` baseline passed in 3m44s with Java, JavaScript, packaged JAR, and sensor-runtime verification.
 - Batch 1 current-source inspection found that browser sessions already re-check an account security fingerprint; the reviewed design centralizes that invariant and extends it to bearer JWTs.
-- Batch 1 implementation for #1258-#1264 is complete in the isolated spoke worktree. Final `:website:check` passed with 1,389 Java tests, 269 JavaScript tests, packaged-JAR and sensor-runtime verification; `:cbell-lib:test` separately passed 100 tests.
-- Batch 1 alternate-port acceptance on port 8093 passed against a disposable Mongo database, including `201 + Location`, current password storage, uniform failed login, immediate stale-token rejection, safe malformed JSON, and bodyless DELETE. Evidence: [Batch 1 test report](../test-reports/2026-07-29-account-security-and-lifecycle-issues-1258-1264-test-report.md).
+- Batch 1 implementation for #1258-#1264 is merged. Final `:website:check` passed with 1,393 Java tests, 269 JavaScript tests, packaged-JAR and sensor-runtime verification; `:cbell-lib:test` separately passed 101 tests.
+- Batch 1 alternate-port acceptance on port 8093 passed against disposable Mongo databases, including `201 + Location`, current password storage, uniform failed login, immediate stale-token rejection, legacy timing parity, concurrent credential upgrade, moderation-safe atomic login, stale JWT browser-exchange rejection, safe malformed JSON, bodyless DELETE, and cookie-mode login. Evidence: [Batch 1 test report](../test-reports/2026-07-29-account-security-and-lifecycle-issues-1258-1264-test-report.md).
+- Independent review found and drove fixes for credential timing, null legacy salt handling, deterministic concurrent upgrades, whole-document login lost updates, and stale JWT-to-browser-session exchange. The final `fc294f7d..9be7ef2c` review reported no remaining Critical or Important blocker.
+- PR [#1319](https://github.com/azurras/christopherbell.dev/pull/1319) passed Ubuntu, macOS, Windows, all CodeQL languages, and dependency review, then squash-merged as `e393687d10c40b856f35d669c25bf3ea65c5c083`.
+- Production rotated from PID 39760 to PID 48484 and serves asset URLs containing the merge SHA. Local root, readiness, and public root return 200; V008 is APPLIED with the expected checksum; all 20 accounts remain; no retired approval field or test account remains; MongoDB, ChristopherBellDev, and cloudflared are Running/Automatic.
 - The user explicitly authorized autonomous continuation without routine approval pauses.
 
 ## Blockers
@@ -48,11 +51,11 @@ None.
 
 - Current issue bodies, author, comment counts, open pull requests, remotes, branches, worktrees, and authoritative-checkout status were inspected directly on 2026-07-29.
 - Each batch must pass focused tests, full relevant regression coverage, alternate-port runtime acceptance, required GitHub checks, merge confirmation, issue closure, and production-safe verification before campaign closeout.
-- Batch 1 runtime fixtures, alternate listener, and disposable database were removed; production remained running and both local and public roots returned 200.
+- Batch 1 runtime fixtures, alternate listeners, and disposable databases were removed. Production acceptance additionally confirmed the generic 401 login envelope and that a bodyless DELETE reaches authorization (403) rather than failing with 415.
 
 ## Next Steps
 
-1. Commit Batch 1 spoke changes, publish its pull request, pass required CI, merge, close #1258-#1264, and verify production.
-2. Inspect current source and save one literal, reviewed implementation plan for Batch 2.
+1. Close #1258-#1264 with the merged, tested, production-verified evidence.
+2. Refresh `origin/main`, create the Batch 2 isolated worktree, and save its literal reviewed implementation plan.
 3. Implement, test, publish, merge, close, and production-verify the remaining batches in dependency order.
-4. Refresh Builder indexes, close this record, and save session memory after all 50 issues are closed.
+4. Refresh Builder indexes, close this record, and save final campaign memory after all 50 issues are closed.
