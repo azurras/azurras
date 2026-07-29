@@ -2,7 +2,7 @@
 
 ## Document Status
 
-Ready for review. The user approved the narrow corrective approach on 2026-07-29; written-spec review remains pending.
+Ready for execution. The user approved the narrow corrective approach and the written specification on 2026-07-29.
 
 ## Purpose
 
@@ -109,3 +109,4 @@ None.
 
 - User authorized a new corrective phase on 2026-07-29.
 - User approved the narrow `GitProcessSession` correction design on 2026-07-29.
+- User approved this written specification on 2026-07-29.
