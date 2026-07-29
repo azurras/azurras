@@ -30,14 +30,14 @@ Document every first-party source and text file in `azurras/christopherbell.dev`
 - Phase 1 implementation plan: [Repository Documentation Discovery Foundation](../implementation-plans/2026-07-29-repository-documentation-discovery-foundation.md) (`complete`).
 - Corrective design: [Documentation Discovery Corrective Design](../specs/2026-07-29-documentation-discovery-corrective-design.md) (`complete`).
 - Corrective implementation plan: [Documentation Discovery Corrective Phase](../implementation-plans/2026-07-29-documentation-discovery-corrective-phase.md) (`complete`).
-- Java checker implementation plan: [Java Documentation Checker](../implementation-plans/2026-07-29-java-documentation-checker.md) (`ready-for-execution`).
+- Java checker implementation plan: [Java Documentation Checker](../implementation-plans/2026-07-29-java-documentation-checker.md) (`complete`).
 - Test report: pending.
 - Spoke update and review: pending.
 - Closure record: pending.
 
 ## Current State
 
-The discovery foundation and corrective phase are complete and review-clean at `644763701d5438062ee93594ae9a5695b1659715`. Deterministic Git discovery now has named exclusions, complete repository-native archive coverage, path safety, bounded process/reader ownership, deterministic interruption tests, and warning-free private Javadocs. The Java documentation checker plan is ready for mechanical and independent review before subagent-driven execution; non-Java validation and documentation remediation have not started.
+The discovery foundation, corrective phase, and Java documentation checker are complete and review-clean at `d4a77e2e2a58906b968f61972ea964cdc10a8833`. The Java checker uses Java 25 syntax-tree and documentation APIs without dependency compilation, aggregates stable validated violations, covers every required source declaration and enum constant, enforces complete tags, and has exact regression coverage for parser ownership and AST edge cases. Non-Java validation and documentation remediation have not started.
 
 ## Blockers
 
@@ -64,11 +64,16 @@ None. The previously blocked residual findings are the explicitly authorized sco
 - Final root build: 1,555 tests, 1,551 passed, 0 failures/errors, and 4 skipped.
 - Final scoped re-review: both deterministic join-handshake and root-archive findings `ADDRESSED`; no regression introduced; verdict `ALL_FINDINGS_ADDRESSED`.
 - Isolated worktree clean at `64476370`, ahead 8 and behind 3 of current `origin/main`; no rebase, pull, push, PR, or merge performed.
+- Java checker commits: `459ed2612aaffbe92078e54062a1a854fc64462e`, `ce47fba455987bcced491d51ba7ff23f24cacad5`, and `d4a77e2e2a58906b968f61972ea964cdc10a8833`.
+- Java checker final controller verification: 72 validator tests with 0 failures/errors and 1 established Windows skip; 1,566 total tests with 0 failures/errors and 4 skips; direct private Javadocs and `git diff --check` exited 0; root `build` exited 0.
+- Java checker final review found and fixed same-name parameter namespace handling, inapplicable type/enum-constant return tags, and source-diagnostic ownership; scoped re-review returned `ALL_FINDINGS_ADDRESSED` with no new Critical/Important breakage.
+- Authoritative checkout status hash remained `C706E834EA40C9F523941C350570B68C5663FA4F3200528FA54D870A816E0CEB` throughout Java-checker execution.
+- Isolated worktree clean at `d4a77e2e`; no rebase, pull, push, PR, or merge performed.
 
 ## Next Steps
 
-1. Save and execute the Java documentation checker plan against the corrected discovery boundary.
-2. Add non-Java/README validation and document the repository in reviewable subsystem commits.
+1. Save and execute the non-Java, file-purpose, README/Mermaid, aggregate reporting, Gradle, and CI validator phases.
+2. Document Java and non-Java repository subsystems in reviewable commits and drive the aggregate validator to zero.
 3. Reconcile the campaign branch with upstream `main` before delivery.
 4. Run full local verification, deliver through PR and CI, merge, and verify post-merge main.
 5. Save test, review, session-memory, and closure artifacts; refresh indexes; close the work record.
