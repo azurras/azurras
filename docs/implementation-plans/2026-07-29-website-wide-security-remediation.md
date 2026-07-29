@@ -598,7 +598,7 @@ Verification:
 #### Code Edit 6.2
 
 - File: `website/src/main/resources/templates/signup.html`
-- Lines: 48-64
+- Lines: 48-65
 - Action: replace
 
 Current:
@@ -607,6 +607,7 @@ Current:
 <input
   class="form-check-input"
   id="federatePublicVoidPosts"
+  name="federatePublicVoidPosts"
   type="checkbox"
   th:checked="${federationEnrollmentAvailable}"
   th:disabled="${!federationEnrollmentAvailable}" />
@@ -624,6 +625,7 @@ Proposed:
 <input
   class="form-check-input"
   id="federatePublicVoidPosts"
+  name="federatePublicVoidPosts"
   type="checkbox"
   th:disabled="${!federationEnrollmentAvailable}" />
 <p
