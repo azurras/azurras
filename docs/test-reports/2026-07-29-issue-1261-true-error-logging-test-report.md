@@ -110,6 +110,17 @@ Runtime logs:
 
 ## Bugs / Follow-ups
 
-- No safe local authenticated credential/session was available for an interactive alternate-port streaming or Mission Control check. The production `SecurityConfig` integration tests provide the authenticated streaming, initial denial, and redispatch evidence without exposing a secret or adding a backdoor.
-- No safe controlled live 500 endpoint existed. No backdoor was added. `ControllerExceptionHandlerTest` proves generic 500, framework 500, and known 503 remain causal `ERROR` records with throwables; direct runtime 500 coverage remains an explicit gap.
-- Production deployment and live post-deploy verification remain pending publication, CI, merge, and the production-safe rollout step.
+- No safe local authenticated credential/session was used for alternate-port streaming. The production `SecurityConfig` integration tests provide authenticated streaming, initial denial, and redispatch evidence without exposing a secret or adding a backdoor; authenticated production Mission Control was verified after deployment through the existing browser session.
+- No safe controlled live 500 endpoint existed. No backdoor was added. `ControllerExceptionHandlerTest` proves generic 500, framework 500, and known 503 remain causal `ERROR` records with throwables. Production independently demonstrated that a genuine upstream Overpass 504 remained an `ERROR` with its causal stack.
+- No known issue-1261 gap remains. The separate recurring OpenStreetMap startup-import failure is a genuine operational error and remains visible by design.
+
+## Publication and Production Verification
+
+- Clean publication range: `f31535f29312d24573a6031b0162aa8ebc4b5318..b97930f29ffb477de6499ccb4553533e7e8b46c6`, five commits and ten intended files; unrelated `gradlew.bat` remained outside the range.
+- Independent final whole-change review found no critical, important, or minor findings.
+- Final pre-push `:website:check` on the exact publication tree completed successfully in 3m38s with 1,425 Java tests, 0 failures, 0 errors, 3 skipped, and 273 browser tests with 0 failures.
+- PR #1322 passed Ubuntu, macOS, Windows, dependency review, and CodeQL checks, then squash-merged to `main` as `a6a88e91f35bcbf9eeadeaf06cbf93df80ce0a5f`.
+- Native Windows production deployed the exact merge. `ChristopherBellDev`, `ChristopherBellMediaWorker`, `MongoDB`, and `cloudflared` were Running and Automatic; local root, readiness, and public root returned 200.
+- Local and public HTML both exposed release SHA `a6a88e91f35bcbf9eeadeaf06cbf93df80ce0a5f`. Cache control, CSP, HSTS, and `X-Content-Type-Options: nosniff` remained present.
+- Authenticated Mission Control reported HEALTHY, application commit `a6a88e91`, and the new live start. Across a post-deploy observation longer than two former recurrence intervals, there were zero `AuthorizationDeniedException`, committed-response, or `/error` cascade signatures.
+- The expected invalid-token 401 appeared once as throwable-free `WARN`. A real upstream Overpass 504 appeared as `ERROR` and retained its `IOException` stack, proving true operational failures remain visible.

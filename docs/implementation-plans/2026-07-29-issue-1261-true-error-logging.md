@@ -20,7 +20,7 @@
 
 ## Document Status
 
-ready-for-execution
+in-progress
 
 ## Objective
 
@@ -89,11 +89,11 @@ Implementation notes:
   - Effects and failures: the authorization filter must call the downstream chain for `ASYNC`/`ERROR`; a protected anonymous `REQUEST` must still throw `AuthorizationDeniedException`; no timing or thread sleeps are allowed.
   - Tests and evidence: add the production-chain integration test below, run it before the configuration edit, and record that the async/error assertions fail while the request-denial assertion passes. Apply the two dispatcher matchers, rerun to GREEN, then rerun the existing streaming controller test.
 
-- [ ] Add the production authorization-filter integration test.
-- [ ] Run it before editing `SecurityConfig` and capture the intended RED failure for `ASYNC`/`ERROR`.
-- [ ] Add the explicit dispatcher matchers before URL matchers.
-- [ ] Rerun the new test and the existing streaming regression to GREEN.
-- [ ] Inspect the focused test/production diff and commit only Task 1 files.
+- [x] Add the production authorization-filter integration test.
+- [x] Run it before editing `SecurityConfig` and capture the intended RED failure for `ASYNC`/`ERROR`.
+- [x] Add the explicit dispatcher matchers before URL matchers.
+- [x] Rerun the new test and the existing streaming regression to GREEN.
+- [x] Inspect the focused test/production diff and commit only Task 1 files.
 
 #### Code Edit 1.1
 
@@ -281,12 +281,12 @@ Implementation notes:
   - Effects and failures: the helper performs logging only and never changes response mapping; unknown exceptions remain the causal 500 fallback; `ServiceUnavailableException` remains causal 503.
   - Tests and evidence: change the existing WARN expectation for a routine invalid request to DEBUG, add security-warning and unexpected-error tests, and add stable-description checks. Run the focused test and observe RED before editing the handler, then make the minimal classifier/description change and rerun to GREEN.
 
-- [ ] Extend response and captured-log tests with literal expected status, code, description, level, and throwable presence.
-- [ ] Run the focused handler test before production edits and capture RED for routine 4xx severity and any new stable-description assertions.
-- [ ] Centralize expected-client-failure logging and replace repeated WARN calls.
-- [ ] Keep unexpected 500 and known 503 causal ERROR paths unchanged.
-- [ ] Rerun focused tests, controller slice regressions, and inspect the focused diff.
-- [ ] Commit only Task 2 files.
+- [x] Extend response and captured-log tests with literal expected status, code, description, level, and throwable presence.
+- [x] Run the focused handler test before production edits and capture RED for routine 4xx severity and any new stable-description assertions.
+- [x] Centralize expected-client-failure logging and replace repeated WARN calls.
+- [x] Keep unexpected 500 and known 503 causal ERROR paths unchanged.
+- [x] Rerun focused tests, controller slice regressions, and inspect the focused diff.
+- [x] Commit only Task 2 files.
 
 #### Code Edit 2.1
 
@@ -700,16 +700,16 @@ Implementation notes:
 - No production source edit is planned. If validation reveals a semantic defect, return to RED/GREEN under the relevant task and update this plan if the required design changes materially.
 - Before-Edit Brief: not applicable unless validation requires a code change.
 
-- [ ] Verify `git status --short --branch` and confirm only intended Task 1/2 files plus known unrelated dirty paths are present.
-- [ ] Run focused combined tests with an isolated Gradle home.
-- [ ] Run `:website:check` with the same isolated Gradle home.
-- [ ] Start the production profile on a non-8080 port using `verify-local-spring-app`.
-- [ ] Exercise an authenticated streaming response and wait for async completion.
-- [ ] Exercise representative malformed JSON, validation, unsupported-media, unacceptable-response, access-denied, conflict, and not-found paths with non-sensitive fixtures.
-- [ ] Verify those expected failures produce no `ERROR` stack traces and stable public descriptions.
-- [ ] Trigger the repository's controlled test-only unexpected failure path if one exists; otherwise rely on the causal captured-log test and record the runtime gap rather than adding a production backdoor.
-- [ ] Verify `/`, security headers, and authenticated Mission Control health/log snapshots.
-- [ ] Save the Builder local app test report and checkpoint it before publication.
+- [x] Verify `git status --short --branch` and confirm only intended Task 1/2 files plus known unrelated dirty paths are present.
+- [x] Run focused combined tests with an isolated Gradle home.
+- [x] Run `:website:check` with the same isolated Gradle home.
+- [x] Start the production profile on a non-8080 port using `verify-local-spring-app`.
+- [x] Exercise an authenticated streaming response and wait for async completion through the production-filter integration test; no credential was exposed to the alternate-port runtime.
+- [x] Exercise representative malformed JSON, validation, unsupported-media, unacceptable-response, access-denied, conflict, and not-found paths with non-sensitive fixtures.
+- [x] Verify those expected failures produce no `ERROR` stack traces and stable public descriptions.
+- [x] Rely on the causal captured-log test because no safe controlled runtime 500 route exists; no production backdoor was added.
+- [x] Verify `/`, security headers, and authenticated Mission Control health/log snapshots.
+- [x] Save the Builder local app test report and checkpoint it before publication.
 
 Verification commands:
 
@@ -741,14 +741,14 @@ Publication unit:
 - The first four commits are clean replays of the reviewed implementation. `b97930f2` is a test-only reconciliation that moves the protected dispatcher fixture under `/api/test/**` because refreshed main intentionally permits unknown public HTML fallback paths.
 - Exact diff scope is the ten files listed under Files and Modules; `gradlew.bat` is excluded.
 
-- [ ] Refresh `origin`, verify the branch relationship, and ensure the focused commits contain no unrelated dirty files.
-- [ ] Push the spoke branch and open or update the focused PR with `Closes #1261`, test evidence, risk boundary, and rollback notes.
-- [ ] Wait for required GitHub Actions and CodeQL; address only trusted `azurras` scope/review instructions.
-- [ ] Merge only after required checks pass.
-- [ ] Deploy the merged SHA through the existing native Windows service workflow.
-- [ ] Verify service state, live SHA, local `/`, public `/`, security headers, and authenticated Mission Control health.
-- [ ] Observe a bounded live log window longer than the former approximately 16-second recurrence interval and confirm the exact async access-denied / committed-response / `/error` signature does not recur.
-- [ ] Confirm live `ERROR` entries, if any, represent genuine server or operational failures; do not suppress unrelated true errors.
+- [x] Refresh `origin`, verify the branch relationship, and ensure the focused commits contain no unrelated dirty files.
+- [x] Push the spoke branch and open focused PR #1322 with test evidence, risk boundary, rollback notes, and a transparent follow-up reference to already-closed issue #1261.
+- [x] Wait for required GitHub Actions and CodeQL; all Ubuntu, macOS, Windows, dependency-review, and CodeQL checks passed.
+- [x] Merge only after required checks pass; squash merge `a6a88e91f35bcbf9eeadeaf06cbf93df80ce0a5f` completed.
+- [x] Deploy the merged SHA through the existing native Windows service workflow.
+- [x] Verify service state, live SHA, local `/`, public `/`, security headers, and authenticated Mission Control health.
+- [x] Observe a bounded live log window longer than the former approximately 16-second recurrence interval and confirm the exact async access-denied / committed-response / `/error` signature does not recur.
+- [x] Confirm the live `ERROR` entry was a genuine upstream Overpass 504 and retained its causal stack; unrelated true errors were not suppressed.
 - [ ] Close/update GitHub issue #1261 with commits, PR, CI, merge, deployment, test report, live log evidence, known gaps, and session memory.
 - [ ] Save session memory, close Builder hub work as applicable, update indexes, validate Builder state, and push Builder checkpoints.
 
