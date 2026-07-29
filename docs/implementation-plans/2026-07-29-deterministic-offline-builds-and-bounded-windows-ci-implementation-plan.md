@@ -122,7 +122,8 @@ void ciRunsPinnedWindowsPesterAndRetainsItsNunitResults() throws IOException {
 @Test
 void ciCancelsOnlySupersededPullRequestsAndBoundsWork() throws IOException {
   var workflow = readYaml(".github/workflows/ci.yml");
-  assertThat(workflow.at("/concurrency/group").asText()).contains("github.workflow");
+  assertThat(workflow.at("/concurrency/group").asText())
+      .isEqualTo("${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.event.pull_request.number || format('{0}-{1}', github.ref, github.run_id) }}");
   assertThat(workflow.at("/concurrency/cancel-in-progress").asText())
       .contains("github.event_name == 'pull_request'");
   assertThat(workflow.at("/jobs/build/timeout-minutes").asInt()).isEqualTo(30);
@@ -425,7 +426,7 @@ on:
     branches: [ main ]
 
 concurrency:
-  group: "${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}"
+  group: "${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.event.pull_request.number || format('{0}-{1}', github.ref, github.run_id) }}"
   cancel-in-progress: "${{ github.event_name == 'pull_request' }}"
 
 jobs:

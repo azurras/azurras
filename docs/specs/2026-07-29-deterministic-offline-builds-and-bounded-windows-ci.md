@@ -68,8 +68,8 @@ Work must preserve strict dependency/sensor checksums, pinned GitHub Actions, no
 
 ### CI bounds and concurrency
 
-- Add a workflow-level concurrency group keyed by workflow plus PR number or Git ref.
-- Set `cancel-in-progress` only for pull requests, so superseded PR commits cancel but every mainline push remains independently eligible.
+- Add a workflow-level concurrency group keyed by workflow plus PR number for pull requests, while non-PR runs use the Git ref plus unique run ID.
+- Set `cancel-in-progress` only for pull requests, so superseded PR commits cancel while every mainline push has an independent group and cannot replace a pending mainline run.
 - Set `strategy.fail-fast: false` so one platform result does not suppress evidence from the others.
 - Set the build job timeout to 30 minutes.
 - Bound Pester installation to 5 minutes, setup steps to 5 minutes, build steps to 20 minutes, and report upload to 5 minutes.
@@ -115,7 +115,7 @@ Work must preserve strict dependency/sensor checksums, pinned GitHub Actions, no
 - `processResources` no longer performs an unconditional `openStream` download into `build/`.
 - Windows `build` executes all three required Pester suites using Pester 5.9.0; Linux/macOS never try to execute them.
 - Failed Windows workflows upload Pester NUnit XML.
-- PR supersession cancels prior PR work, main push runs are not canceled, and every build job/critical step is time-bounded.
+- PR supersession cancels prior PR work, every main push has a unique concurrency group and remains independently runnable, and every build job/critical step is time-bounded.
 - Local full validation, PR checks, merge, production verification, Builder evidence, and issue closure complete successfully.
 
 ## Open Questions
