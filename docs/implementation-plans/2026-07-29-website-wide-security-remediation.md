@@ -2,18 +2,18 @@
 
 ## Document Status
 
-ready-for-execution
+in-progress
 
 ## Objective
 
-Fix all 17 reportable security findings from the repository-wide and freshness-delta reviews of `azurras/christopherbell.dev`, include the approved affirmative federation-consent hardening, prove each changed boundary test-first, and deliver the result through PR, CI, merge, production-safe verification, issue closure, and Builder closeout.
+Finish every security remediation that still reproduces on current `origin/main`, preserve the already-merged fixes for the original account, login, password, error, and proxy findings, include the approved affirmative federation-consent hardening, prove each changed boundary test-first, and deliver the result through PR, CI, merge, production-safe verification, issue closure, and Builder closeout.
 
 ## Goals
 
 - Make authentication and authorization reflect current account security state.
 - Upgrade password verification without locking out legacy accounts.
 - Remove public error, proxy, WFL, URL, SSRF, and browser-state boundary failures.
-- Enforce federation post eligibility, account approval, and affirmative signup enrollment.
+- Enforce federation post eligibility, current active-account state, and affirmative signup enrollment.
 - Pin all executable build inputs.
 - Preserve the authoritative dirty checkout and validate the packaged application away from port 8080 before production changes.
 
@@ -23,7 +23,10 @@ Fix all 17 reportable security findings from the repository-wide and freshness-d
 - Repository-wide scan at `f77c5f5bb644cc75cf98b27e722efdc00cd036f1`: 15 reportable findings.
 - Complete 93-file ActivityPub delta scan through `6c1501070ff518bc040583c4576c2df201dcd3ed`: two reportable low-severity findings and one approved self-only privacy hardening item.
 - User decision: approved; start implementation without another design checkpoint.
-- Official current guidance: PBKDF2-HMAC-SHA256 at 600,000 iterations, strict Gradle dependency verification, Gradle distribution checksum pinning, and full-SHA GitHub Action pinning.
+- Current-main reconciliation on 2026-07-29: PR #1319 merged as `e393687d10c40b856f35d669c25bf3ea65c5c083`, closed issues #1258-#1264, and production-verified the account-state reload, indistinguishable login failures, calibrated versioned PBKDF2 verifier, safe framework errors, and validated proxy chain.
+- The earlier password finding required a versioned format, a production-calibrated stronger work factor, constant-time comparison, and transparent legacy upgrade. Current main satisfies that contract with a 210,000-iteration current format that was runtime-validated on this production host; this plan must not replace it with an uncalibrated constant.
+- The same merge intentionally removed dormant account approval fields through V008 and made `AccountStatus` the lifecycle authority. Federation remediation must use current active status and must not reintroduce `isApproved` or `approvedBy`.
+- Current guidance still requires strict Gradle dependency verification, Gradle distribution checksum pinning, and full-SHA GitHub Action pinning.
 
 ## Branch
 
@@ -49,7 +52,12 @@ None. Any source drift or implementation discovery that invalidates these bounda
 
 ## Task Breakdown
 
-### Task 1 - Current account authorization and versioned password verifiers
+### Task 1 - Revalidate merged account authorization and password protections
+
+Execution status:
+
+- Satisfied on current main by PR #1319 / merge `e393687d10c40b856f35d669c25bf3ea65c5c083`; do not apply the historical proposed snippets below.
+- Retain the merged security-fingerprint/account-reload design and calibrated 210,000-iteration versioned verifier unless new RED evidence disproves the completed contract.
 
 Sequence / dependencies:
 
@@ -65,21 +73,16 @@ Expected files or modules:
 
 Implementation notes:
 
-- Required skill: `write-jane-street-style-code` before any code edits; execution must invoke it and apply its Java, testing, invariant, and reviewability rules.
-- Before-Edit Brief:
-  - Behavior: bearer requests reload the account and reject stale, inactive, unapproved, or deleted state; all public login failures are indistinguishable; successful legacy-password login upgrades the verifier.
-  - Invariants: current role and permissions come only from persistence; security-sensitive mutations invalidate existing bearer tokens; legacy accounts remain usable only after a correct password.
-  - Boundary/API: preserve the existing login/token HTTP shapes except for uniform failure responses; add versioned persistence fields compatibly with missing legacy values.
-  - Effects and failures: one indexed account lookup per bearer request; password rehash saves only after successful verification; missing/stale versions fail closed.
-  - Tests and evidence: first add failing JWT revocation, login-equivalence, constant-time/version format, and transparent-upgrade tests; capture RED before production edits and GREEN afterward.
-- Add a monotonic account security version to the account/JWT contract and advance it for password, role, status, approval, shared-folder permission, and music permission changes.
-- Use a fixed dummy verifier for unknown-email login so the public path performs equivalent PBKDF2 work.
+- No source edit is planned. Re-run the merged account, JWT, browser-session, login, password-reset, and password-verifier tests against the refreshed branch.
+- Confirm current bearer/browser authentication reloads the account, requires `AccountStatus.ACTIVE`, and compares the merged security fingerprint before granting current persisted authorities.
+- Confirm unknown, wrong-password, inactive, and malformed-verifier logins retain one public rejection while current/legacy credential verification preserves the calibrated work contract and transparent upgrade.
+- If these checks fail for a reason introduced by current main, treat that failure as new RED evidence and update this plan before changing the merged design.
 
-#### Code Edit 1.1
+#### Historical Reference 1.1 - superseded by `e393687d`
 
 - File: `website/src/main/java/dev/christopherbell/configuration/security/JwtAuthenticationFilter.java`
 - Lines: 85-94
-- Action: replace
+- Historical action: superseded; do not execute
 
 Current:
 
@@ -118,11 +121,11 @@ Verification:
 
 - `./gradlew.bat :website:test --tests '*JwtAuthenticationFilterTest' --tests '*AccountAuthenticationServiceTest' --tests '*PasswordResetServiceTest' --no-daemon`
 
-#### Code Edit 1.2
+#### Historical Reference 1.2 - superseded by `e393687d`
 
 - File: `cbell-lib/src/main/java/dev/christopherbell/libs/security/PasswordUtil.java`
 - Lines: 16-48
-- Action: replace
+- Historical action: superseded; do not execute
 
 Current:
 
@@ -187,7 +190,12 @@ Verification:
 
 - `./gradlew.bat :cbell-lib:test :website:test --tests '*Password*Test' --tests '*AccountAuthenticationServiceTest' --no-daemon`
 
-### Task 2 - Stable HTTP errors and validated client identity
+### Task 2 - Revalidate merged HTTP error and client-identity protections
+
+Execution status:
+
+- Satisfied on current main by PR #1319 / merge `e393687d10c40b856f35d669c25bf3ea65c5c083`; do not apply the historical proposed snippets below.
+- Retain the merged framework-error mapping, constructor-time proxy CIDR validation, bounded forwarding-chain parsing, and production loopback trust unless new RED evidence disproves the completed contract.
 
 Sequence / dependencies:
 
@@ -203,19 +211,15 @@ Expected files or modules:
 
 Implementation notes:
 
-- Required skill: `write-jane-street-style-code` before any code edits; execution must invoke it first.
-- Before-Edit Brief:
-  - Behavior: malformed public requests receive stable safe messages without ERROR stack traces; trusted forwarding works only for validated configured hops.
-  - Invariants: unexpected 5xx failures retain causal ERROR logging; untrusted peers cannot influence client identity; invalid CIDRs stop startup.
-  - Boundary/API: preserve existing response envelope codes and HTTP statuses while replacing raw exception descriptions.
-  - Effects and failures: configuration binding owns CIDR parsing once at startup; request resolution performs no exception-swallowing fallback.
-  - Tests and evidence: first add failing raw-message/log-level tests and invalid-IPv4/IPv6-CIDR binding tests; verify direct, trusted, and forged forwarding.
+- No source edit is planned. Re-run the merged controller-advice and client-IP tests against the refreshed branch.
+- Confirm routine framework 4xx failures retain stable safe descriptions without ERROR stack traces, unexpected 5xx failures retain causal ERROR logging, invalid trusted-proxy CIDRs fail construction/startup, and forged forwarding from untrusted peers is ignored.
+- If these checks fail for a reason introduced by current main, treat that failure as new RED evidence and update this plan before changing the merged design.
 
-#### Code Edit 2.1
+#### Historical Reference 2.1 - superseded by `e393687d`
 
 - File: `cbell-lib/src/main/java/dev/christopherbell/libs/api/controller/ControllerExceptionHandler.java`
 - Lines: 46-58
-- Action: replace
+- Historical action: superseded; do not execute
 
 Current:
 
@@ -259,11 +263,11 @@ Verification:
 
 - `./gradlew.bat :cbell-lib:test :website:test --tests '*ControllerExceptionHandlerTest' --tests '*ClientIp*Test' --no-daemon`
 
-#### Code Edit 2.2
+#### Historical Reference 2.2 - superseded by `e393687d`
 
 - File: `website/src/main/java/dev/christopherbell/configuration/ClientIpProperties.java`
 - Lines: 11-15
-- Action: replace
+- Historical action: superseded; do not execute
 
 Current:
 
@@ -538,16 +542,15 @@ Verification:
 
 - `node --test website/src/test/js/shared-folder.test.js website/src/test/js/shared-folder-page-initialization.test.js website/src/test/js/shared-folder-streaming.test.js`
 
-### Task 6 - Federation approval, per-post eligibility, and affirmative enrollment
+### Task 6 - Federation active-state, per-post eligibility, and affirmative enrollment
 
 Sequence / dependencies:
 
-- Runs after Task 1 because it uses the same authoritative approved/active account state.
+- Runs after Task 1 because it uses the same authoritative active account state.
 
 Expected files or modules:
 
 - `website/src/main/java/dev/christopherbell/federation/**`
-- `website/src/main/java/dev/christopherbell/account/AccountRepository.java`
 - `website/src/main/resources/templates/signup.html`
 - federation discovery, outbox, consent, publication, delivery, view, DTO, and signup JavaScript tests
 
@@ -555,11 +558,11 @@ Implementation notes:
 
 - Required skill: `write-jane-street-style-code` before any code edits; execution must invoke it first.
 - Before-Edit Brief:
-  - Behavior: false/null per-post eligibility never appears in public outboxes; unapproved accounts cannot enroll, be discovered, create eligible posts, or deliver; signup defaults unchecked.
-  - Invariants: current consent and identity remain necessary but not sufficient; missing approval fails closed; explicit user opt-in remains round-trippable; existing transport/signing behavior is unchanged.
+  - Behavior: false/null per-post eligibility never appears in public outboxes; inactive accounts cannot enroll, be discovered, create eligible posts, or deliver; signup defaults unchecked.
+  - Invariants: current consent, identity, and `AccountStatus.ACTIVE` remain necessary; dormant approval fields stay removed; explicit user opt-in remains round-trippable; existing transport/signing behavior is unchanged.
   - Boundary/API: preserve ActivityPub response formats and routes; narrow only eligible records and accounts.
   - Effects and failures: Mongo count and page predicates stay identical; moderation takes effect on the next discovery/delivery state check.
-  - Tests and evidence: first add false/null outbox exclusions, explicit unapproved fixtures at every federation boundary, and unchecked signup rendering/submission tests.
+  - Tests and evidence: first add false/null outbox exclusions, explicit inactive-account fixtures at federation boundaries not already covered, and unchecked signup rendering/submission tests.
 
 #### Code Edit 6.1
 
@@ -593,41 +596,6 @@ Verification:
 - `./gradlew.bat :website:test --tests '*FederationOutboxQueryRepositoryTest' --tests '*FederationCollectionServiceTest' --no-daemon`
 
 #### Code Edit 6.2
-
-- File: `website/src/main/java/dev/christopherbell/federation/outbound/FederationPublicationPolicy.java`
-- Lines: 18-23
-- Action: replace
-
-Current:
-
-```java
-  public boolean eligibleAtCreation(Account account) {
-    return account != null
-        && properties.outboundEnabled()
-        && account.getStatus() == AccountStatus.ACTIVE
-        && account.isFederationEnabled()
-        && account.getFederationIdentity() != null;
-  }
-```
-
-Proposed:
-
-```java
-  public boolean eligibleAtCreation(Account account) {
-    return account != null
-        && properties.outboundEnabled()
-        && account.getStatus() == AccountStatus.ACTIVE
-        && Boolean.TRUE.equals(account.getIsApproved())
-        && account.isFederationEnabled()
-        && account.getFederationIdentity() != null;
-  }
-```
-
-Verification:
-
-- `./gradlew.bat :website:test --tests '*FederationDiscoveryServiceTest' --tests '*FederationConsentServiceTest' --tests '*FederationPublicationPolicyTest' --tests '*FederationOutboundCoordinatorTest' --no-daemon && node --test website/src/test/js/signup-auth.test.js`
-
-#### Code Edit 6.3
 
 - File: `website/src/main/resources/templates/signup.html`
 - Lines: 48-64
@@ -778,12 +746,12 @@ Verification:
 
 ## Code Changes
 
-- Authentication/password: Code Edits 1.1-1.2.
-- Error and proxy boundary: Code Edits 2.1-2.2.
+- Authentication/password: preserved and revalidated from merge `e393687d`; historical Code Edits 1.1-1.2 are not re-applied.
+- Error and proxy boundary: preserved and revalidated from merge `e393687d`; historical Code Edits 2.1-2.2 are not re-applied.
 - WFL authorization/capacity/URLs: Code Edits 3.1-3.2 plus shared HTTP(S) URL parsing described in Task 3.
 - Link-preview SSRF and image URLs: Code Edit 4.1 plus Java/JS image scheme guards described in Task 4.
 - Browser upload resume isolation: Code Edit 5.1.
-- Federation privacy/moderation: Code Edits 6.1-6.3.
+- Federation privacy/moderation: Code Edits 6.1-6.2, with active-account policy preserved from current main.
 - Build supply chain: Code Edits 7.1-7.2 plus generated reviewed verification metadata.
 
 ## Files and Modules
@@ -811,7 +779,7 @@ Verification:
 
 ## Validation
 
-- All 17 reportable findings map to a code/config fix and regression evidence.
+- Every original and freshness-delta finding has a current-main disposition: merged-and-revalidated, fixed on this branch, or not applicable because the retired approval state no longer exists.
 - The self-only signup privacy hardening is tested and not misrepresented as a reportable vulnerability.
 - The final branch security diff has no surviving reportable finding.
 - Full automated, alternate-port, CI, merged-main, and production checks pass.
@@ -835,7 +803,7 @@ Verification:
 
 ## Completion Criteria
 
-- Plan tasks 1-7 have RED/GREEN evidence and reviewable commits.
+- Plan tasks 1-2 retain merged verification evidence; Tasks 3-7 have RED/GREEN evidence and reviewable commits.
 - Focused and full checks pass with zero failures, strict dependency verification enabled.
 - Packaged alternate-port production-profile smoke passes before deployment.
 - PR checks and CodeQL are green, PR merged, relevant issues closed/updated with evidence.
