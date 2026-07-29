@@ -1,6 +1,6 @@
 # ChristopherBell.dev Tools Menu Access Navigation
 
-- Status: active
+- Status: closed
 
 ## Objective
 
@@ -33,8 +33,9 @@ Move Music, Command Center, and Back Office into the Tools dropdown, remove thei
 - Local runtime/browser navigation checks for signed-out, authorized listener, and administrator states when fixtures allow.
 - One PR, green CI, merge, automatic deployment, and public smoke verification.
 
-## Next Steps
+## Outcome
 
-1. Save the approved spec and implementation plan.
-2. Implement from fresh main in an isolated worktree.
-3. Test, publish, merge, deploy, verify, and close the record.
+- Implemented and merged in [PR #1320](https://github.com/azurras/christopherbell.dev/pull/1320).
+- Production automatically deployed merge commit `5de2a8b02941ff7e95b6f2648b7bada9397f68b9`.
+- The live public Tools menu contains only the four public destinations in alphabetical order; access-state tests cover Music readers/writers and administrators.
+- See the [test report](../test-reports/2026-07-29-christopherbell-dev-tools-menu-access-navigation.md), [spoke review](../spoke-reviews/2026-07-29-christopherbell-dev-tools-menu-access-navigation-review.md), and [closure record](../work-closures/2026-07-29-christopherbell-dev-tools-menu-access-navigation.md).
