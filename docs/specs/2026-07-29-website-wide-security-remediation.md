@@ -2,7 +2,7 @@
 
 ## Document Status
 
-Ready for execution. The user approved the integrated remediation design on 2026-07-29.
+In progress. The user approved the integrated remediation design on 2026-07-29; the specification was reconciled with current main during execution.
 
 ## Purpose
 
@@ -12,13 +12,13 @@ Remediate every attacker-reachable finding from the complete security review of 
 
 The repository-wide scan accounted for all 1,105 tracked files and produced 18 candidates. Validation and attack-path analysis retained 15 findings: five high, seven medium, and three low. Three operator/admin-only correctness candidates were suppressed because no untrusted principal could reach them. Baseline `:website:check`, GitHub CI, and CodeQL passed at the scanned revision.
 
-Before implementation, refreshed `origin/main` added a 93-file ActivityPub federation delta. Every changed file received a full-file review receipt. Focused validation found three additional gaps: the public outbox omits the creation-time federation-eligibility flag, signup preselects federation consent instead of requiring affirmative opt-in, and federation predicates omit the independently mutable account approval state. Attack-path policy retained the outbox and approval gaps as two reportable low-severity findings; it rejected the signup default from the security count because the clearly disclosed choice affects only the registering user. The user-approved remediation still includes changing signup to affirmative opt-in as privacy hardening. The outbound transport, DNS pinning, request signing, encrypted-key handling, retry bounds, and configuration gates survived review.
+Before implementation, refreshed `origin/main` added a 93-file ActivityPub federation delta. Every changed file received a full-file review receipt. Focused validation found three candidate gaps: the public outbox omitted the creation-time federation-eligibility flag, signup preselected federation consent instead of requiring affirmative opt-in, and federation predicates appeared to omit the independently mutable account approval state. Attack-path policy initially retained the outbox and approval candidates as two reportable low-severity findings and rejected the signup default from the security count because the clearly disclosed choice affects only the registering user. Before remediation began, current main intentionally removed the dormant approval field and made `AccountStatus.ACTIVE` authoritative, so the approval candidate became not applicable rather than a fix target. The outbox gap remains reportable, and the user-approved remediation still includes changing signup to affirmative opt-in as privacy hardening. The outbound transport, DNS pinning, request signing, encrypted-key handling, retry bounds, and configuration gates survived review.
 
 The dirty authoritative checkout at `A:\Projects\christopherbell.dev` must remain untouched. Work executes in `A:\Projects\christopherbell.dev-worktrees\security-audit-20260728` on branch `codex/security-audit-20260728`, based on refreshed `origin/main`.
 
 ## Goals
 
-- Make bearer authorization reflect current account validity, role, approval, password, and permission state immediately.
+- Make bearer authorization reflect current account validity, role, password, and permission state immediately.
 - Remove account-state enumeration while preserving useful bounded internal diagnostics.
 - Store password verifiers in an explicit upgradeable format and migrate legacy verifiers after successful authentication.
 - Prevent link-preview DNS rebinding and active non-HTTP(S) preview links.
@@ -27,7 +27,7 @@ The dirty authoritative checkout at `A:\Projects\christopherbell.dev` must remai
 - Prevent upload-resume metadata from crossing account boundaries in a shared browser.
 - Return stable public error contracts without stack-trace amplification for routine client failures.
 - Make the production trusted-proxy chain explicit and fail startup for invalid CIDRs.
-- Require affirmative federation enrollment, enforce current account approval throughout federation, and preserve the creation-time per-post publication boundary in the public outbox.
+- Require affirmative federation enrollment, enforce current active status throughout federation, and preserve the creation-time per-post publication boundary in the public outbox.
 - Pin executable build inputs through immutable GitHub Action SHAs, a Gradle distribution checksum, and strict Gradle dependency verification.
 - Preserve current public behavior except where it is unsafe, add regression tests first, and complete alternate-port and production verification.
 
@@ -44,10 +44,10 @@ The dirty authoritative checkout at `A:\Projects\christopherbell.dev` must remai
 
 - Bearer authentication must reload the current account before granting authority.
 - Tokens must carry an account security version; missing or stale versions must fail closed.
-- Password resets and changes to role, active status, approval status, or resource permissions must advance the security version.
-- Public login failures for unknown account, wrong password, and inactive/unapproved account must have the same status and response shape.
+- Password resets and changes to role, active status, or resource permissions must advance the security version.
+- Public login failures for unknown account, wrong password, and inactive account must have the same status and response shape.
 - Unknown-account login must perform comparable password-verification work to reduce timing distinction.
-- New password verifiers must use a versioned PBKDF2-HMAC-SHA256 format with 600,000 iterations, a per-password random salt, and constant-time byte comparison.
+- New password verifiers must use the current versioned PBKDF2-HMAC-SHA256 format with 210,000 iterations, a per-password random salt, and constant-time byte comparison.
 - Existing 65,536-iteration salt/hash records must remain verifiable and be upgraded after a successful login.
 
 ### HTTP boundary and client identity
@@ -88,8 +88,8 @@ The dirty authoritative checkout at `A:\Projects\christopherbell.dev` must remai
 
 - Signup federation enrollment must default to unchecked and must become enabled only after an explicit affirmative choice.
 - Consent copy must accurately describe public identity, posts, and local relationship collections without implying that enrollment is automatic.
-- Federation enrollment, discovery, creation-time publication eligibility, queued delivery, and live delivery must require the account to be both `ACTIVE` and approved.
-- Revoking account approval must make public federation discovery fail closed and prevent subsequent delivery without relying on a separate consent mutation.
+- Federation enrollment, discovery, creation-time publication eligibility, queued delivery, and live delivery must require `AccountStatus.ACTIVE`; no retired approval field may be reintroduced.
+- Changing an account away from `ACTIVE` must make public federation discovery fail closed and prevent subsequent delivery without relying on a separate consent mutation.
 - Public ActivityPub outbox page and count queries must include only posts whose persisted `federationOutboundEligible` value is explicitly true.
 - Historical null or false eligibility values must remain excluded even if the account enables federation later.
 
@@ -102,7 +102,7 @@ Deliver one integrated PR with cohesive commits grouped by boundary:
 3. Enforce WFL creator authority and an atomic/optimistic bounded membership transition, then centralize safe restaurant website parsing for ingestion and rendering.
 4. Introduce an outbound preview transport seam that resolves once and connects only to the approved address while retaining the original origin identity; centralize safe preview image URL parsing.
 5. Namespace upload resume state by current account.
-6. Make federation enrollment affirmative, bind federation activity to current approval, and enforce creation-time post eligibility for public outboxes.
+6. Make federation enrollment affirmative, preserve authoritative active-account checks, and enforce creation-time post eligibility for public outboxes.
 7. Pin workflows and Gradle inputs, then run focused, full, packaged-runtime, alternate-port, and production checks.
 
 Each behavioral change begins with a failing public-boundary test. Security checks live inside service, authentication, parsing, or transport boundaries rather than only in controllers or UI code. Compatibility adapters are limited to legacy password verification and defensive rendering of existing URL data.
@@ -139,7 +139,7 @@ Each behavioral change begins with a failing public-boundary test. Security chec
 
 ## Acceptance Criteria
 
-- All 17 reportable findings have a corresponding code/config fix and regression evidence, and the approved self-only federation signup hardening has its own regression evidence without being presented as a reportable vulnerability.
+- All 16 surviving reportable findings have a corresponding merged fix and regression evidence; the retired approval-state candidate is documented as not applicable, and the approved self-only federation signup hardening has its own regression evidence without being presented as a reportable vulnerability.
 - No suppressed candidate is presented as remediated security work.
 - Focused tests and full `:website:check` pass with zero failures.
 - Strict dependency verification and the Gradle wrapper checksum succeed from a clean isolated Gradle home.
@@ -149,7 +149,7 @@ Each behavioral change begins with a failing public-boundary test. Security chec
 
 ## Risks and Mitigations
 
-- Stronger password hashing can increase login CPU cost; keep the 600,000-iteration verifier below one second on the production host and retain login rate limiting.
+- Stronger password hashing can increase login CPU cost; keep the 210,000-iteration verifier below one second on the production host and retain login rate limiting.
 - Per-request account lookup adds bearer latency; use a single indexed account-ID lookup and preserve fail-closed behavior.
 - DNS pinning can break HTTPS if origin identity is replaced by the IP; preserve the original hostname for Host/SNI/hostname verification and test redirects.
 - Concurrent WFL joins can exceed a naive read-then-save cap; use an atomic conditional update or optimistic version retry and concurrency evidence.
