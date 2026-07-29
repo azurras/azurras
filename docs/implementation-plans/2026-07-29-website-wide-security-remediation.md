@@ -688,7 +688,7 @@ Proposed:
 ```properties
 distributionBase=GRADLE_USER_HOME
 distributionPath=wrapper/dists
-distributionSha256Sum=<authoritative-gradle-9.6.1-bin-sha256>
+distributionSha256Sum=9c0f7faeeb306cb14e4279a3e084ca6b596894089a0638e68a07c945a32c9e14
 distributionUrl=https\://services.gradle.org/distributions/gradle-9.6.1-bin.zip
 networkTimeout=10000
 retries=0
@@ -711,20 +711,268 @@ Verification:
 Current:
 
 ```yaml
-- uses: actions/checkout@v4
-- uses: actions/setup-java@v4
+- uses: actions/checkout@v7
+- uses: actions/setup-java@v5
+- uses: actions/setup-node@v7
+- uses: gradle/actions/setup-gradle@v6
+- uses: actions/upload-artifact@v7
 ```
 
 Proposed:
 
 ```yaml
-- uses: actions/checkout@<reviewed-full-commit-sha> # v4
-- uses: actions/setup-java@<reviewed-full-commit-sha> # v4
+- uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+- uses: actions/setup-java@03ad4de0992f5dab5e18fcb136590ce7c4a0ac95 # v5
+- uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+- uses: gradle/actions/setup-gradle@3f131e8634966bd73d06cc69884922b02e6faf92 # v6
+- uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+```
+
+Verification:
+
+- `./gradlew.bat :website:test --tests '*GitHubAutomationConfigurationTest' --no-daemon`
+
+#### Code Edit 7.3
+
+- File: `.github/workflows/codeql.yml`
+- Lines: 31-47
+- Action: replace
+
+Current:
+
+```yaml
+- uses: actions/checkout@v7
+- uses: actions/setup-java@v5
+- uses: gradle/actions/setup-gradle@v6
+- uses: github/codeql-action/init@v4
+- uses: github/codeql-action/analyze@v4
+```
+
+Proposed:
+
+```yaml
+- uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+- uses: actions/setup-java@03ad4de0992f5dab5e18fcb136590ce7c4a0ac95 # v5
+- uses: gradle/actions/setup-gradle@3f131e8634966bd73d06cc69884922b02e6faf92 # v6
+- uses: github/codeql-action/init@e4fba868fa4b1b91e1fdab776edc8cfbe6e9fb81 # v4
+- uses: github/codeql-action/analyze@e4fba868fa4b1b91e1fdab776edc8cfbe6e9fb81 # v4
+```
+
+Verification:
+
+- `./gradlew.bat :website:test --tests '*GitHubAutomationConfigurationTest' --no-daemon`
+
+#### Code Edit 7.4
+
+- File: `.github/workflows/dependency-review.yml`
+- Lines: 15-16
+- Action: replace
+
+Current:
+
+```yaml
+- uses: actions/checkout@v7
+- uses: actions/dependency-review-action@v5
+```
+
+Proposed:
+
+```yaml
+- uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+- uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5
+```
+
+Verification:
+
+- `./gradlew.bat :website:test --tests '*GitHubAutomationConfigurationTest' --no-daemon`
+
+#### Code Edit 7.5
+
+- File: `.github/workflows/stale.yml`
+- Lines: 18-18
+- Action: replace
+
+Current:
+
+```yaml
+- uses: actions/stale@v10
+```
+
+Proposed:
+
+```yaml
+- uses: actions/stale@1e223db275d687790206a7acac4d1a11bd6fe629 # v10
 ```
 
 Verification:
 
 - `rg -n 'uses: [^#\r\n]+@v[0-9]' .github/workflows; ./gradlew.bat :website:check --dependency-verification=strict --no-daemon`
+
+The exact refs in Code Edits 7.2-7.5 were resolved from each official upstream Git repository on 2026-07-29. For annotated `gradle/actions@v6` and `github/codeql-action@v4`, the proposed values are the peeled commit refs rather than the tag-object refs.
+
+#### Code Edit 7.6
+
+- File: `website/src/test/java/dev/christopherbell/configuration/GitHubAutomationConfigurationTest.java`
+- Lines: 17-121
+- Action: replace
+
+Current:
+
+```java
+var setupGradle = stepUsing(steps, "gradle/actions/setup-gradle@v6");
+var upload = stepUsing(steps, "actions/upload-artifact@v7");
+assertThat(stepUsing(steps, "github/codeql-action/init@v4").isMissingNode()).isFalse();
+```
+
+Proposed:
+
+```java
+private static final Pattern IMMUTABLE_ACTION = Pattern.compile("^[^@\\s]+@[0-9a-f]{40}$");
+
+private static final String SETUP_GRADLE =
+    "gradle/actions/setup-gradle@3f131e8634966bd73d06cc69884922b02e6faf92";
+private static final String UPLOAD_ARTIFACT =
+    "actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a";
+private static final String CODEQL_INIT =
+    "github/codeql-action/init@e4fba868fa4b1b91e1fdab776edc8cfbe6e9fb81";
+
+@Test
+void everyWorkflowActionUsesAFullCommitSha() throws IOException {
+  try (var workflows = Files.list(REPOSITORY_ROOT.resolve(".github/workflows"))) {
+    var actionReferences = workflows
+        .filter(path -> path.toString().endsWith(".yml"))
+        .flatMap(path -> actionReferences(readYaml(path)).stream())
+        .toList();
+    assertThat(actionReferences).isNotEmpty().allMatch(reference ->
+        IMMUTABLE_ACTION.matcher(reference).matches());
+  }
+}
+
+var setupGradle = stepUsing(steps, SETUP_GRADLE);
+var upload = stepUsing(steps, UPLOAD_ARTIFACT);
+assertThat(stepUsing(steps, CODEQL_INIT).isMissingNode()).isFalse();
+```
+
+Implementation must keep the existing behavioral workflow assertions, using the exact pinned references from Code Edit 7.2 or action-name matching that separately proves the full SHA.
+
+Verification:
+
+- `./gradlew.bat :website:test --tests '*GitHubAutomationConfigurationTest' --no-daemon`
+
+#### Code Edit 7.7
+
+- File: `website/src/test/java/dev/christopherbell/configuration/BuildSupplyChainConfigurationTest.java`
+- Lines: 1-55
+- Action: add
+
+Proposed:
+
+```java
+package dev.christopherbell.configuration;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Properties;
+import org.junit.jupiter.api.Test;
+
+class BuildSupplyChainConfigurationTest {
+  private static final Path REPOSITORY_ROOT = locateRepositoryRoot();
+
+@Test
+void wrapperAndDependencyGraphHaveImmutableChecksums() throws IOException {
+  assertThat(wrapperProperties().getProperty("distributionSha256Sum"))
+      .isEqualTo("9c0f7faeeb306cb14e4279a3e084ca6b596894089a0638e68a07c945a32c9e14");
+  var metadata = REPOSITORY_ROOT.resolve("gradle/verification-metadata.xml");
+  assertThat(Files.isRegularFile(metadata)).isTrue();
+  assertThat(Files.size(metadata)).isPositive();
+  assertThat(Files.readString(metadata)).contains("<component ");
+}
+
+private static Properties wrapperProperties() throws IOException {
+  var properties = new Properties();
+  try (InputStream input = Files.newInputStream(
+      REPOSITORY_ROOT.resolve("gradle/wrapper/gradle-wrapper.properties"))) {
+    properties.load(input);
+  }
+  return properties;
+}
+
+private static Path locateRepositoryRoot() {
+  var current = Path.of("").toAbsolutePath().normalize();
+  if (Files.isDirectory(current.resolve(".github"))) return current;
+  var parent = current.getParent();
+  if (parent != null && Files.isDirectory(parent.resolve(".github"))) return parent;
+  throw new IllegalStateException("Cannot locate repository root from " + current);
+}
+}
+```
+
+Verification:
+
+- `./gradlew.bat :website:test --tests '*BuildSupplyChainConfigurationTest' --no-daemon`
+
+#### Code Edit 7.8
+
+- File: `gradle/verification-metadata.xml`
+- Lines: 1-12
+- Action: add
+
+Proposed:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<verification-metadata>
+   <configuration>
+      <verify-metadata>true</verify-metadata>
+      <verify-signatures>false</verify-signatures>
+   </configuration>
+   <components>
+      <!-- Generated SHA-256 entries for every resolved build component. -->
+   </components>
+</verification-metadata>
+```
+
+Generate metadata only after the RED configuration tests fail, from a clean isolated Gradle home with:
+
+- `./gradlew.bat --write-verification-metadata sha256 --refresh-dependencies build --no-daemon`
+
+Review the generated components and repositories for unexpected entries. The generated file will contain the Gradle namespace and complete component/checksum entries rather than the abbreviated shape above. Do not hand-edit generated checksum entries unless independently verified.
+
+Verification:
+
+- From a second empty isolated Gradle home: `./gradlew.bat build --dependency-verification=strict --no-daemon`
+
+#### Code Edit 7.9
+
+- File: `docs/operations/dependency-verification.md`
+- Lines: 1-24
+- Action: add
+
+Proposed:
+
+```markdown
+# Dependency verification
+
+The Gradle wrapper, repository dependencies, plugins, and GitHub Actions are pinned to reviewed immutable bytes.
+
+To update Gradle verification metadata, use an empty isolated `GRADLE_USER_HOME` and run:
+
+`./gradlew.bat --write-verification-metadata sha256 --refresh-dependencies build --no-daemon`
+
+Review every new or changed component against its expected repository and upstream release, then prove the result from a second empty Gradle home:
+
+`./gradlew.bat build --dependency-verification=strict --no-daemon`
+
+Workflow action updates must retain the intended release in a comment and pin the `uses:` value to the official upstream commit SHA. Annotated tags must be peeled to their commit.
+```
+
+Verification:
+
+- `./gradlew.bat :website:test --tests '*BuildSupplyChainConfigurationTest' --tests '*GitHubAutomationConfigurationTest' --dependency-verification=strict --no-daemon`
 
 ### Task 8 - Integrated verification, delivery, and production acceptance
 
