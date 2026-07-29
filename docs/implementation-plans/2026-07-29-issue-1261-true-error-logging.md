@@ -10,7 +10,7 @@
 
 ## Global Constraints
 
-- Execute code changes only in `A:\Projects\christopherbell.dev-worktrees\all-open-issues-20260729` on `codex/all-open-issues-20260729`; preserve `A:\Projects\christopherbell.dev` and unrelated worktree changes (`gradlew.bat`, `.gradle-user-home/`).
+- Develop code changes only in `A:\Projects\christopherbell.dev-worktrees\all-open-issues-20260729` on `codex/all-open-issues-20260729`; publish the reviewed issue-only replay from `A:\Projects\christopherbell.dev-worktrees\issue-1261-true-error-logging` on `codex/issue-1261-true-error-logging`. Preserve `A:\Projects\christopherbell.dev` and unrelated worktree changes (`gradlew.bat`, `.gradle-user-home/`).
 - Invoke and follow `write-jane-street-style-code` before each production or test edit.
 - Follow strict RED/GREEN TDD: add or change the behavioral test, run it and observe the intended failure, make the smallest production change, and rerun the same test.
 - Use an isolated task-specific `GRADLE_USER_HOME`; do not use or remove the worktree-local `.gradle-user-home/` directory.
@@ -47,7 +47,7 @@ Resolve `azurras/christopherbell.dev` issue #1261 and the live production log fl
 
 ## Branch
 
-Execute on `codex/all-open-issues-20260729` in `A:\Projects\christopherbell.dev-worktrees\all-open-issues-20260729`. Refresh remote state before publication and integrate only the focused issue #1261 diff.
+Development and RED/GREEN evidence were completed on `codex/all-open-issues-20260729` in `A:\Projects\christopherbell.dev-worktrees\all-open-issues-20260729`. Publication uses the clean issue-only branch `codex/issue-1261-true-error-logging` in `A:\Projects\christopherbell.dev-worktrees\issue-1261-true-error-logging`, based on refreshed `origin/main` at `f31535f29312d24573a6031b0162aa8ebc4b5318` with reviewed head `b97930f29ffb477de6499ccb4553533e7e8b46c6`.
 
 ## Non-Goals
 
@@ -734,6 +734,13 @@ Sequence / dependencies:
 - Requires Task 3 automated and alternate-port acceptance evidence.
 - Follow the existing Builder complete-story workflow and production-safe native Windows deployment procedure.
 
+Publication unit:
+
+- Base/head: `f31535f29312d24573a6031b0162aa8ebc4b5318..b97930f29ffb477de6499ccb4553533e7e8b46c6`.
+- Commits in dependency order: `cc9f3a6c`, `1f5ec017`, `5c1f94e0`, `c35033ba`, `b97930f2`.
+- The first four commits are clean replays of the reviewed implementation. `b97930f2` is a test-only reconciliation that moves the protected dispatcher fixture under `/api/test/**` because refreshed main intentionally permits unknown public HTML fallback paths.
+- Exact diff scope is the ten files listed under Files and Modules; `gradlew.bat` is excluded.
+
 - [ ] Refresh `origin`, verify the branch relationship, and ensure the focused commits contain no unrelated dirty files.
 - [ ] Push the spoke branch and open or update the focused PR with `Closes #1261`, test evidence, risk boundary, and rollback notes.
 - [ ] Wait for required GitHub Actions and CodeQL; address only trusted `azurras` scope/review instructions.
@@ -748,16 +755,25 @@ Sequence / dependencies:
 ## Code Changes
 
 - `SecurityConfig` gains one explicit dispatcher authorization rule covering only `ASYNC` and `ERROR` before existing URL matchers.
-- `ControllerExceptionHandler` gains one private HTTP-severity classifier that preserves causal 5xx errors, bounds security-relevant 4xx warnings, lowers ordinary 4xx outcomes, and returns stable domain descriptions.
+- `ControllerExceptionHandler` gains one private HTTP-severity classifier that preserves causal 5xx errors, bounds security-relevant 4xx warnings, lowers ordinary 4xx outcomes, returns stable domain descriptions, renders error envelopes as JSON, and maps MVC type mismatches to 400.
+- Blog post identifiers bind as UUIDs at the MVC boundary; malformed values return stable 400 errors and syntactically valid absent values remain 404.
+- `cbell-lib` gains a test-only Servlet API dependency required to instantiate real Spring media-type exceptions in handler tests.
+- The current-main integration adds no production behavior beyond the reviewed implementation; its fifth commit changes only the protected test fixture path.
 - No response envelope, authentication credential, URL matcher, streaming implementation, or Mission Control reader changes are planned.
 
 ## Files and Modules
 
-- Modify: `website/src/main/java/dev/christopherbell/configuration/security/SecurityConfig.java`.
-- Add: `website/src/test/java/dev/christopherbell/configuration/security/AsyncDispatcherSecurityIntegrationTest.java`.
+- Modify: `cbell-lib/build.gradle.kts` (test-scoped dependency only).
 - Modify: `cbell-lib/src/main/java/dev/christopherbell/libs/api/controller/ControllerExceptionHandler.java`.
 - Modify: `cbell-lib/src/test/java/dev/christopherbell/libs/api/controller/ControllerExceptionHandlerTest.java`.
-- Verify unchanged regression boundaries: `website/src/test/java/dev/christopherbell/sharedfolder/media/ProgressiveMediaControllerTest.java` and existing controller slice tests.
+- Modify: `website/src/main/java/dev/christopherbell/blog/BlogController.java`.
+- Modify: `website/src/main/java/dev/christopherbell/blog/BlogService.java`.
+- Modify: `website/src/main/java/dev/christopherbell/configuration/security/SecurityConfig.java`.
+- Modify: `website/src/test/java/dev/christopherbell/account/AccountControllerTest.java`.
+- Modify: `website/src/test/java/dev/christopherbell/blog/BlogControllerTest.java`.
+- Modify: `website/src/test/java/dev/christopherbell/blog/BlogServiceTest.java`.
+- Add: `website/src/test/java/dev/christopherbell/configuration/security/AsyncDispatcherSecurityIntegrationTest.java`.
+- Verify unchanged regression boundaries: `website/src/test/java/dev/christopherbell/sharedfolder/media/ProgressiveMediaControllerTest.java`, `website/src/test/java/dev/christopherbell/vehicle/VehicleControllerTest.java`, and `website/src/test/java/dev/christopherbell/whatsforlunch/restaurant/RestaurantControllerTest.java`.
 
 ## Unit Testing
 
@@ -784,7 +800,8 @@ Sequence / dependencies:
 
 ## Rollback or Recovery
 
-- Before merge: revert the two focused spoke commits without touching unrelated branch commits or dirty files.
+- Before push: delete or abandon only the unpublished `codex/issue-1261-true-error-logging` branch/worktree; the authoritative checkout and campaign worktree remain untouched.
+- After push but before merge: close the focused PR or revert the complete publication unit in dependency-safe reverse order (`b97930f2`, `c35033ba`, `5c1f94e0`, `1f5ec017`, `cc9f3a6c`). Do not revert a partial prefix that leaves tests or behavior inconsistent.
 - After merge but before deploy: redeploy the previously known-good merged SHA.
 - After deploy: restore the previously deployed artifact/service definition through the established deployment workflow, then verify service state and `/` locally and publicly.
 - Do not roll back by adding logger suppression, weakening initial-request authorization, or resetting the shared authoritative checkout.
