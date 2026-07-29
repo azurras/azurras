@@ -17,7 +17,8 @@ Resolve every currently open issue in `azurras/christopherbell.dev` through curr
 ## Related Specs and Plans
 
 - Project spec: [Complete christopherbell.dev Issues 1258-1307](../specs/2026-07-29-complete-christopherbell-dev-issues-1258-1307.md) (`ready-for-execution`).
-- Batch implementation plans will be linked after current-source inspection and review.
+- Batch 1 plan: [Account Security and Lifecycle Issues 1258-1264](../implementation-plans/2026-07-29-account-security-lifecycle-issues-1258-1264.md) (`ready-for-execution`).
+- Later batch implementation plans will be linked after each current-source inspection and review.
 
 ## Spoke Repositories
 
@@ -33,7 +34,8 @@ Resolve every currently open issue in `azurras/christopherbell.dev` through curr
 - GitHub inventory on 2026-07-29 confirms exactly 50 open issues, #1258-#1307, and one unrelated open Dependabot pull request.
 - Every issue was authored by `azurras`, has a non-empty evidence-backed body, and has zero comments.
 - The campaign is divided into seven dependency-aware batches: account security; public SEO/accessibility; social feeds; WFL; shared-folder integrity; command center; and build/supply-chain.
-- The full clean-mainline `:website:check` baseline is running with an isolated `GRADLE_USER_HOME`.
+- The full clean-mainline `:website:check` baseline passed in 3m44s with Java, JavaScript, packaged JAR, and sensor-runtime verification.
+- Batch 1 current-source inspection found that browser sessions already re-check an account security fingerprint; the reviewed design centralizes that invariant and extends it to bearer JWTs.
 - The user explicitly authorized autonomous continuation without routine approval pauses.
 
 ## Blockers
