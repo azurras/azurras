@@ -30,13 +30,14 @@ Document every first-party source and text file in `azurras/christopherbell.dev`
 - Phase 1 implementation plan: [Repository Documentation Discovery Foundation](../implementation-plans/2026-07-29-repository-documentation-discovery-foundation.md) (`complete`).
 - Corrective design: [Documentation Discovery Corrective Design](../specs/2026-07-29-documentation-discovery-corrective-design.md) (`complete`).
 - Corrective implementation plan: [Documentation Discovery Corrective Phase](../implementation-plans/2026-07-29-documentation-discovery-corrective-phase.md) (`complete`).
+- Java checker implementation plan: [Java Documentation Checker](../implementation-plans/2026-07-29-java-documentation-checker.md) (`ready-for-execution`).
 - Test report: pending.
 - Spoke update and review: pending.
 - Closure record: pending.
 
 ## Current State
 
-The discovery foundation and corrective phase are complete and review-clean at `644763701d5438062ee93594ae9a5695b1659715`. Deterministic Git discovery now has named exclusions, complete repository-native archive coverage, path safety, bounded process/reader ownership, deterministic interruption tests, and warning-free private Javadocs. The Java documentation checker is the next independently planned phase; non-Java validation and documentation remediation have not started.
+The discovery foundation and corrective phase are complete and review-clean at `644763701d5438062ee93594ae9a5695b1659715`. Deterministic Git discovery now has named exclusions, complete repository-native archive coverage, path safety, bounded process/reader ownership, deterministic interruption tests, and warning-free private Javadocs. The Java documentation checker plan is ready for mechanical and independent review before subagent-driven execution; non-Java validation and documentation remediation have not started.
 
 ## Blockers
 
