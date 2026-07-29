@@ -2,7 +2,7 @@
 
 ## Document Status
 
-ready-for-execution
+complete
 
 ## Objective
 
@@ -26,7 +26,7 @@ Resolve #1273-#1279 by moving likes/follows into unique edge collections, making
 
 ## Branch
 
-`codex/issues-1273-1279-20260729` in `A:\Projects\christopherbell.dev-worktrees\issues-1273-1279-20260729`, based on `f31535f2`.
+`codex/issues-1273-1279-rebased-20260729` in `A:\Projects\christopherbell.dev-worktrees\issues-1273-1279-rebased-20260729`, rebased onto `a6a88e91` and squash-merged by PR #1323 as `e3afbf3c9eeb65525f573f299f82287ef8665554`.
 
 ## Non-Goals
 

@@ -19,6 +19,7 @@ Resolve every currently open issue in `azurras/christopherbell.dev` through curr
 - Project spec: [Complete christopherbell.dev Issues 1258-1307](../specs/2026-07-29-complete-christopherbell-dev-issues-1258-1307.md) (`ready-for-execution`).
 - Batch 1 plan: [Account Security and Lifecycle Issues 1258-1264](../implementation-plans/2026-07-29-account-security-lifecycle-issues-1258-1264.md) (`ready-for-execution`).
 - Batch 2 plan: [Public SEO and Accessibility Issues 1265-1272](../implementation-plans/2026-07-29-public-seo-accessibility-issues-1265-1272.md) (`complete`).
+- Batch 3 plan: [Social Relationship and Feed Scalability Issues 1273-1279](../implementation-plans/2026-07-29-social-relationship-and-feed-scalability-issues-1273-1279.md) (`complete`).
 - Later batch implementation plans will be linked after each current-source inspection and review.
 
 ## Spoke Repositories
@@ -26,6 +27,7 @@ Resolve every currently open issue in `azurras/christopherbell.dev` through curr
 - `christopherbell-dev`: authoritative checkout `A:\Projects\christopherbell.dev`; it is dirty, ahead 3, behind 90, and must remain untouched.
 - Batch 1 worktree: `A:\Projects\christopherbell.dev-worktrees\all-open-issues-20260729` on `codex/all-open-issues-20260729`, created from refreshed `origin/main` commit `8405cd77d0f1743fe33d70cc80b47e37048090a0`; merged by PR #1319 as `e393687d10c40b856f35d669c25bf3ea65c5c083`.
 - Batch 2 worktree: `A:\Projects\christopherbell.dev-worktrees\issues-1265-1272-20260729` on `codex/issues-1265-1272-20260729`; rebased onto refreshed `origin/main` commit `5de2a8b02941ff7e95b6f2648b7bada9397f68b9` and merged by PR #1321 as `f31535f29312d24573a6031b0162aa8ebc4b5318`.
+- Batch 3 worktree: `A:\Projects\christopherbell.dev-worktrees\issues-1273-1279-rebased-20260729` on `codex/issues-1273-1279-rebased-20260729`; based on refreshed `origin/main` commit `a6a88e91f35bcbf9eeadeaf06cbf93df80ce0a5f` and merged by PR #1323 as `e3afbf3c9eeb65525f573f299f82287ef8665554`.
 
 ## Dispatched Tasks
 
@@ -48,6 +50,9 @@ Resolve every currently open issue in `azurras/christopherbell.dev` through curr
 - Batch 2 implemented centralized indexing metadata, true unknown/dynamic 404s, entity-aware public metadata, bounded generated sitemap data, WFL canonical policy, The Bell semantics, explicit button behavior, and password-manager form metadata. Final `:website:check` passed 1,418 Java tests with zero failures/errors and 3 skipped plus all frontend/package/runtime policy gates.
 - PR [#1321](https://github.com/azurras/christopherbell.dev/pull/1321) passed Ubuntu, macOS, Windows, CodeQL, and dependency review and squash-merged as `f31535f29312d24573a6031b0162aa8ebc4b5318`. Production rotated from PID 51060 to PID 46940, served merge-SHA assets, and passed liveness, readiness, local/public root, sitemap, noindex 404, protected namespace, canonical, The Bell, and auth-form acceptance.
 - Issues #1265-#1272 are closed with merge, CI, runtime, production, and test-report evidence; 35 campaign issues remain open.
+- Batch 3 moved likes and follows into deterministic unique edge collections; added retry-safe desired-state like/follow operations; assembled feed engagement in constant query counts; filtered visibility before page limits; bounded legacy histories; and removed expiration repair writes from reads. Final `:website:check` passed 1,431 Java tests with zero failures/errors and 3 skipped plus frontend, package, sensor, and policy gates.
+- PR [#1323](https://github.com/azurras/christopherbell.dev/pull/1323) passed Ubuntu, macOS, Windows, CodeQL, and dependency review and squash-merged as `e3afbf3c9eeb65525f573f299f82287ef8665554`. Production rotated to PID 60136, served merge-SHA assets locally and publicly, reported liveness/readiness `UP`, applied migrations 009/010, created the required unique edge indexes, removed all legacy relationship arrays, and backfilled every root metric.
+- Issues #1273-#1279 are closed with merge, CI, concurrency/runtime, production migration, and test-report evidence; 28 campaign issues remain open.
 - The user explicitly authorized autonomous continuation without routine approval pauses.
 
 ## Blockers
@@ -62,6 +67,6 @@ None.
 
 ## Next Steps
 
-1. Inspect current merged source and save/review the Batch 3 implementation plan for social-feed issues #1273-#1279.
+1. Inspect refreshed merged source and save/review the Batch 4 implementation plan for WFL issues #1280-#1289.
 2. Implement, test, publish, merge, close, and production-verify the remaining batches in dependency order.
 3. Refresh Builder indexes, close this record, and save final campaign memory after all 50 issues are closed.
