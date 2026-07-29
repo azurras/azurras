@@ -36,6 +36,8 @@ Resolve every currently open issue in `azurras/christopherbell.dev` through curr
 - The campaign is divided into seven dependency-aware batches: account security; public SEO/accessibility; social feeds; WFL; shared-folder integrity; command center; and build/supply-chain.
 - The full clean-mainline `:website:check` baseline passed in 3m44s with Java, JavaScript, packaged JAR, and sensor-runtime verification.
 - Batch 1 current-source inspection found that browser sessions already re-check an account security fingerprint; the reviewed design centralizes that invariant and extends it to bearer JWTs.
+- Batch 1 implementation for #1258-#1264 is complete in the isolated spoke worktree. Final `:website:check` passed with 1,389 Java tests, 269 JavaScript tests, packaged-JAR and sensor-runtime verification; `:cbell-lib:test` separately passed 100 tests.
+- Batch 1 alternate-port acceptance on port 8093 passed against a disposable Mongo database, including `201 + Location`, current password storage, uniform failed login, immediate stale-token rejection, safe malformed JSON, and bodyless DELETE. Evidence: [Batch 1 test report](../test-reports/2026-07-29-account-security-and-lifecycle-issues-1258-1264-test-report.md).
 - The user explicitly authorized autonomous continuation without routine approval pauses.
 
 ## Blockers
@@ -46,10 +48,11 @@ None.
 
 - Current issue bodies, author, comment counts, open pull requests, remotes, branches, worktrees, and authoritative-checkout status were inspected directly on 2026-07-29.
 - Each batch must pass focused tests, full relevant regression coverage, alternate-port runtime acceptance, required GitHub checks, merge confirmation, issue closure, and production-safe verification before campaign closeout.
+- Batch 1 runtime fixtures, alternate listener, and disposable database were removed; production remained running and both local and public roots returned 200.
 
 ## Next Steps
 
-1. Complete and record the refreshed baseline.
-2. Inspect current source and save one literal, reviewed implementation plan per batch.
-3. Implement, test, publish, merge, close, and production-verify each batch in dependency order.
+1. Commit Batch 1 spoke changes, publish its pull request, pass required CI, merge, close #1258-#1264, and verify production.
+2. Inspect current source and save one literal, reviewed implementation plan for Batch 2.
+3. Implement, test, publish, merge, close, and production-verify the remaining batches in dependency order.
 4. Refresh Builder indexes, close this record, and save session memory after all 50 issues are closed.
