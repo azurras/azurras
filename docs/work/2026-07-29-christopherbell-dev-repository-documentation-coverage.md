@@ -1,6 +1,6 @@
 # christopherbell.dev Repository Documentation Coverage
 
-- Status: blocked
+- Status: active
 - Owner: Codex root agent
 - Started: 2026-07-29
 
@@ -28,17 +28,18 @@ Document every first-party source and text file in `azurras/christopherbell.dev`
 
 - Project specification: [Repository-Wide Documentation Coverage](../specs/2026-07-29-christopherbell-dev-repository-wide-documentation-coverage.md) (`ready-for-execution`, approved 2026-07-29).
 - Phase 1 implementation plan: [Repository Documentation Discovery Foundation](../implementation-plans/2026-07-29-repository-documentation-discovery-foundation.md) (`ready-for-execution`).
+- Corrective design: [Documentation Discovery Corrective Design](../specs/2026-07-29-documentation-discovery-corrective-design.md) (`ready-for-review`, approach approved 2026-07-29).
 - Test report: pending.
 - Spoke update and review: pending.
 - Closure record: pending.
 
 ## Current State
 
-The user approved the saved language-aware, CI-enforced specification on 2026-07-29. The execution has been decomposed at independently testable boundaries. Phase 1 implemented deterministic Git-backed source discovery and passed its full test/build gates, but its mandatory final scoped re-review retained load-bearing exclusion and subprocess-cleanup findings after the single permitted fix wave. The branch and worktree are preserved while a new corrective phase awaits authorization; later Java/non-Java validation and documentation remediation have not started.
+The user approved a new corrective phase and its narrow design on 2026-07-29. The focused written design is ready for review. The preserved discovery branch remains at `e4784620bdfa072fb07415ea1d4e6fce688d0d27`; later Java/non-Java validation and documentation remediation have not started.
 
 ## Blockers
 
-- The Phase 1 SDD contract permits exactly one final-review fix wave. Its scoped re-review still found three foundational gaps: missing `.nar`, `.ear`, and `.tar.gz` archive exclusions; an interrupted output-reader cleanup path without a second bounded termination verification; and related null-input/bounded-cleanup Javadoc omissions. A new corrective phase requires explicit authorization before later validators can safely depend on discovery.
+None. The previously blocked residual findings are the explicitly authorized scope of the new corrective phase.
 
 ## Validation
 
@@ -58,7 +59,7 @@ The user approved the saved language-aware, CI-enforced specification on 2026-07
 
 ## Next Steps
 
-1. Obtain explicit authorization for a new corrective phase because the single permitted final-review fix wave is exhausted.
+1. Obtain written-spec approval and save a literal-line-range corrective implementation plan.
 2. Correct and independently review the residual archive-policy, reader-termination, and Javadoc gaps.
 3. Reconcile the preserved branch with the one upstream `main` commit after the foundation is review-clean.
 4. Save and execute the Java documentation checker plan against the corrected discovery boundary.
