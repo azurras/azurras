@@ -32,13 +32,14 @@ Document every first-party source and text file in `azurras/christopherbell.dev`
 - Corrective implementation plan: [Documentation Discovery Corrective Phase](../implementation-plans/2026-07-29-documentation-discovery-corrective-phase.md) (`complete`).
 - Java checker implementation plan: [Java Documentation Checker](../implementation-plans/2026-07-29-java-documentation-checker.md) (`complete`).
 - JavaScript scanner design: [JavaScript Documentation Scanner Design](../specs/2026-07-29-javascript-documentation-scanner-design.md) (`ready-for-execution`, approved 2026-07-29).
+- JavaScript lexical foundation implementation plan: [JavaScript Lexical Foundation](../implementation-plans/2026-07-29-javascript-lexical-foundation.md) (`complete`).
 - Test report: pending.
 - Spoke update and review: pending.
 - Closure record: pending.
 
 ## Current State
 
-The discovery foundation, corrective phase, and Java documentation checker are complete and review-clean at `d4a77e2e2a58906b968f61972ea964cdc10a8833`. The Java checker uses Java 25 syntax-tree and documentation APIs without dependency compilation, aggregates stable validated violations, covers every required source declaration and enum constant, enforces complete tags, and has exact regression coverage for parser ownership and AST edge cases. The JavaScript tokenizer/recognizer design is approved and ready for phased implementation planning; other non-Java validation and documentation remediation have not started.
+The discovery foundation, corrective phase, Java documentation checker, and JavaScript lexical foundation are complete and review-clean through `affed13149c07ec5c024e20325a0333c2efd374f`. The Java checker uses Java 25 syntax-tree and documentation APIs without dependency compilation, aggregates stable validated violations, covers every required source declaration and enum constant, enforces complete tags, and has exact regression coverage for parser ownership and AST edge cases. The JavaScript tokenizer is a pure JDK-only immutable success-or-first-failure boundary that preserves JSDoc and ordinary-comment attachment barriers, handles the repository's regex/template/Unicode hazards, and lexes all 96 first-party JavaScript files. The structural recognizer and JSDoc policy phase is next; other non-Java validation and documentation remediation have not started.
 
 ## Blockers
 
@@ -70,11 +71,17 @@ None. The previously blocked residual findings are the explicitly authorized sco
 - Java checker final review found and fixed same-name parameter namespace handling, inapplicable type/enum-constant return tags, and source-diagnostic ownership; scoped re-review returned `ALL_FINDINGS_ADDRESSED` with no new Critical/Important breakage.
 - Authoritative checkout status hash remained `C706E834EA40C9F523941C350570B68C5663FA4F3200528FA54D870A816E0CEB` throughout Java-checker execution.
 - Isolated worktree clean at `d4a77e2e`; no rebase, pull, push, PR, or merge performed.
+- JavaScript lexical commits: `2a019769a029acb61b5780d5683a66978d35cab7`, `a84cca2299bbdb507ddfe5d917ed116e969d9da0`, `16b6b08da2459b1eb912d996472b43ded6ad4055`, `e496fe48a3b269c8baaf042bae3b5db9bd72e213`, and `affed13149c07ec5c024e20325a0333c2efd374f`.
+- JavaScript lexical final verification: 155 lexer tests and 7 domain tests passed; the complete validator suite passed 234 tests with zero failures/errors and one established Windows skip; private Javadocs were warning-free; the root build exited 0 in 2m16s; all 96 first-party JavaScript files lexed successfully.
+- The first whole-phase review found four Important boundary defects and one Minor diagnostic defect. The amended corrective plan was independently approved; the scoped fix re-review addressed all five; the fresh final whole-phase re-review returned `APPROVED` with 0 Critical, 0 Important, and 0 Minor findings.
+- JavaScript lexical phase scope remained exactly seven new validator Java files, and the authoritative checkout status hash remained `C706E834EA40C9F523941C350570B68C5663FA4F3200528FA54D870A816E0CEB`.
+- Isolated worktree clean at `affed131`; no rebase, pull, push, PR, or merge performed.
 
 ## Next Steps
 
-1. Save and execute the non-Java, file-purpose, README/Mermaid, aggregate reporting, Gradle, and CI validator phases.
-2. Document Java and non-Java repository subsystems in reviewable commits and drive the aggregate validator to zero.
-3. Reconcile the campaign branch with upstream `main` before delivery.
-4. Run full local verification, deliver through PR and CI, merge, and verify post-merge main.
-5. Save test, review, session-memory, and closure artifacts; refresh indexes; close the work record.
+1. Save and execute the JavaScript structural recognizer and JSDoc policy plan against the frozen lexical boundary.
+2. Save and execute the remaining non-Java, file-purpose, README/Mermaid, aggregate reporting, Gradle, and CI validator phases.
+3. Document Java and non-Java repository subsystems in reviewable commits and drive the aggregate validator to zero.
+4. Reconcile the campaign branch with upstream `main` before delivery.
+5. Run full local verification, deliver through PR and CI, merge, and verify post-merge main.
+6. Save test, review, session-memory, and closure artifacts; refresh indexes; close the work record.
