@@ -70,7 +70,7 @@ Token data includes:
 - start and exclusive end offsets; and
 - JSDoc content as a distinct token kind.
 
-Ordinary whitespace and non-JSDoc comments are not emitted as semantic tokens. An explicit end-of-file token closes a successful stream. Invalid source returns exactly one lexical error at the first position that makes recovery unsafe; tokens emitted before that error may remain in the immutable result for diagnostics, but the recognizer must reject the result and consume none of them.
+Ordinary whitespace is not emitted. Complete non-JSDoc comments are retained as exact-position attachment-barrier tokens: the recognizer never interprets their contents as code, but it must be able to distinguish whitespace-only separation from an intervening ordinary comment without rereading source. An explicit end-of-file token closes a successful stream. Invalid source returns exactly one lexical error at the first position that makes recovery unsafe; tokens emitted before that error may remain in the immutable result for diagnostics, but the recognizer must reject the result and consume none of them.
 
 ### Phase B: structural recognizer and documentation rules
 
@@ -144,7 +144,7 @@ Object-versus-block ambiguity is resolved from surrounding token context. If con
 
 ## JSDoc Attachment and Contract Policy
 
-A JSDoc attaches only to the next eligible module or declaration token across whitespace. An ordinary comment, semantic token, or completed declaration breaks attachment. One JSDoc cannot satisfy two declarations.
+A JSDoc attaches only to the next eligible module or declaration token across whitespace. An ordinary-comment barrier token, semantic token, or completed declaration breaks attachment. One JSDoc cannot satisfy two declarations.
 
 Required documentation:
 
@@ -196,6 +196,10 @@ Names and exact APIs must be fixed in the implementation plan after repository a
 
 - identifiers, keywords, Unicode identifiers, private names, numeric forms, and multi-character punctuators;
 - line, block, and JSDoc comments with correct attachment-relevant token retention;
+- equal-width whitespace and ordinary-comment gaps after JSDoc, proving that only the comment gap breaks attachment;
+- contextual IdentifierName division versus proved `for ... of` expression-leading use;
+- ECMAScript identifier boundaries around U+FEFF, unsupported controls, joiners, and supplementary code points;
+- strict-module numeric string/template escape acceptance and rejection, including standalone `\\0` and prohibited decimal escapes;
 - comment markers and URLs inside single/double strings;
 - escapes, line continuations, and unterminated strings;
 - regex literals, escaped slashes, character classes, flags, division, and division assignment;

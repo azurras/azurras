@@ -10,7 +10,7 @@
 
 ## Document Status
 
-ready-for-execution
+in-progress
 
 ## Objective
 
@@ -20,7 +20,7 @@ Implement Phase A of the approved JavaScript documentation scanner design in the
 
 - Represent token kinds, tokens, lexical errors, and success/failure results as validated immutable values.
 - Tokenize repository-native ECMAScript module syntax without executing or importing it.
-- Retain JSDoc tokens while making ordinary comments, quoted-string content, regex bodies, and template raw text invisible to later declaration recognition.
+- Retain JSDoc tokens and exact-position ordinary-comment attachment barriers while making ordinary-comment contents, quoted-string content, regex bodies, and template raw text invisible to later declaration recognition.
 - Preserve exact token spelling, one-based line and column, and zero-based start/exclusive-end UTF-16 offsets.
 - Distinguish regex literals from division and division assignment using explicit lexical context.
 - Support nested template literals and `${...}` interpolation without losing the brace owner.
@@ -69,8 +69,8 @@ Implement Phase A of the approved JavaScript documentation scanner design in the
 ## Assumptions
 
 - Java 25 sealed interfaces, records, switch expressions, `List.copyOf`, and Unicode identifier helpers are available.
-- The Phase B recognizer needs semantic code tokens and template boundaries, but not string contents, regex bodies, ordinary comments, or template raw chunks as separate tokens.
-- Exact source spelling is useful for identifiers, keywords, numbers, strings, regex literals, punctuators, JSDoc, and template boundary tokens; raw template text can be skipped because interpolation boundaries and contained code remain explicit.
+- The Phase B recognizer needs semantic code tokens, template boundaries, and ordinary-comment attachment barriers, but not string contents, regex bodies, ordinary-comment semantics, or template raw chunks as code tokens.
+- Exact source spelling is useful for identifiers, keywords, numbers, strings, regex literals, punctuators, JSDoc, ordinary-comment barriers, and template boundary tokens; raw template text can be skipped because interpolation boundaries and contained code remain explicit.
 - The repository-native syntax and the deliberately forward-compatible private/accessor/generator punctuation can be represented by the token kinds and punctuator set below.
 - Lexical uncertainty is safer as an explicit failure than as a partial successful stream.
 
@@ -556,13 +556,13 @@ Implementation notes:
   - Effects and failures: the method reads only the supplied `String`; null is rejected; malformed literals/comments/templates/numbers/escapes return typed failure rather than throwing or recovering; internal invariant defects may throw `IllegalStateException` and are test failures.
   - Tests and evidence: first add the complete fixture suite and record missing-symbol RED for `JavaScriptLexer`; then use the identical focused command to prove token identities, coordinates, lexical isolation, regex context, template ownership, first-error behavior, and real-source snippets.
 - Implement a private per-call `Cursor` or equivalent mutable scanner object so the public lexical operation remains reentrant and stateless. Document every field and helper.
-- Recognize identifier starts with `$`, `_`, `Character.isUnicodeIdentifierStart`, and private-name `#` followed by a valid identifier start; recognize parts with `$`, `_`, U+200C, U+200D, or `Character.isUnicodeIdentifierPart`. Reject a backslash escape inside an identifier with `unsupported escaped identifier` at the backslash.
+- Recognize identifier starts with `$`, `_`, and supported ECMAScript `ID_Start` code points, plus private-name `#` followed by a valid identifier start. Recognize parts with `$`, `_`, U+200C, U+200D, or supported `ID_Continue` code points. The JDK Unicode predicates may be used only after excluding Java identifier-ignorable controls/formats and JavaScript whitespace; U+FEFF must terminate an identifier as whitespace, while unsupported NUL/control input must reach the normal fail-closed unexpected-character path. Reject a backslash escape inside an identifier with `unsupported escaped identifier` at the backslash.
 - Classify the fixed reserved/expression-leading word set in a private immutable `Set<String>`. Classify the exact `KEYWORDS` set in Code Edit 2.2, including literal words `true`, `false`, and `null`; other valid names are `IDENTIFIER`.
 - Tokenize numeric literals without a regex: decimal integer/fraction/exponent, leading-dot decimals, `0x`, `0b`, `0o`, numeric separators between digits, and an optional BigInt `n` only on integer forms. Return a failure at the first malformed digit, separator, exponent, radix, or forbidden BigInt fraction/exponent.
 - Tokenize the longest valid punctuator from an immutable longest-first list including current source and planned recognizer forms: `>>>=`, `===`, `!==`, `>>>`, `**=`, `&&=`, `||=`, `??=`, `=>`, `==`, `!=`, `<=`, `>=`, `++`, `--`, `&&`, `||`, `??`, `?.`, `**`, `<<`, `>>`, `+=`, `-=`, `*=`, `/=`, `%=`, `&=`, `|=`, `^=`, `...`, and all single-character JavaScript delimiters/operators used by owned source. Return `unexpected character` for a code character outside identifiers, numbers, quotes/templates, slash handling, or the punctuator set.
-- Scan single/double strings through escapes and escaped line continuations. Reject unescaped line terminators and EOF before the closing quote. Validate `\xHH`, `\uHHHH`, and `\u{H...}` structure; allow standard single-character escapes; reject truncated/malformed hexadecimal or Unicode escapes at the escape start.
-- Detect `//`, `/*`, and `/**` before regex/division. Skip line and ordinary block comments. Emit an exact-spelling `JAVADOC` token for every complete block beginning with `/**`, including an empty `/**/`; the later policy layer owns nonblank-content validation. Fail at the opening delimiter for an unterminated block or JSDoc.
-- Determine whether `/` starts regex from the previous significant token plus a small delimiter/control context stack. Expression-start positions include beginning of input, a template-expression start boundary, opening `(` / `[` / `{`, comma, colon, semicolon, question mark, assignment/binary/unary operators, arrow, and expression-leading keywords `return`, `throw`, `case`, `delete`, `void`, `typeof`, `new`, `yield`, `await`, `else`, `do`, `in`, `of`, and `instanceof`. Value-ending positions include identifier, number, string, regex, template end, `this`, `super`, `true`, `false`, `null`, closing `]`, postfix `++` / `--`, and a closing `)` known to close a value expression. Track `if`/`for`/`while`/`with`/`switch`/`catch` control parentheses so `/regex/` after their closing `)` is expression-start, while `call()/value/` remains division. A slash immediately after an ordinary `}` is lexically ambiguous without object-versus-block recognition; return `ambiguous slash after closing brace` at the slash instead of guessing. Owned syntax can be broadened only when Phase B supplies a proved brace context.
+- Scan single/double strings through escapes and escaped line continuations. Reject unescaped line terminators and EOF before the closing quote. Validate `\xHH`, `\uHHHH`, and `\u{H...}` structure; allow standard single-character escapes and standalone `\0` only when no decimal digit follows; reject `\1` through `\9`, `\00`-style legacy octal escapes, non-octal decimal escapes such as `\08`, and truncated/malformed hexadecimal or Unicode escapes at the owning backslash.
+- Detect `//`, `/*`, and `/**` before regex/division. Emit an exact-spelling `ORDINARY_COMMENT` attachment-barrier token for each complete line or ordinary block comment without changing significant-token expression context. Emit an exact-spelling `JAVADOC` token for every complete block beginning with `/**`, including an empty `/**/`; the later policy layer owns nonblank-content validation. Fail at the opening delimiter for an unterminated block or JSDoc.
+- Determine whether `/` starts regex from the previous significant token plus a small delimiter/control context stack. Expression-start positions include beginning of input, a template-expression start boundary, opening `(` / `[` / `{`, comma, colon, semicolon, question mark, assignment/binary/unary operators, arrow, reserved expression-leading keywords `return`, `throw`, `case`, `delete`, `void`, `typeof`, `new`, `yield`, `await`, `else`, `do`, `in`, and `instanceof`, plus contextual `of` only after the current top-level `for` header proves the for-of operator role. Contextual IdentifierNames `async`, `from`, `get`, `set`, and ordinary identifier uses of `of` are value-ending. Value-ending positions also include identifier, number, string, regex, template end, `this`, `super`, `true`, `false`, `null`, closing `]`, postfix `++` / `--`, and a closing `)` known to close a value expression. Track `if`/`for`/`while`/`with`/`switch`/`catch` control parentheses so `/regex/` after their closing `)` is expression-start, while `call()/value/` remains division. Track a `for` header through initial, classic-after-semicolon, and for-of-RHS states so only the first proved operator-position `of` is expression-leading. A slash immediately after an ordinary `}` is lexically ambiguous without object-versus-block recognition; return `ambiguous slash after closing brace` at the slash instead of guessing. A slash after an unmatched `)` must use a distinct accurate ambiguity state and message. Owned syntax can be broadened only when Phase B supplies a proved brace context.
 - Within regex, honor escapes and character classes; a line terminator or EOF before the closing slash is a failure at the opening slash. Consume flags using identifier-part rules and reject a backslash flag escape. Preserve the whole literal spelling as one `REGEX` token.
 - Emit `TEMPLATE_START` for `` ` ``, skip raw template characters and valid escapes, emit `TEMPLATE_EXPRESSION_START` for `${`, tokenize interpolation code normally, emit `TEMPLATE_EXPRESSION_END` only when the interpolation-owned brace closes, and emit `TEMPLATE_END` for the matching backtick. Use explicit template/interpolation frames so nested object braces, blocks, templates, strings, comments, and regex literals cannot steal an owner. Each frame records the token-list size before its opening boundary. On an unterminated template or interpolation, truncate tokens back to that checkpoint before returning the failure, so no retained token extends past the opening-boundary error offset. Fail at the opening backtick for an unterminated template and at the owning `${` for an unterminated interpolation.
 - Advance position in one private operation that handles CRLF, lone CR/LF, U+2028, U+2029, BMP code units, and supplementary code points consistently. Offsets remain UTF-16 indices; column advances once per Unicode code point.
@@ -1079,12 +1079,12 @@ The excerpt above is the exact package boundary; implement the private `Cursor` 
 3. `scan()` returns `JavaScriptLexResult`. While `offset < source.length()` and `error == null`, it dispatches exactly one complete unit based on template state and the current code point. Each scanner helper returns `void`: it either advances/emits/skips a whole unit or calls `recordFailure(...)` exactly once and returns. After every dispatch, `scan()` immediately returns `new Failure(tokens, error)` when error is nonnull. At clean EOF it diagnoses the top unclosed template/interpolation frame first; otherwise it emits EOF and returns `new Success(tokens)`. Its Javadoc includes `@return immutable complete stream or first lexical failure`.
 4. `recordFailure(int errorLine, int errorColumn, int errorOffset, int tokenCheckpoint, String message)` returns `void`, ignores later calls after the first, removes tokens from the end until `tokens.size() == tokenCheckpoint`, and assigns the validated error. Its Javadoc documents all five parameters. This is the only malformed-source state transition.
 5. Every unit scanner captures `start`, `startLine`, `startColumn`, and `tokenCheckpoint = tokens.size()` before consuming. Identifiers, numbers, strings, comments/JSDoc, regexes, template raw text, and punctuators use distinct private `void` helpers. Their Javadocs document each input parameter; they have no `@return` because they return `void`.
-6. `emit(JavaScriptTokenKind kind, int start, int startLine, int startColumn)` returns `void`, constructs exact text with `source.substring(start, offset)`, adds one token, and updates `previousToken` for semantic code tokens, `TEMPLATE_EXPRESSION_START`, and `TEMPLATE_END`. Before any such update to a token other than `)`, it resets `lastClosedParenthesisContext` to null. JSDoc, `TEMPLATE_START`, and `TEMPLATE_EXPRESSION_END` do not overwrite the separately established expression context. `canStartExpression()` treats `TEMPLATE_EXPRESSION_START` as expression-leading and `TEMPLATE_END` as value-ending. Its Javadoc documents all four parameters.
+6. `emit(JavaScriptTokenKind kind, int start, int startLine, int startColumn)` returns `void`, constructs exact text with `source.substring(start, offset)`, adds one token, and updates `previousToken` for semantic code tokens, `TEMPLATE_EXPRESSION_START`, and `TEMPLATE_END`. Before any such update to a token other than `)`, it resets `lastClosedParenthesisContext` to null. JSDoc, `ORDINARY_COMMENT`, `TEMPLATE_START`, and `TEMPLATE_EXPRESSION_END` do not overwrite the separately established expression context. `canStartExpression()` treats `TEMPLATE_EXPRESSION_START` as expression-leading and `TEMPLATE_END` as value-ending. Its Javadoc documents all four parameters.
 7. `advance()` returns `void` and is the only helper that mutates offset/line/column. It consumes CRLF together; consumes lone CR, LF, U+2028, or U+2029 as one line boundary; otherwise advances offset by `Character.charCount(codePoint)` and column by one. Its Javadoc states that positional effect.
-8. `canStartExpression()` returns `SlashContext`, not `boolean`. `SlashContext` is a documented private enum with documented constants `REGEX`, `DIVISION`, and `AMBIGUOUS_AFTER_BRACE`. The slash dispatcher calls `recordFailure` for the ambiguous value, calls `scanRegex` for regex, and emits `/` or `/=` for division. This makes the fail-closed branch explicit rather than encoding ambiguity as a guess.
+8. `canStartExpression()` returns `SlashContext`, not `boolean`. `SlashContext` is a documented private enum with documented constants `REGEX`, `DIVISION`, `AMBIGUOUS_AFTER_BRACE`, and `AMBIGUOUS_AFTER_PARENTHESIS`. The slash dispatcher records an accurate message for each ambiguity, calls `scanRegex` for regex, and emits `/` or `/=` for division. This makes every fail-closed branch explicit rather than encoding ambiguity as a guess.
 9. `TemplateFrame` is a private documented record with documented components `state`, `openingLine`, `openingColumn`, `openingOffset`, `braceDepth`, and `tokenCheckpoint`. `TemplateState` is a private documented enum with documented constants `TEMPLATE_RAW` and `TEMPLATE_EXPRESSION`. Updating brace depth replaces the top immutable frame; no frame is shared across calls.
-10. `ParenthesisContext` is a private documented enum with documented constants `VALUE` and `CONTROL`. The lexer pushes `CONTROL` only when `(` follows `if`, `for`, `while`, `with`, `switch`, or `catch`; every other `(` pushes `VALUE`. When a matching `)` is scanned, pop the context, emit `)`, and assign the popped value to `lastClosedParenthesisContext`; an unmatched `)` emits normally and leaves that field null because unmatched delimiters remain Phase B recognizer concerns. When `previousToken` is `)`, `canStartExpression()` returns regex only for a nonnull `CONTROL`, division for `VALUE`, and fail-closed ambiguity for null. Whitespace and comments do not reset the field; the next emitted significant token does as specified in item 6.
-11. Declare exact immutable static values: `KEYWORDS = Set.of("async", "await", "break", "case", "catch", "class", "const", "continue", "debugger", "default", "delete", "do", "else", "enum", "export", "extends", "false", "finally", "for", "from", "function", "get", "if", "implements", "import", "in", "instanceof", "interface", "let", "new", "null", "of", "package", "private", "protected", "public", "return", "set", "static", "super", "switch", "this", "throw", "true", "try", "typeof", "var", "void", "while", "with", "yield")`; `EXPRESSION_LEADING_KEYWORDS = Set.of("await", "case", "delete", "do", "else", "in", "instanceof", "new", "of", "return", "throw", "typeof", "void", "yield")`; and longest-first `PUNCTUATORS = List.of(">>>=", "===", "!==", ">>>", "**=", "&&=", "||=", "??=", "<<=", ">>=", "...", "=>", "==", "!=", "<=", ">=", "++", "--", "&&", "||", "??", "?.", "**", "<<", ">>", "+=", "-=", "*=", "/=", "%=", "&=", "|=", "^=", "{", "}", "(", ")", "[", "]", ".", ";", ",", "<", ">", "+", "-", "*", "%", "&", "|", "^", "!", "~", "?", ":", "=", "/")`.
+10. `ParenthesisContext` is a private documented enum with documented constants `VALUE`, `CONTROL`, `FOR_HEAD`, `FOR_CLASSIC`, and `FOR_OF_RHS`. The lexer pushes `FOR_HEAD` when `(` follows `for`, `CONTROL` when `(` follows `if`, `while`, `with`, `switch`, or `catch`, and `VALUE` otherwise. A top-level semicolon changes `FOR_HEAD` to `FOR_CLASSIC`. In `FOR_HEAD`, an `of` following a proved assignment-target/value role becomes the for-of operator and changes the frame to `FOR_OF_RHS`; member/property-name, declaration-name, and expression-leading positions keep `of` as a contextual identifier. A closing-brace predecessor makes contextual `of` fail closed at its own boundary because brace-pattern ownership belongs to Phase B. When a matching `)` is scanned, pop the context, emit `)`, and assign its control-versus-value meaning to `lastClosedParenthesisContext`; an unmatched `)` emits normally and leaves that field null because unmatched delimiters remain Phase B recognizer concerns. When `previousToken` is `)`, `canStartExpression()` returns regex only for a nonnull control context, division for `VALUE`, and the distinct unmatched-parenthesis ambiguity for null. Whitespace, JSDoc, and ordinary-comment barriers do not reset the field; the next emitted significant token does as specified in item 6.
+11. Declare exact immutable static values: `KEYWORDS = Set.of("async", "await", "break", "case", "catch", "class", "const", "continue", "debugger", "default", "delete", "do", "else", "enum", "export", "extends", "false", "finally", "for", "from", "function", "get", "if", "implements", "import", "in", "instanceof", "interface", "let", "new", "null", "of", "package", "private", "protected", "public", "return", "set", "static", "super", "switch", "this", "throw", "true", "try", "typeof", "var", "void", "while", "with", "yield")`; `CONTEXTUAL_IDENTIFIER_KEYWORDS = Set.of("async", "from", "get", "of", "set")`; `EXPRESSION_LEADING_KEYWORDS = Set.of("await", "case", "delete", "do", "else", "in", "instanceof", "new", "return", "throw", "typeof", "void", "yield")`; and longest-first `PUNCTUATORS = List.of(">>>=", "===", "!==", ">>>", "**=", "&&=", "||=", "??=", "<<=", ">>=", "...", "=>", "==", "!=", "<=", ">=", "++", "--", "&&", "||", "??", "?.", "**", "<<", ">>", "+=", "-=", "*=", "/=", "%=", "&=", "|=", "^=", "{", "}", "(", ")", "[", "]", ".", ";", ",", "<", ">", "+", "-", "*", "%", "&", "|", "^", "!", "~", "?", ":", "=", "/")`.
 12. Every private helper must have a descriptive Javadoc plus applicable `@param`, `@return`, and `@throws` tags. Every private field, nested type, record component, and enum constant must have semantic Javadocs. The Task 2 reviewer must inspect these tags directly because this phase does not yet route the new source through the aggregate Java checker.
 
 No `UnsupportedOperationException`, nullable helper return, comment-only body, TODO, silent unsupported branch, catch-and-continue recovery, alternate error field, or partial-token emission is permitted.
@@ -1110,6 +1110,103 @@ After task review, stage only the two Task 2 files and commit:
 git add -- documentation-validator/src/main/java/dev/christopherbell/tools/documentation/JavaScriptLexer.java documentation-validator/src/test/java/dev/christopherbell/tools/documentation/JavaScriptLexerTest.java
 git commit -m "Add JavaScript lexer foundation"
 ```
+
+#### Corrective review amendment — Task 2 fix round 2
+
+The first whole-phase review at `e496fe48a3b269c8baaf042bae3b5db9bd72e213` found four Important Phase B-readiness defects and one Minor diagnostic defect. Correct them together under TDD, then repeat Task 2 review before restarting Task 3. No other behavior or scope may change.
+
+##### Code Edit 2.3
+
+- File: `documentation-validator/src/main/java/dev/christopherbell/tools/documentation/JavaScriptTokenKind.java`
+- Lines: 4-29
+- Action: modify
+
+Current:
+
+```java
+/** A complete documentation block whose source spelling begins with {@code /**}. */
+JAVADOC,
+/** The opening backtick of a template literal. */
+TEMPLATE_START,
+```
+
+Proposed:
+
+```java
+/** A complete ordinary line or block comment retained only as an attachment barrier. */
+ORDINARY_COMMENT,
+/** A complete documentation block whose source spelling begins with {@code /**}. */
+JAVADOC,
+/** The opening backtick of a template literal. */
+TEMPLATE_START,
+```
+
+##### Code Edit 2.4
+
+- File: `documentation-validator/src/test/java/dev/christopherbell/tools/documentation/JavaScriptLexerTest.java`
+- Lines: 51-568
+- Action: modify
+
+Current:
+
+```java
+@ValueSource(strings = {
+    "await", "case", "delete", "do", "else", "in", "instanceof", "new", "of",
+    "return", "throw", "typeof", "void", "yield"
+})
+```
+
+Proposed:
+
+```java
+@ValueSource(strings = {
+    "await", "case", "delete", "do", "else", "in", "instanceof", "new",
+    "return", "throw", "typeof", "void", "yield"
+})
+```
+
+Add focused fixtures that fail at the reviewed head and prove all of the following exact boundaries:
+
+- Equal-width `/** docs */      function f(){}` and `/** docs *//*x*/ function f(){}` inputs produce distinct streams because the latter contains one exact-position `ORDINARY_COMMENT` token; line and block barriers never replace `previousToken` or change slash role.
+- `function\uFEFFf(){}` emits `KEYWORD:function` then `IDENTIFIER:f`; `$`, `_`, U+200C, U+200D, a supplementary `ID_Start`, and a supplementary `ID_Continue` remain supported; NUL and another Java identifier-ignorable control produce an exact unexpected-character failure rather than entering an identifier.
+- `const of = 8, x = 2; of / x / 2;` and equivalent `async`, `get`, `set`, and `from` bindings retain two division punctuators; `for (const item of /x/) {}` emits a regex only after the proved for-of operator; `for (const of of /x/) {}` distinguishes the binding name from the operator; `for (; of / 2; ) {}` treats `of` as a value in the classic header. `for (obj.of / 2; ; ) {}` and its optional-chain equivalent prove that member/property-name `of` is never promoted to the operator. `for (const {value} of /x/) {}` fails at the ambiguous `of` with exact coordinates because Phase A does not own brace-pattern recognition.
+- Strings and template raw text accept standalone `\\0` plus one permitted non-escape character, while `\\1`, `\\8`, `\\9`, `\\01`, and `\\08` fail at the owning backslash and return stable line/column/offset/message evidence. String failures roll back to the string-unit checkpoint. Template failures, including nested-template failures after completed interpolations, roll back to the active `TEMPLATE_RAW` frame's owner checkpoint so no token owned by the incomplete template remains; exact failure-prefix assertions pin both cases.
+- `) /x/` fails with an unmatched-parenthesis ambiguity message and never mentions a brace.
+
+##### Code Edit 2.5
+
+- File: `documentation-validator/src/main/java/dev/christopherbell/tools/documentation/JavaScriptLexer.java`
+- Lines: 13-1359
+- Action: modify
+
+Current:
+
+```java
+private static final Set<String> EXPRESSION_LEADING_KEYWORDS = Set.of(
+    "await", "case", "delete", "do", "else", "in", "instanceof", "new", "of",
+    "return", "throw", "typeof", "void", "yield");
+```
+
+Proposed:
+
+```java
+private static final Set<String> CONTEXTUAL_IDENTIFIER_KEYWORDS =
+    Set.of("async", "from", "get", "of", "set");
+private static final Set<String> EXPRESSION_LEADING_KEYWORDS = Set.of(
+    "await", "case", "delete", "do", "else", "in", "instanceof", "new",
+    "return", "throw", "typeof", "void", "yield");
+```
+
+Implement the following fixed behavior without adding source rereads, parser dependencies, shared mutable state, or recovery:
+
+1. `scanLineComment` and complete non-JSDoc `scanBlockComment` calls emit `ORDINARY_COMMENT`; `emit` retains the token but excludes it from significant-token, update-role, parenthesis, and slash-context mutation. Unterminated comments still fail and emit no partial barrier.
+2. Identifier start/part predicates exclude JavaScript whitespace and `Character.isIdentifierIgnorable` code points before applying the JDK Unicode predicate, except that U+200C and U+200D remain explicit valid continuation characters. This makes U+FEFF a separator and leaves unsupported controls for the fail-closed dispatcher.
+3. `scanEscape` rejects every decimal escape except `\\0` with a non-decimal lookahead. The error is anchored at the owning backslash and uses one stable message such as `legacy numeric escape is not permitted in a module`. String callers pass their unit-local checkpoint. A template-raw caller must pass, or explicitly roll back to, the active `TEMPLATE_RAW` frame's `tokenCheckpoint`, not the current segment's `tokens.size()`, so an invalid escape removes `TEMPLATE_START`, completed interpolation tokens, and nested-template tokens owned by that still-incomplete template. The nested-template fixture must prove that outer completed tokens remain while every token owned by the invalid inner template is removed.
+4. Treat `async`, `from`, `get`, `set`, and identifier-position `of` as value-ending for slash purposes even though their exact spellings remain recognizer-visible. Extend the documented parenthesis context with `FOR_HEAD`, `FOR_CLASSIC`, and `FOR_OF_RHS`: enter `FOR_HEAD` after `for (`; change it to `FOR_CLASSIC` at its first top-level semicolon; recognize `of` as the for-of operator only in `FOR_HEAD` after a proved assignment-target/value role, then change to `FOR_OF_RHS`. A current member-name role after `.` or `?.`, a declaration-name position, or another expression-leading predecessor proves identifier use and must not promote `of`. A closing-brace predecessor is structurally ambiguous because Phase A cannot distinguish an object/destructuring pattern from a block/object expression; fail at that `of` with stable `ambiguous contextual 'of' after closing brace in for header` coordinates instead of choosing a slash goal. Nested value parentheses do not consume or mutate the owning `for` state.
+5. Add a distinct documented unmatched-parenthesis slash ambiguity state and accurate diagnostic; do not route it through `AMBIGUOUS_AFTER_BRACE`.
+6. Update every affected field/helper/nested-type/enum-constant Javadoc, including the new token's attachment-only semantics and every changed failure contract.
+
+Fix-round RED must be assertion failures from the new fixtures, not compilation failure. After GREEN, rerun focused lexer tests, the complete validator module, direct private Javadocs, the root build, `git diff --check`, the 96-file corpus probe, and authoritative-checkout status hashing. Commit only the three files above with message `Preserve JavaScript lexical boundary semantics`, then repeat the Task 2 scoped review against all five final-review findings.
 
 ### Task 3 - Run phase review and freeze the Phase B input boundary
 
