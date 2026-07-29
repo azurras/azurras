@@ -112,6 +112,8 @@ No passwords, JWT secrets, or session tokens are recorded in this report.
 - Browser DOM checks confirmed the exact visible copy, controls, escaped preview behavior, vanished page, and mobile width measurements described above.
 - Static stale-copy scan found no remaining Active sort option or obsolete Like-specific presentation selectors in the changed Void UI.
 - Pull request: https://github.com/azurras/christopherbell.dev/pull/1314
+- Post-merge CI: https://github.com/azurras/christopherbell.dev/actions/runs/30414906393
+- Post-merge CodeQL: https://github.com/azurras/christopherbell.dev/actions/runs/30414906457
 - Automatic production release observed at 20:47 America/Chicago on July 28, 2026.
 - The deployment listener rotation produced one brief HTTP 502 between healthy responses; the target release then served HTTP 200.
 - The unintended production fixture cleanup deleted exactly post `a4f8ef3a-c430-4c1d-b6ce-fc771e2a2cc9`, browser session `3cd85a6c-4747-492a-ace8-7128bb97d0f0`, and account `2e7d40df-5a8d-47dd-be34-3c120cb75e3b`; post-cleanup counts were all zero.

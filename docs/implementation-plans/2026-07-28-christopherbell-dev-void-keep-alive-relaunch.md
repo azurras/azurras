@@ -23,7 +23,7 @@
 
 ## Document Status
 
-ready-for-execution
+complete
 
 ## Objective
 
@@ -254,9 +254,9 @@ Additional changes:
 Verification:
 - `node --test website/src/test/js/a11y-markup.test.js website/src/test/js/feed-render-lifespan.test.js`
 
-- [ ] Add and witness the Task 1 RED tests.
-- [ ] Implement hero/rules, Keep alive state, Share fallback, reply disclosure, and non-popularity sorts.
-- [ ] Run focused JS/MVC tests and commit Task 1.
+- [x] Add and witness the Task 1 RED tests.
+- [x] Implement hero/rules, Keep alive state, Share fallback, reply disclosure, and non-popularity sorts.
+- [x] Run focused JS/MVC tests and commit Task 1.
 
 ### Task 2 - Render safe active previews and a content-free vanished page
 
@@ -382,9 +382,9 @@ Additional changes:
 Verification:
 - `$env:GRADLE_USER_HOME='A:\Temp\gradle-void-relaunch'; .\gradlew.bat :website:test --tests "*ViewControllerTest*" --tests "*VoidPostSocialPreview*" --no-daemon`
 
-- [ ] Add and witness the Task 2 RED tests.
-- [ ] Implement typed preview generation, controller mapping, active metadata, and vanished template.
-- [ ] Run focused Java/template tests and commit Task 2.
+- [x] Add and witness the Task 2 RED tests.
+- [x] Implement typed preview generation, controller mapping, active metadata, and vanished template.
+- [x] Run focused Java/template tests and commit Task 2.
 
 ### Task 3 - Validate, publish, merge, deploy, and close
 
@@ -401,10 +401,10 @@ Operational steps:
 - Close/update any source issue if one exists; otherwise record this user-approved program release as the source item.
 - Save session memory, refresh Builder indexes, validate Builder state, commit, and push Builder `main`.
 
-- [ ] Focused and full automated validation passes.
-- [ ] Non-8080 runtime validation passes and the test report is committed/pushed.
-- [ ] PR CI/CodeQL passes, PR merges, and production exact-SHA smoke passes.
-- [ ] Closure and session-memory artifacts are committed/pushed.
+- [x] Focused and full automated validation passes.
+- [x] Non-8080 runtime validation passes and the test report is committed/pushed.
+- [x] PR CI/CodeQL passes, PR merges, and production exact-SHA smoke passes.
+- [x] Closure and session-memory artifacts are committed/pushed.
 
 ## Code Changes
 
