@@ -566,6 +566,64 @@ Verification:
 - Simulated exact bootstrap context runs `:website:build --dry-run` without scheduling Pester but still schedules Java, JavaScript, deterministic-version, sensor, and packaging tasks.
 - New PR and merged-main checks green; protected auto-deployer advances exact release SHA and all internal/public/service evidence passes.
 
+### Task 7 - Remove calendar-bound post-expiration fixtures exposed by merged-main CI
+
+Sequence / dependencies:
+- After Task 6 merge. The August 1 push run for exact merge `c34403fdc7e9bb0dfadd8d278e7b70d62f2c59a7` failed the same two tests on Linux, macOS, and Windows because fixed July 29 fixtures had crossed their 24-hour expiration boundary.
+
+Implementation notes:
+- Required skill: `write-jane-street-style-code` before any code edits.
+- Before-Edit Brief:
+  - Behavior: focused expiration tests use the existing fixed test clock for both interactions and active-post checks, so their meaning is invariant across execution dates.
+  - Invariants: production time semantics do not change; no `Instant.now()` timing races; the tested creation, extension, and expiration relationships remain identical.
+  - Boundary/API: the existing four-argument `PostExpirationService` constructor accepts the same fixed `Clock` already used by `PostServiceTest`.
+  - Effects and failures: test-only dependency construction changes; CI evidence must show the two formerly failing tests and all three operating-system jobs green.
+  - Tests and evidence: reproduce both failures on August 1, inject fixed clocks, run focused tests, full Windows build/Pester, PR checks, merged-main checks, then production verification.
+
+#### Code Edit 7.1
+- File: `website/src/test/java/dev/christopherbell/post/PostExpirationServiceTest.java`
+- Lines: 49-52
+- Action: replace
+
+Current:
+```java
+var service = new PostExpirationService(postRepository, true);
+var createdOn = Instant.parse("2026-07-29T01:00:00Z");
+var extendedOn = Instant.parse("2026-07-29T03:00:00Z");
+```
+
+Proposed:
+```java
+var createdOn = Instant.parse("2026-07-29T01:00:00Z");
+var extendedOn = Instant.parse("2026-07-29T03:00:00Z");
+var service = new PostExpirationService(
+    postRepository, null, Clock.fixed(extendedOn, ZoneOffset.UTC), true);
+```
+
+Verification:
+- `.\gradlew.bat :website:test --tests '*PostExpirationServiceTest.confirmedReplyImmediatelyRevivesTheRootAndSynchronizesTheThread'`
+
+#### Code Edit 7.2
+- File: `website/src/test/java/dev/christopherbell/post/PostServiceTest.java`
+- Lines: 89-93
+- Action: replace
+
+Current:
+```java
+clock = Clock.fixed(NOW, ZoneOffset.UTC);
+postExpirationService = new PostExpirationService(postRepository, true);
+```
+
+Proposed:
+```java
+clock = Clock.fixed(NOW, ZoneOffset.UTC);
+postExpirationService = new PostExpirationService(postRepository, null, clock, true);
+```
+
+Verification:
+- `.\gradlew.bat :website:test --tests '*PostServiceTest.testToggleLike_updatesExpirationWithLikes'`
+- Both tests remain green when the wall clock is later than every literal fixture timestamp.
+
 ## Code Changes
 
 - `BuildAutomationConfigurationTest.java`: add Gradle contract tests (1.1).
@@ -575,6 +633,7 @@ Verification:
 - `.github/workflows/ci.yml`: concurrency, Pester, and timeouts (4.2).
 - `website/build.gradle.kts` and `Production.Deploy.psm1`: strict protected-deployment Pester boundary plus legacy self-bootstrap compatibility (6.2-6.3).
 - `BuildAutomationConfigurationTest.java`: deployment boundary regression contract (6.1).
+- `PostExpirationServiceTest.java` and `PostServiceTest.java`: bind expiration activity checks to their existing deterministic test clocks (7.1-7.2).
 
 ## Files and Modules
 
@@ -598,7 +657,7 @@ Separate concern commits allow targeted revert. Production retains automatic pre
 
 ## Risks
 
-Cold upstream availability (timeouts/warm cache); Kotlin DSL/provider interactions (focused/full tasks); dual-shell module discovery (pinned install/local XML); timeout sizing (large observed margin); concurrency expression syntax (parsed YAML/live PR); protected tool-copy bootstrap compatibility (exact context truth table and production evidence); mainline movement (rebase/retest).
+Cold upstream availability (timeouts/warm cache); Kotlin DSL/provider interactions (focused/full tasks); dual-shell module discovery (pinned install/local XML); timeout sizing (large observed margin); concurrency expression syntax (parsed YAML/live PR); protected tool-copy bootstrap compatibility (exact context truth table and production evidence); calendar-bound test fixtures (fixed-clock injection); mainline movement (rebase/retest).
 
 ## Completion Criteria
 
