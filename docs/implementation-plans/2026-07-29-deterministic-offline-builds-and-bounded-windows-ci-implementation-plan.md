@@ -649,6 +649,33 @@ Verification:
 - `.\gradlew.bat :website:test --tests '*PostServiceTest.testCreatePost_whenParentExpired_Throws404'`
 - The full 1,556-test website suite passes with one fixed expiration clock regardless of the execution date.
 
+#### Code Edit 7.4
+- File: `website/src/test/java/dev/christopherbell/admin/commandcenter/metrics/SecureNativeLibraryProvisionerTest.java`
+- Lines: 197-200
+- Action: replace
+
+Current:
+```java
+void productionAclNeverGrantsAnArbitraryCurrentOwner() {
+  assertThat(SecureNativeLibraryProvisioner.WindowsAclPolicy.trustedPrincipalNames())
+      .containsExactlyInAnyOrder("NT AUTHORITY\\SYSTEM", "BUILTIN\\Administrators")
+      .noneMatch(name -> name.contains(System.getProperty("user.name")));
+}
+```
+
+Proposed:
+```java
+void productionAclContainsOnlyFixedPrivilegedPrincipals() {
+  assertThat(SecureNativeLibraryProvisioner.WindowsAclPolicy.trustedPrincipalNames())
+      .containsExactlyInAnyOrder("NT AUTHORITY\\SYSTEM", "BUILTIN\\Administrators");
+}
+```
+
+Verification:
+- Reproduce the failure under the exact simulated protected-build identity with `USERNAME=SYSTEM`.
+- `.\gradlew.bat :website:test --tests '*SecureNativeLibraryProvisionerTest.productionAclContainsOnlyFixedPrivilegedPrincipals'`
+- A clean simulated production-deployment `:website:build` passes while omitting only the three Pester tasks.
+
 ## Code Changes
 
 - `BuildAutomationConfigurationTest.java`: add Gradle contract tests (1.1).
@@ -658,7 +685,8 @@ Verification:
 - `.github/workflows/ci.yml`: concurrency, Pester, and timeouts (4.2).
 - `website/build.gradle.kts` and `Production.Deploy.psm1`: strict protected-deployment Pester boundary plus legacy self-bootstrap compatibility (6.2-6.3).
 - `BuildAutomationConfigurationTest.java`: deployment boundary regression contract (6.1).
-- `PostExpirationServiceTest.java` and `PostServiceTest.java`: bind expiration activity checks to their existing deterministic test clocks (7.1-7.2).
+- `PostExpirationServiceTest.java` and `PostServiceTest.java`: bind expiration activity checks to their existing deterministic test clocks (7.1-7.3).
+- `SecureNativeLibraryProvisionerTest.java`: assert the exact fixed ACL principal set without contradicting the valid `SYSTEM` execution identity (7.4).
 
 ## Files and Modules
 
@@ -682,7 +710,7 @@ Separate concern commits allow targeted revert. Production retains automatic pre
 
 ## Risks
 
-Cold upstream availability (timeouts/warm cache); Kotlin DSL/provider interactions (focused/full tasks); dual-shell module discovery (pinned install/local XML); timeout sizing (large observed margin); concurrency expression syntax (parsed YAML/live PR); protected tool-copy bootstrap compatibility (exact context truth table and production evidence); calendar-bound test fixtures (fixed-clock injection); mainline movement (rebase/retest).
+Cold upstream availability (timeouts/warm cache); Kotlin DSL/provider interactions (focused/full tasks); dual-shell module discovery (pinned install/local XML); timeout sizing (large observed margin); concurrency expression syntax (parsed YAML/live PR); protected tool-copy bootstrap compatibility (exact context truth table and production evidence); calendar-bound test fixtures (fixed-clock injection); privileged build identities (fixed ACL allowlist assertions); mainline movement (rebase/retest).
 
 ## Completion Criteria
 
