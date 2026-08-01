@@ -624,6 +624,31 @@ Verification:
 - `.\gradlew.bat :website:test --tests '*PostServiceTest.testToggleLike_updatesExpirationWithLikes'`
 - Both tests remain green when the wall clock is later than every literal fixture timestamp.
 
+#### Code Edit 7.3
+- File: `website/src/test/java/dev/christopherbell/post/PostServiceTest.java`
+- Lines: 303-320
+- Action: replace
+
+Current:
+```java
+.createdOn(Instant.now().minus(Duration.ofHours(48)))
+.lastUpdatedOn(Instant.now().minus(Duration.ofHours(48)))
+.expiresOn(Instant.now().minus(Duration.ofHours(1)))
+// child timestamps also use Instant.now()
+```
+
+Proposed:
+```java
+.createdOn(NOW.minus(Duration.ofHours(48)))
+.lastUpdatedOn(NOW.minus(Duration.ofHours(48)))
+.expiresOn(NOW.minus(Duration.ofHours(1)))
+// child timestamps use the same fixed NOW boundary
+```
+
+Verification:
+- `.\gradlew.bat :website:test --tests '*PostServiceTest.testCreatePost_whenParentExpired_Throws404'`
+- The full 1,556-test website suite passes with one fixed expiration clock regardless of the execution date.
+
 ## Code Changes
 
 - `BuildAutomationConfigurationTest.java`: add Gradle contract tests (1.1).
