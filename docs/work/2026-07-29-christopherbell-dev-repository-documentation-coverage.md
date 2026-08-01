@@ -33,13 +33,14 @@ Document every first-party source and text file in `azurras/christopherbell.dev`
 - Java checker implementation plan: [Java Documentation Checker](../implementation-plans/2026-07-29-java-documentation-checker.md) (`complete`).
 - JavaScript scanner design: [JavaScript Documentation Scanner Design](../specs/2026-07-29-javascript-documentation-scanner-design.md) (`ready-for-execution`, approved 2026-07-29).
 - JavaScript lexical foundation implementation plan: [JavaScript Lexical Foundation](../implementation-plans/2026-07-29-javascript-lexical-foundation.md) (`complete`).
+- JavaScript structural recognizer implementation plan: [JavaScript Structural Recognizer](../implementation-plans/2026-07-29-javascript-structural-recognizer.md) (`ready-for-execution`, independently approved 2026-08-01).
 - Test report: pending.
 - Spoke update and review: pending.
 - Closure record: pending.
 
 ## Current State
 
-The discovery foundation, corrective phase, Java documentation checker, and JavaScript lexical foundation are complete and review-clean through `affed13149c07ec5c024e20325a0333c2efd374f`. The Java checker uses Java 25 syntax-tree and documentation APIs without dependency compilation, aggregates stable validated violations, covers every required source declaration and enum constant, enforces complete tags, and has exact regression coverage for parser ownership and AST edge cases. The JavaScript tokenizer is a pure JDK-only immutable success-or-first-failure boundary that preserves JSDoc and ordinary-comment attachment barriers, handles the repository's regex/template/Unicode hazards, and lexes all 96 first-party JavaScript files. The structural recognizer and JSDoc policy phase is next; other non-Java validation and documentation remediation have not started.
+The discovery foundation, corrective phase, Java documentation checker, and JavaScript lexical foundation are complete and review-clean through `affed13149c07ec5c024e20325a0333c2efd374f`. The Java checker uses Java 25 syntax-tree and documentation APIs without dependency compilation, aggregates stable validated violations, covers every required source declaration and enum constant, enforces complete tags, and has exact regression coverage for parser ownership and AST edge cases. The JavaScript tokenizer is a pure JDK-only immutable success-or-first-failure boundary that preserves JSDoc and ordinary-comment attachment barriers, handles the repository's regex/template/Unicode hazards, and lexes all 96 first-party JavaScript files. The independently approved Phase B1 plan now freezes the structural recognizer boundary for 1,259 current declarations, 1,135 formals, direct/caller-visible body facts, generic anonymous call/new exemptions, and fail-closed unsupported syntax. Phase B1 execution is next; B2 JSDoc policy, other non-Java validation, and documentation remediation have not started.
 
 ## Blockers
 
@@ -76,12 +77,16 @@ None. The previously blocked residual findings are the explicitly authorized sco
 - The first whole-phase review found four Important boundary defects and one Minor diagnostic defect. The amended corrective plan was independently approved; the scoped fix re-review addressed all five; the fresh final whole-phase re-review returned `APPROVED` with 0 Critical, 0 Important, and 0 Minor findings.
 - JavaScript lexical phase scope remained exactly seven new validator Java files, and the authoritative checkout status hash remained `C706E834EA40C9F523941C350570B68C5663FA4F3200528FA54D870A816E0CEB`.
 - Isolated worktree clean at `affed131`; no rebase, pull, push, PR, or merge performed.
+- JavaScript structural recognizer plan passed the mechanical implementation-plan validator and `git diff --check` after a full independent review. The review found no remaining Critical, Important, or Minor issue and returned `READY`; the plan was promoted to `ready-for-execution` on 2026-08-01.
+- The approved Phase B1 corpus contract is exact for 96 lexical/structural successes, 1,240 callables, 19 class values, 1,259 total declarations, 1,135 formals, 38 object patterns, 152 object leaves, one rest formal, 793 value-return callables, and 74 direct-throw callables, with caller-visible throws retained as a reviewed subset.
+- Pre-execution checks kept the isolated spoke clean at `affed13149c07ec5c024e20325a0333c2efd374f` and reproduced authoritative-checkout status hash `C706E834EA40C9F523941C350570B68C5663FA4F3200528FA54D870A816E0CEB`; upstream drift remains outside Phase B1.
 
 ## Next Steps
 
-1. Save and execute the JavaScript structural recognizer and JSDoc policy plan against the frozen lexical boundary.
-2. Save and execute the remaining non-Java, file-purpose, README/Mermaid, aggregate reporting, Gradle, and CI validator phases.
-3. Document Java and non-Java repository subsystems in reviewable commits and drive the aggregate validator to zero.
-4. Reconcile the campaign branch with upstream `main` before delivery.
-5. Run full local verification, deliver through PR and CI, merge, and verify post-merge main.
-6. Save test, review, session-memory, and closure artifacts; refresh indexes; close the work record.
+1. Execute the approved JavaScript structural recognizer Phase B1 plan through its plan-specific SDD ledger and per-task review gates.
+2. Save and execute the separate JavaScript JSDoc attachment/tag-policy and checker-integration Phase B2 plan against the frozen B1 boundary.
+3. Save and execute the remaining non-Java, file-purpose, README/Mermaid, aggregate reporting, Gradle, and CI validator phases.
+4. Document Java and non-Java repository subsystems in reviewable commits and drive the aggregate validator to zero.
+5. Reconcile the campaign branch with upstream `main` before delivery.
+6. Run full local verification, deliver through PR and CI, merge, and verify post-merge main.
+7. Save test, review, session-memory, and closure artifacts; refresh indexes; close the work record.
