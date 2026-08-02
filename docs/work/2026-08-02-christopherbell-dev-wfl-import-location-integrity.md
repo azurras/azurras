@@ -18,7 +18,7 @@ Eliminate fabricated `Imported Metro, TX` restaurant locations from What's for L
 ## Related Artifacts
 
 - Spec: [What's for Lunch Import Location Integrity](../specs/2026-08-02-christopherbell-dev-wfl-import-location-integrity.md)
-- Implementation plan: pending written-spec approval
+- Implementation plan: [What's for Lunch Import Location Integrity](../implementation-plans/2026-08-02-christopherbell-dev-wfl-import-location-integrity.md)
 - Test report: pending implementation and local runtime testing
 - Spoke task/update/review: pending implementation
 - Closure: pending production cleanup and verification
@@ -31,7 +31,7 @@ Eliminate fabricated `Imported Metro, TX` restaurant locations from What's for L
 
 Root-cause inspection of current `origin/main` found that `OpenStreetMapRestaurantClient` explicitly substitutes `Imported Metro` when `addr:city` is missing and `TX` when `addr:state` is missing. The import covers Austin, the San Francisco Bay Area, New Orleans, and Dallas, so the fallback fabricates both locality and, for California and Louisiana candidates, state. Nearby selection uses coordinates without requiring a supported city, allowing these records to reach public results.
 
-The user approved strict source validation and approved cleanup of existing placeholder records. The written spec is ready for the required user review gate.
+The user approved strict source validation, existing placeholder cleanup, and the written spec. The literal-line implementation plan passed mechanical validation and execution-readiness review with no blockers and is ready for execution.
 
 ## Blockers
 
@@ -43,8 +43,7 @@ Pending automated tests, alternate-port runtime verification with deterministic 
 
 ## Next Steps
 
-1. Obtain user approval of the written spec.
-2. Save, review, validate, commit, and push a literal-line implementation plan.
-3. Implement regression-first in an isolated spoke worktree.
-4. Validate locally on a non-production port and save the test report.
-5. Publish, pass CI, merge, deploy, back up production data, remove the exact placeholder population, and verify it is not recreated.
+1. Commit and push the reviewed implementation-plan checkpoint.
+2. Implement regression-first in an isolated spoke worktree.
+3. Validate locally on a non-production port and save the test report.
+4. Publish, pass CI, merge, deploy, back up production data, remove the exact placeholder population, and verify it is not recreated.
