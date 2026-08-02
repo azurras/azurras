@@ -2,7 +2,7 @@
 
 ## Document Status
 
-Ready for review. The user approved the recommended behavior on 2026-08-02; this document preserves the exact design for final written review before implementation planning.
+Ready for execution. The user approved the recommended behavior and the written specification on 2026-08-02.
 
 ## Purpose
 

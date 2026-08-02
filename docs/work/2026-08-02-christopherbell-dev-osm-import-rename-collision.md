@@ -27,8 +27,8 @@ Prevent an OpenStreetMap restaurant rename from aborting the monthly or startup 
 
 ## Related Artifacts
 
-- Project specification: [OpenStreetMap Import Rename Collision](../specs/2026-08-02-christopherbell-dev-osm-import-rename-collision.md) (`ready-for-review`).
-- Implementation plan: pending.
+- Project specification: [OpenStreetMap Import Rename Collision](../specs/2026-08-02-christopherbell-dev-osm-import-rename-collision.md) (`ready-for-execution`, approved 2026-08-02).
+- Implementation plan: [OpenStreetMap Import Rename Collision](../implementation-plans/2026-08-02-christopherbell-dev-osm-import-rename-collision.md) (`ready-for-execution`).
 - Test report: pending.
 - Spoke update and review: pending.
 - Closure record: pending.
@@ -37,7 +37,7 @@ Prevent an OpenStreetMap restaurant rename from aborting the monthly or startup 
 
 The root cause is confirmed. OpenStreetMap node `8178213204` changed from the persisted name `China Villa` to `Aama's Kitchen`, while node `13485126044` already owns normalized name `aama's kitchen` at a different location. `RestaurantService.applyPreparedImport` checks an incoming candidate by ID first and merges it without checking whether another ID owns the new normalized name. MongoDB correctly rejects the replacement through the unique `normalizedName` index, and the workflow records the entire startup catch-up run as failed.
 
-The user approved preserving the unique-name invariant and skipping only the conflicting rename so the rest of the import can complete.
+The user approved preserving the unique-name invariant and skipping only the conflicting rename so the rest of the import can complete. The written specification is approved, and the literal-line implementation plan is ready for review and execution.
 
 ## Blockers
 
@@ -51,8 +51,7 @@ None.
 
 ## Next Steps
 
-1. Review and approve the written specification.
-2. Save and independently review a literal-line implementation plan.
-3. Implement the regression test first, then the smallest service and documentation changes.
-4. Run focused and full automated verification plus alternate-port runtime validation.
-5. Publish, pass CI, merge, verify production, and save Builder closeout artifacts.
+1. Validate and review the literal-line implementation plan.
+2. Implement the regression test first, then the smallest service and documentation changes.
+3. Run focused and full automated verification plus alternate-port runtime validation.
+4. Publish, pass CI, merge, verify production, and save Builder closeout artifacts.
