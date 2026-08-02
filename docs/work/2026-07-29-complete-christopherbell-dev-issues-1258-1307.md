@@ -1,6 +1,6 @@
 # Complete christopherbell.dev Issues 1258-1307
 
-- Status: active
+- Status: closed
 - Owner/Agent: Codex primary agent
 - Started: 2026-07-29
 
@@ -16,14 +16,15 @@ Resolve every currently open issue in `azurras/christopherbell.dev` through curr
 
 ## Related Specs and Plans
 
-- Project spec: [Complete christopherbell.dev Issues 1258-1307](../specs/2026-07-29-complete-christopherbell-dev-issues-1258-1307.md) (`ready-for-execution`).
-- Batch 5 spec: [Shared-Folder Integrity and Retention Issues 1290-1297](../specs/2026-07-29-shared-folder-integrity-retention-issues-1290-1297.md) (`ready-for-execution`).
-- Batch 1 plan: [Account Security and Lifecycle Issues 1258-1264](../implementation-plans/2026-07-29-account-security-lifecycle-issues-1258-1264.md) (`ready-for-execution`).
+- Project spec: [Complete christopherbell.dev Issues 1258-1307](../specs/2026-07-29-complete-christopherbell-dev-issues-1258-1307.md) (`complete`).
+- Batch 5 spec: [Shared-Folder Integrity and Retention Issues 1290-1297](../specs/2026-07-29-shared-folder-integrity-retention-issues-1290-1297.md) (`complete`).
+- Batch 1 plan: [Account Security and Lifecycle Issues 1258-1264](../implementation-plans/2026-07-29-account-security-lifecycle-issues-1258-1264.md) (`complete`).
 - Batch 2 plan: [Public SEO and Accessibility Issues 1265-1272](../implementation-plans/2026-07-29-public-seo-accessibility-issues-1265-1272.md) (`complete`).
 - Batch 3 plan: [Social Relationship and Feed Scalability Issues 1273-1279](../implementation-plans/2026-07-29-social-relationship-and-feed-scalability-issues-1273-1279.md) (`complete`).
 - Batch 4 plan: [WFL Session and Restaurant Safety/Scalability Issues 1280-1289](../implementation-plans/2026-07-29-wfl-session-restaurant-safety-scalability-issues-1280-1289.md) (`complete`).
-- Batch 5 plan: [Shared-Folder Integrity and Retention Issues 1290-1297](../implementation-plans/2026-07-29-shared-folder-integrity-retention-issues-1290-1297.md) (`ready-for-execution`).
-- Later batch implementation plans will be linked after each current-source inspection and review.
+- Batch 5 plan: [Shared-Folder Integrity and Retention Issues 1290-1297](../implementation-plans/2026-07-29-shared-folder-integrity-retention-issues-1290-1297.md) (`complete`).
+- Batch 6 plan: [Command-Center Configuration and Durable Power Actions](../implementation-plans/2026-07-29-command-center-configuration-and-durable-power-actions.md) (`complete`).
+- Batch 7 plan: [Deterministic Offline Builds and Bounded Windows CI](../implementation-plans/2026-07-29-deterministic-offline-builds-and-bounded-windows-ci-implementation-plan.md) (`complete`).
 
 ## Spoke Repositories
 
@@ -33,6 +34,7 @@ Resolve every currently open issue in `azurras/christopherbell.dev` through curr
 - Batch 3 worktree: `A:\Projects\christopherbell.dev-worktrees\issues-1273-1279-rebased-20260729` on `codex/issues-1273-1279-rebased-20260729`; based on refreshed `origin/main` commit `a6a88e91f35bcbf9eeadeaf06cbf93df80ce0a5f` and merged by PR #1323 as `e3afbf3c9eeb65525f573f299f82287ef8665554`.
 - Batch 4 worktree: `A:\Projects\christopherbell.dev-worktrees\issues-1280-1289-20260729` on `codex/issues-1280-1289-20260729`; rebased onto refreshed `origin/main` commit `e3f7c676e8bf73a11056b9f009723ba9628025e8` and merged by PR #1325 as `b28031d535effef1fcbd547ba8f7dffdd4e76193`.
 - Batch 5 worktree: `A:\Projects\christopherbell.dev-worktrees\issues-1290-1297-20260729` on `codex/issues-1290-1297-20260729`, based on refreshed `origin/main` commit `b28031d535effef1fcbd547ba8f7dffdd4e76193`.
+- Final batch worktree: `A:\Projects\christopherbell.dev-worktrees\issues-1302-1305-ci-date-fix-20260801`; final branch `codex/issues-1302-1305-exact-gradle-home-fix-20260801` merged by PR #1335 as `ad8744f79b42597c7ae53f7f83e9190eb295e491`.
 
 ## Dispatched Tasks
 
@@ -65,6 +67,11 @@ Resolve every currently open issue in `azurras/christopherbell.dev` through curr
 - Batch 5 design chooses asynchronous bounded immutable catalog generations with last-known-good fallback, generation-bound search cursors, post-commit invalidation, stream-terminal auditing, optimistic radio CAS with trusted Music metadata, and cleanup-before-TTL retention.
 - Batch 5 implementation plan passed mechanical validation and execution-readiness review with seven ordered task-specific Code Edit blocks, mandatory code-skill invocation, concrete red/green commands, runtime acceptance, rollback, risks, and completion criteria. No blocker remains.
 - The user explicitly authorized autonomous continuation without routine approval pauses.
+- Batch 5 merged through PR #1326 as `f67c90eed9b29215d562b2ac3670528f614508e9`; #1290-#1297 closed after full local, CI, production, and retention/integrity evidence.
+- Batch 6 merged through PR #1328 as `044299c8876dc3c421afac191194a8bcdeaa1260`; #1299-#1301 closed after durable restart-state, fixed Windows command, mainline, and production evidence.
+- Batch 7 delivered #1302-#1305 through PRs #1330-#1335. Final ordinary Windows verification passed 1,660 Java, 289 JavaScript, and 150 Pester tests with zero failures/errors. Adjacent main CI runs 30726222833 and 30726230123 both succeeded, proving main pushes were preserved independently; CodeQL 30726230146 also succeeded.
+- Production rotated to `c4d60ce0c92281c201d063cfd6a07563f4a7b230`, a direct descendant of final campaign implementation merge `ad8744f79b42597c7ae53f7f83e9190eb295e491`. Local/public roots, public routes, liveness/readiness, protected access, immutable SHA-versioned assets, listener state, and all four Windows services passed.
+- Issues #1302-#1305 were closed with implementation, test, CI, and production evidence. A final GitHub inventory on 2026-08-01 reported zero open issues; all 50 campaign issues #1258-#1307 are closed.
 
 ## Blockers
 
@@ -75,9 +82,9 @@ None.
 - Current issue bodies, author, comment counts, open pull requests, remotes, branches, worktrees, and authoritative-checkout status were inspected directly on 2026-07-29.
 - Each batch must pass focused tests, full relevant regression coverage, alternate-port runtime acceptance, required GitHub checks, merge confirmation, issue closure, and production-safe verification before campaign closeout.
 - Batch 1 runtime fixtures, alternate listeners, and disposable databases were removed. Production acceptance additionally confirmed the generic 401 login envelope and that a bodyless DELETE reaches authorization (403) rather than failing with 415.
+- Final batch evidence is recorded in [Deterministic Offline Builds and Bounded Windows CI Test Report](../test-reports/2026-08-01-deterministic-offline-builds-and-bounded-windows-ci-test-report.md).
+- Campaign completion is recorded in [Complete christopherbell.dev Issues 1258-1307 Closure](../work-closures/2026-08-01-complete-christopherbell-dev-issues-1258-1307.md).
 
 ## Next Steps
 
-1. Inspect refreshed merged main and save/review the Batch 5 shared-folder plan for #1290-#1297.
-2. Test, publish, merge, close, and production-verify the remaining batches in dependency order.
-3. Refresh Builder indexes, close this record, and save final campaign memory after all 50 issues are closed.
+None. Any newly filed website issue begins new scope under a new work record.

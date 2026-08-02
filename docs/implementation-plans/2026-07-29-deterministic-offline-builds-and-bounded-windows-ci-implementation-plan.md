@@ -10,7 +10,7 @@
 
 ## Document Status
 
-ready-for-execution
+complete
 
 ## Objective
 
@@ -568,20 +568,54 @@ Verification:
 
 #### Code Edit 6.4
 - File: `website/src/test/java/dev/christopherbell/configuration/BuildAutomationConfigurationTest.java`
-- Lines: production deployment packaging contract
+- Lines: after 35
 - Action: add
 
 Require the build contract to inspect both the inherited `USERNAME` environment value and the JVM `user.name` identity. This test fails against the first bootstrap implementation, which recognizes only `USERNAME`.
+
+Proposed:
+```java
+assertThat(build).contains(
+    "System.getenv(\"USERNAME\")",
+    "System.getProperty(\"user.name\")",
+    "verifyProductionDeploymentBuildContext");
+```
 
 Verification:
 - `.\gradlew.bat :website:test --tests '*BuildAutomationConfigurationTest.productionPackagingExemptsOnlyTheProtectedWindowsDeploymentContext'`
 
 #### Code Edit 6.5
 - File: `website/build.gradle.kts`
-- Lines: `isProductionDeploymentBuild` and `verifyProductionDeploymentBuildContext`
+- Lines: 410-431
 - Action: replace
 
 Resolve the exact legacy LocalSystem identity from either `System.getenv("USERNAME")` or `System.getProperty("user.name")`. Continue to require a Windows host and a Gradle home ending in `\christopherbell.dev\gradle-home`; an explicit marker is accepted only inside that same Windows/protected-home boundary. Extend the pure truth table with missing-environment/valid-runtime-identity, explicit-marker, wrong-home, non-Windows, and ordinary-user cases.
+
+Current:
+```kotlin
+fun isProductionDeploymentBuild(
+    marker: String?, isWindows: Boolean, username: String?, gradleHome: String): Boolean {
+    val protectedIdentity = username.equals("SYSTEM", ignoreCase = true)
+    return isWindows && protectedIdentity &&
+        normalizedWindowsPath(gradleHome).endsWith("\\christopherbell.dev\\gradle-home")
+}
+```
+
+Proposed:
+```kotlin
+fun isProductionDeploymentBuild(
+    marker: String?,
+    isWindows: Boolean,
+    environmentUsername: String?,
+    runtimeUsername: String?,
+    gradleHome: String): Boolean {
+    val protectedIdentity = environmentUsername.equals("SYSTEM", ignoreCase = true) ||
+        runtimeUsername.equals("SYSTEM", ignoreCase = true)
+    return isWindows &&
+        normalizedWindowsPath(gradleHome).endsWith("\\christopherbell.dev\\gradle-home") &&
+        (marker == "1" || protectedIdentity)
+}
+```
 
 Verification:
 - RED: the focused build-configuration contract rejects the environment-only detector.
@@ -590,10 +624,33 @@ Verification:
 
 #### Code Edit 6.6
 - File: `website/build.gradle.kts`
-- Lines: `isProductionDeploymentBuild` and `verifyProductionDeploymentBuildContext`
+- Lines: 409-428
 - Action: replace
 
 The protected scheduled-task JVM does not expose a stable LocalSystem username through either inspected string source. Replace the suffix-plus-identity bootstrap with an exact, case-insensitive normalized match for `C:\ProgramData\christopherbell.dev\gradle-home` on Windows. That directory is already ACL-protected to SYSTEM and Administrators, so it is the authoritative capability boundary; a lookalike path on another drive or below another root must not qualify. Continue rejecting any explicit marker other than exactly `1`.
+
+Current:
+```kotlin
+val protectedIdentity = environmentUsername.equals("SYSTEM", ignoreCase = true) ||
+    runtimeUsername.equals("SYSTEM", ignoreCase = true)
+return isWindows &&
+    normalizedGradleHome.endsWith("\\christopherbell.dev\\gradle-home") &&
+    (marker == "1" || protectedIdentity)
+```
+
+Proposed:
+```kotlin
+val productionDeploymentGradleHome = "c:\\programdata\\christopherbell.dev\\gradle-home"
+
+fun isProductionDeploymentBuild(
+    marker: String?, isWindows: Boolean, gradleHome: String): Boolean {
+    if (marker != null && marker != "1") {
+        throw GradleException("CHRISTOPHERBELL_PRODUCTION_DEPLOYMENT must be exactly 1 when set.")
+    }
+    val normalizedGradleHome = gradleHome.replace('/', '\\').trimEnd('\\').lowercase()
+    return isWindows && normalizedGradleHome == productionDeploymentGradleHome
+}
+```
 
 Verification:
 - RED truth-table cases: exact protected home with absent identity must qualify; an `A:\scratch\christopherbell.dev\gradle-home` suffix lookalike must not qualify.
