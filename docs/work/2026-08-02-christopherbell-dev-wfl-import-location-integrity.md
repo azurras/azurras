@@ -18,8 +18,9 @@ Eliminate fabricated `Imported Metro, TX` restaurant locations from What's for L
 ## Related Artifacts
 
 - Spec: [What's for Lunch Import Location Integrity](../specs/2026-08-02-christopherbell-dev-wfl-import-location-integrity.md)
+- Scope amendment: [What's for Lunch Legacy Location Reconciliation](../specs/2026-08-02-christopherbell-dev-wfl-legacy-location-reconciliation.md)
 - Implementation plan: [What's for Lunch Import Location Integrity](../implementation-plans/2026-08-02-christopherbell-dev-wfl-import-location-integrity.md)
-- Test report: pending implementation and local runtime testing
+- Test report: [What's for Lunch Import Location Integrity](../test-reports/2026-08-02-wfl-import-location-integrity-test-report.md)
 - Spoke task/update/review: pending implementation
 - Closure: pending production cleanup and verification
 
@@ -29,9 +30,9 @@ Eliminate fabricated `Imported Metro, TX` restaurant locations from What's for L
 
 ## Current State
 
-Root-cause inspection of current `origin/main` found that `OpenStreetMapRestaurantClient` explicitly substitutes `Imported Metro` when `addr:city` is missing and `TX` when `addr:state` is missing. The import covers Austin, the San Francisco Bay Area, New Orleans, and Dallas, so the fallback fabricates both locality and, for California and Louisiana candidates, state. Nearby selection uses coordinates without requiring a supported city, allowing these records to reach public results.
+PR `#1342` removed the fabricated fallback, passed CI, merged as `178d90caca58d2f6284f54ab2ef4514d10df2918`, and deployed successfully. A backup-gated cleanup removed 6,825 exact `Imported Metro` rows, and a strict production import completed without recreating that placeholder.
 
-The user approved strict source validation, existing placeholder cleanup, and the written spec. The literal-line implementation plan passed mechanical validation and execution-readiness review with no blockers and is ready for execution.
+A broader production audit then found 1,775 noncanonical OSM rows among 7,268. Current 2025 Census place files prove 1,596 already name real places. TIGERweb point-in-polygon queries resolve 163 of the remaining 179 to a real place, leaving only 16 without an incorporated-place or Census-designated-place match. The user approved expanding coverage and reconciling all resolvable rows instead of deleting the broader population.
 
 ## Blockers
 
@@ -39,11 +40,11 @@ None.
 
 ## Validation
 
-Pending automated tests, alternate-port runtime verification with deterministic Overpass data, production backup and cleanup evidence, CI, merge, deployment, and public/local production checks.
+Initial strict-import automated, alternate-port runtime, CI, merge, deployment, backup, exact-placeholder cleanup, and production import checks passed. Expanded-coverage implementation, fresh runtime/CI/deployment checks, and final Census-backed reconciliation remain pending.
 
 ## Next Steps
 
-1. Commit and push the reviewed implementation-plan checkpoint.
-2. Implement regression-first in an isolated spoke worktree.
-3. Validate locally on a non-production port and save the test report.
-4. Publish, pass CI, merge, deploy, back up production data, remove the exact placeholder population, and verify it is not recreated.
+1. Save and review the scope-amendment implementation plan.
+2. Implement official rectangle-intersection coverage and coordinate-aware locality ownership regression-first in the existing isolated worktree.
+3. Validate locally, publish, pass CI, merge, and deploy the exact SHA.
+4. Reimport, take a fresh production backup, build a new exact-ID Census manifest, update resolvable rows, delete only unresolved rows, and verify the final invariant.
