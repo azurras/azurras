@@ -1,6 +1,6 @@
 # christopherbell.dev Bootstrap Asset Regression
 
-- Status: active
+- Status: closed
 - Owner/Agent: Codex primary agent
 - Started: 2026-08-02
 
@@ -22,8 +22,8 @@ WebJar moved from 5.3.3 to 5.3.8 without matching asset-path and security update
 
 ## Related Specs and Plans
 
-- Project spec: [Restore Bootstrap Assets After WebJar Version Bump](../specs/2026-08-02-restore-bootstrap-assets-after-webjar-version-bump.md) (`ready-for-execution`).
-- Implementation plan: [Implement Bootstrap WebJar Asset Repair](../implementation-plans/2026-08-02-implement-bootstrap-webjar-asset-repair.md) (`ready-for-execution`).
+- Project spec: [Restore Bootstrap Assets After WebJar Version Bump](../specs/2026-08-02-restore-bootstrap-assets-after-webjar-version-bump.md) (`complete`).
+- Implementation plan: [Implement Bootstrap WebJar Asset Repair](../implementation-plans/2026-08-02-implement-bootstrap-webjar-asset-repair.md) (`complete`).
 - Test report: [Bootstrap WebJar Asset Repair Test Report](../test-reports/2026-08-02-bootstrap-webjar-asset-repair-test-report.md) (`complete`).
 - Source issue: [azurras/christopherbell.dev#1339](https://github.com/azurras/christopherbell.dev/issues/1339).
 
@@ -31,7 +31,7 @@ WebJar moved from 5.3.3 to 5.3.8 without matching asset-path and security update
 
 - `christopherbell-dev`: authoritative checkout `A:\Projects\christopherbell.dev`;
   dirty, ahead 3, and behind current `origin/main`, so it will remain untouched.
-- Planned isolated worktree: `A:\Projects\christopherbell.dev-worktrees\bootstrap-assets-1339`
+- Isolated worktree: `A:\Projects\christopherbell.dev-worktrees\bootstrap-assets-1339`
   from refreshed `origin/main` commit `2b40bd860d9e4e05aa18b4dd63e13a390d41208e`.
 
 ## Dispatched Tasks
@@ -40,16 +40,17 @@ No sub-agents or external tasks were dispatched.
 
 ## Current State
 
-- Production release-versioned custom CSS and JavaScript return HTTP 200.
-- `/webjars/bootstrap/5.3.3/css/bootstrap.min.css` and
-  `/webjars/bootstrap/5.3.3/js/bootstrap.bundle.min.js` return HTTP 404.
-- The packaged `5.3.8` asset paths return HTTP 403 because security matchers
-  still allow only the obsolete `5.3.3` namespace.
-- Root cause traces to dependency update commit `20290b2f`, which changed only
-  `website/build.gradle.kts` from Bootstrap 5.3.3 to 5.3.8.
-- The implementation is RED/GREEN verified in the isolated worktree; focused
-  security tests, 312 JavaScript tests, full `:website:check`, packaged-app HTTP
-  checks, and browser computed-style checks pass on alternate port 8091.
+- PR [#1340](https://github.com/azurras/christopherbell.dev/pull/1340)
+  squash-merged as `5bd14e994a6130a32166602a6f272581abc53525` after all CI,
+  CodeQL, and dependency-review checks passed.
+- Issue [#1339](https://github.com/azurras/christopherbell.dev/issues/1339)
+  is closed by the merged PR.
+- Production rotated from PID 33024 to PID 2956. Readiness and liveness are UP;
+  Bootstrap 5.3.8 CSS and JavaScript return exact HTTP 200 responses; obsolete
+  5.3.3 paths remain HTTP 403.
+- Public browser checks confirm Bootstrap computed styles, the 5.3.8 bundle,
+  and no console errors. ChristopherBellDev, MongoDB, and cloudflared are
+  Running and Automatic.
 
 ## Blockers
 
@@ -57,16 +58,15 @@ None.
 
 ## Validation
 
-- Reproduced mixed styling in the in-app browser on the public homepage.
-- Enumerated public routes and their Bootstrap/script references.
-- Confirmed exact 200, 404, and 403 asset responses from production.
-- Refreshed `origin/main` and compared dependency, templates, stylesheet
-  imports, security matchers, and tests.
+- `:website:check` passed with 1,610 Java tests, 312 JavaScript tests, and 150
+  Pester tests; focused security tests passed.
+- Alternate-port packaged-app HTTP and browser checks passed on port 8091.
+- Independent review found one matcher-test gap; the gap was fixed and the
+  re-review returned no actionable findings and Ready to merge: Yes.
+- Post-merge production HTTP, readiness/liveness, service, and browser checks
+  passed against the automatically deployed release.
 
 ## Next Steps
 
-1. Save and review the project spec.
-2. Save, validate, and review a literal-line implementation plan.
-3. Implement with regression tests in the isolated worktree.
-4. Run automated and alternate-port runtime verification.
-5. Publish, merge, verify production, close issue #1339, and close this work record.
+None. Resume only if a new Bootstrap dependency or delivery regression is
+observed.
