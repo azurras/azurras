@@ -353,13 +353,13 @@ Implementation notes:
 - Use the repository's native Windows production deployment workflow and respect `deploy.lock`; never weaken production ACLs.
 - Deploy only the exact merged SHA after alternate-port validation and required CI pass.
 
-- [ ] **Step 1: Perform final diff review and verification-before-completion.**
-- [ ] **Step 2: Push `codex/restaurant-import-duplicate-name` and open a ready pull request.**
-- [ ] **Step 3: Wait for required CI, diagnose in-scope failures, and merge only when green.**
-- [ ] **Step 4: Confirm the merge SHA and deploy that exact commit.**
-- [ ] **Step 5: Verify `ChristopherBellDev`, MongoDB, cloudflared, and media worker service states plus local/public HTTP 200, readiness `UP`, and security headers.**
-- [ ] **Step 6: Verify the production catch-up import completes, the durable import month advances, and the supplied duplicate-key signature does not recur during a bounded observation window.**
-- [ ] **Step 7: Confirm the two existing restaurant documents were not directly rewritten by the fix outside normal import behavior.**
+- [x] **Step 1: Perform final diff review and verification-before-completion.**
+- [x] **Step 2: Push `codex/restaurant-import-duplicate-name` and open a ready pull request.**
+- [x] **Step 3: Wait for required CI, diagnose in-scope failures, and merge only when green.**
+- [x] **Step 4: Confirm the merge SHA and deploy that exact commit.**
+- [x] **Step 5: Verify `ChristopherBellDev`, MongoDB, cloudflared, and media worker service states plus local/public HTTP 200, readiness `UP`, and security headers.**
+- [x] **Step 6: Verify the production catch-up import completes, the durable import month advances, and the supplied duplicate-key signature does not recur during a bounded observation window.**
+- [x] **Step 7: Confirm the two existing restaurant documents were not directly rewritten by the fix outside normal import behavior.**
 - [ ] **Step 8: Save spoke update/review, close the source task, save session memory, refresh Builder indexes, validate hub state, close the work record, and commit/push all required Builder checkpoints.**
 
 ## Code Changes
