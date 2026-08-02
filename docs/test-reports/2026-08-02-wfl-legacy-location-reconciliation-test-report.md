@@ -153,4 +153,23 @@ Overall: **PASS**.
 ## Bugs / Follow-ups
 
 - The first background wrapper launch was terminated before readiness and left no Spring failure; the same exact packaged JAR passed when kept foreground-owned by the verification cell. This was a harness/process-lifetime issue, not an application failure.
-- Production reimport, new backup, exact Census manifest regeneration, reconciliation, and final zero-violation audit remain required after PR merge and deployment.
+- No required application or production-data follow-up remains.
+
+## Production Delivery and Reconciliation
+
+- Pull request: [#1343](https://github.com/azurras/christopherbell.dev/pull/1343)
+- Required CI: passed.
+- Merged/deployed SHA: `1d1b322dc1667e48bc0230009a3fe79fce0a1b90`.
+- Production start: `2026-08-02T22:41:25Z`; Mission Control reported `HEALTHY` and commit `1d1b322d`.
+- Live import: `SUCCEEDED`; fetched 10,796, imported 86, updated 136, skipped existing 10,574, skipped invalid 0.
+- Pre-reconciliation archive: `A:\Backups\christopherbell.dev\christopherbell-before-wfl-legacy-reconciliation-20260802-224634.archive.gz`, 2,050,494 bytes, SHA-256 `E8999314FC31EB440D5A142D317F628231B4B6BA25962C30FAA4F000CD92CD23`; `mongorestore --dryRun` passed.
+- Exact post-import manifest: `A:\Backups\christopherbell.dev\wfl-production-reconciliation-manifest-20260802-224741.json`, SHA-256 `A6391EFC45FB88033B25DEA77A06C2C358E551A256EA69FFB59C53F624677918`.
+- Census point lookup: 215 queried, 199 resolved updates, 16 no-place deletions.
+- Reconciliation receipt: `A:\Backups\christopherbell.dev\wfl-production-reconciliation-receipt-20260802-224800.json`, SHA-256 `F76FBD81E7401BBC85C3DB35EA52334E792D1B95DB541601D1E1197B44BA12E4`.
+- Final audit evidence: `A:\Backups\christopherbell.dev\wfl-production-final-invariant-audit-20260802-225100.json`, SHA-256 `E3E31D0B5F5C5A7283DA22DF1CFE5EB4EF234229CEFF9F2588F37B4857ACA055`.
+- Related records: 0 favorites and 0 ratings referenced the 16 deleted restaurants; historical session data was preserved.
+- Final invariant audit: 7,338 OSM rows, 7,338 valid, 0 invalid, and 0 imported/synthetic metro placeholders. Total restaurant count is 7,340, including two non-OSM records.
+- Production health: readiness HTTP 200 `UP`, liveness HTTP 200 `UP`, MongoDB ping `ok: 1`, listener PID `57904`.
+- Public nearby checks: Austin, Bay Area, New Orleans, and Dallas each returned HTTP 200 with three canonical results and zero state/country mismatches.
+
+Overall production result: **PASS**.
