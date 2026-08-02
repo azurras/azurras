@@ -24,6 +24,7 @@ WebJar moved from 5.3.3 to 5.3.8 without matching asset-path and security update
 
 - Project spec: [Restore Bootstrap Assets After WebJar Version Bump](../specs/2026-08-02-restore-bootstrap-assets-after-webjar-version-bump.md) (`ready-for-execution`).
 - Implementation plan: [Implement Bootstrap WebJar Asset Repair](../implementation-plans/2026-08-02-implement-bootstrap-webjar-asset-repair.md) (`ready-for-execution`).
+- Test report: [Bootstrap WebJar Asset Repair Test Report](../test-reports/2026-08-02-bootstrap-webjar-asset-repair-test-report.md) (`complete`).
 - Source issue: [azurras/christopherbell.dev#1339](https://github.com/azurras/christopherbell.dev/issues/1339).
 
 ## Spoke Repositories
@@ -46,6 +47,9 @@ No sub-agents or external tasks were dispatched.
   still allow only the obsolete `5.3.3` namespace.
 - Root cause traces to dependency update commit `20290b2f`, which changed only
   `website/build.gradle.kts` from Bootstrap 5.3.3 to 5.3.8.
+- The implementation is RED/GREEN verified in the isolated worktree; focused
+  security tests, 312 JavaScript tests, full `:website:check`, packaged-app HTTP
+  checks, and browser computed-style checks pass on alternate port 8091.
 
 ## Blockers
 
