@@ -82,10 +82,10 @@ No `DuplicateKeyException` or `OpenStreetMap import failed` line appeared.
 
 ## Pass / Fail
 
-- Startup collision behavior: **PASS** â€” only the conflict was skipped, existing documents were preserved, the later candidate imported, and state was `SUCCEEDED`.
-- Readiness: **PASS** â€” status code 200 and `UP`.
-- Public nearby API: **PASS** â€” status code 200 with expected restaurants.
-- Cleanup: **PASS** â€” processes stopped, ports released, isolated database dropped.
+- Startup collision behavior: **PASS** — only the conflict was skipped, existing documents were preserved, the later candidate imported, and state was `SUCCEEDED`.
+- Readiness: **PASS** — status code 200 and `UP`.
+- Public nearby API: **PASS** — status code 200 with expected restaurants.
+- Cleanup: **PASS** — processes stopped, ports released, isolated database dropped.
 
 Overall: **PASS**.
 
@@ -100,4 +100,4 @@ Overall: **PASS**.
 
 ## Bugs / Follow-ups
 
-No remaining defect was found in scope. Production deployment and post-restart recurrence verification remain after pull-request review and CI.
+No remaining defect was found in scope. Subsequent delivery completed through PR #1341, merged commit `0dd388fb096c924453bdbab8b66a3215d3e63452`, and successful production catch-up verification.

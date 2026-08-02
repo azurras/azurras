@@ -1,6 +1,6 @@
 # christopherbell.dev OpenStreetMap Import Rename Collision
 
-- Status: ready-to-close
+- Status: closed
 - Owner: Codex root agent
 - Started: 2026-08-02
 
@@ -33,7 +33,7 @@ Prevent an OpenStreetMap restaurant rename from aborting the monthly or startup 
 - Spoke update: [OpenStreetMap Import Rename Collision Completion](../spoke-updates/2026-08-02-christopherbell-dev-openstreetmap-import-rename-collision-completion.md) (`closed`).
 - Spoke review: [OpenStreetMap Import Rename Collision Review](../spoke-reviews/2026-08-02-christopherbell-dev-openstreetmap-import-rename-collision-review.md) (no blockers or warnings).
 - Session memory: [OpenStreetMap Import Rename Collision Fix](../session-memory/2026-08-02-openstreetmap-import-rename-collision-fix.md).
-- Closure record: pending.
+- Closure record: [OpenStreetMap Import Rename Collision Closure](../work-closures/2026-08-02-christopherbell-dev-openstreetmap-import-rename-collision-closure.md) (`closed`).
 
 ## Current State
 
@@ -61,6 +61,4 @@ None.
 
 ## Next Steps
 
-1. Save the final hub closure record.
-2. Mark the plan, specification, and central work record complete/closed.
-3. Refresh indexes, validate hub state, and push the final Builder checkpoint.
+No required action remains.

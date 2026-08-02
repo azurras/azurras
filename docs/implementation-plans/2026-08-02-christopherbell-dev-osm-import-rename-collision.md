@@ -22,7 +22,7 @@
 
 ## Document Status
 
-`in-progress`
+`complete`
 
 ## Objective
 
@@ -360,7 +360,7 @@ Implementation notes:
 - [x] **Step 5: Verify `ChristopherBellDev`, MongoDB, cloudflared, and media worker service states plus local/public HTTP 200, readiness `UP`, and security headers.**
 - [x] **Step 6: Verify the production catch-up import completes, the durable import month advances, and the supplied duplicate-key signature does not recur during a bounded observation window.**
 - [x] **Step 7: Confirm the two existing restaurant documents were not directly rewritten by the fix outside normal import behavior.**
-- [ ] **Step 8: Save spoke update/review, close the source task, save session memory, refresh Builder indexes, validate hub state, close the work record, and commit/push all required Builder checkpoints.**
+- [x] **Step 8: Save spoke update/review, close the source task, save session memory, refresh Builder indexes, validate hub state, close the work record, and commit/push all required Builder checkpoints.**
 
 ## Code Changes
 
