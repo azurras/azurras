@@ -13,7 +13,8 @@ Approved repository-wide website performance, scalability, and shared-library op
 - Spoke branch: `codex/shared-library-boundaries`
 - Commit under test: `52c5b4e0c1d8bd6683ffcde00fb3975a20a74b4c`
 - Base commit: `95d805658beaa4c62a8b5e56af9bbf1c0aca66a6`
-- Pull request: pending after this required Builder checkpoint
+- Pull request: `azurras/christopherbell.dev#1338`
+- Merged commit: `2b40bd860d9e4e05aa18b4dd63e13a390d41208e`
 
 ## App / Environment
 
@@ -23,7 +24,8 @@ Approved repository-wide website performance, scalability, and shared-library op
 - Disposable Mongo database: `christopherbell_shared_lib_verify_20260801_3789f765`.
 - Scheduling: disabled by the `deploy-smoke` profile.
 - Mail and music: disabled for the candidate.
-- Production listener: port 8080, PID `33336`, unchanged throughout candidate testing.
+- Production listener: port 8080, PID `33336` throughout candidate testing;
+  automatically rotated to PID `33024` after merge.
 - Services: MongoDB, ChristopherBellDev, and cloudflared were Running/Automatic before the candidate test.
 
 ## Local Run Details
@@ -63,6 +65,8 @@ temporary logs were deleted. Production port 8080 remained PID 33336.
 | Retired packages | Old pagination, lease, and workflow package names are absent | Pass |
 | Full candidate gate | Both module checks rerun without cache-only evidence | Pass |
 | Cleanup and production isolation | Candidate, temporary logs, and disposable data are removed; production listener is unchanged | Pass |
+| Pull request and main CI | Linux, macOS, Windows, dependency review, CodeQL, and post-merge checks pass | Pass |
+| Production delivery | New listener serves local and public health, cursor-feed, WFL, and public-site routes | Pass |
 
 ## Data Sent
 
@@ -92,6 +96,14 @@ No production credentials or production data were used.
 - Log excerpt: Tomcat started on port 8094, 38 Mongo repositories were discovered, and startup completed in 7.116 seconds.
 - Candidate and production listeners were simultaneously visible as PID 30628 on port 8094 and PID 33336 on port 8080.
 - Cleanup returned MongoDB `{ "ok": 1, "dropped": "christopherbell_shared_lib_verify_20260801_3789f765" }` and left port 8094 free.
+- After merge, production rotated from PID 33336 to PID 33024. Liveness
+  returned status code 200 throughout observation; readiness briefly returned
+  503 during the restart window and then recovered to status code 200 with
+  `{"status":"UP"}`.
+- Local production home, login, liveness, readiness, cursor feed, WFL freshness,
+  `robots.txt`, and `sitemap.xml` returned status code 200 on PID 33024.
+- Public home, login, cursor feed, WFL freshness, `robots.txt`, and `sitemap.xml`
+  returned status code 200.
 
 ## Pass / Fail
 
@@ -123,11 +135,16 @@ tests and 1,609 website Java tests, for 1,730 Java tests total with 0 failures,
 - Candidate startup: PID 30628, port 8094, 7.116 seconds.
 - Production isolation: port 8080 remained PID 33336.
 - Cleanup: candidate stopped, database drop returned `ok: 1`, runtime artifacts removed.
+- PR #1338 required checks: Linux, macOS, Windows, dependency review, all
+  CodeQL analyses, and the aggregate CodeQL gate passed at head `52c5b4e0`.
+- PR #1338 merged as `2b40bd860d9e4e05aa18b4dd63e13a390d41208e`.
+- Post-merge CI Build `30730666489` and CodeQL `30730666478` passed.
+- Production listener rotated from PID 33336 to PID 33024; MongoDB,
+  ChristopherBellDev, and cloudflared remained Running/Automatic.
 
 ## Bugs / Follow-ups
 
 No defect was found. The live manual collector endpoint was not invoked because
 it performs bounded but real third-party network collection; the same manual
 lease path is covered by focused service/controller tests, and the moved lease
-components were proven in the running application context. Pull-request, CI,
-merge, and production verification will be appended after publication.
+components were proven in the running application context.
