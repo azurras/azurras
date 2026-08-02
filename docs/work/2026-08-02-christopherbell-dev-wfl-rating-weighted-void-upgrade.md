@@ -26,7 +26,7 @@ Make every three-restaurant What's for Lunch draw rating-aware so highly rated r
 
 ## Related Artifacts
 
-- Project specification: [Rating-Weighted Void Upgrade](../specs/2026-08-02-christopherbell-dev-wfl-rating-weighted-void-upgrade.md), pending user review
+- Project specification: [Rating-Weighted Void Upgrade](../specs/2026-08-02-christopherbell-dev-wfl-rating-weighted-void-upgrade.md), approved and ready for execution
 - Implementation plan: pending approved specification
 - Test report: pending local application verification
 - Spoke update/review and closure: pending implementation
@@ -41,7 +41,7 @@ Current `origin/main` uses a uniform in-memory shuffle for both persisted daily 
 
 ## Blockers
 
-None. Implementation remains gated on the written-spec user review and the required implementation plan.
+None. Implementation remains gated on the required implementation plan.
 
 ## Validation
 
@@ -49,7 +49,5 @@ Design exploration inspected current `origin/main`, the service selection paths,
 
 ## Next Steps
 
-1. Save, self-review, commit, and push the approved project specification.
-2. Obtain user review of the written specification.
-3. Write, validate, review, commit, and push the implementation plan.
-4. Implement and complete the full delivery loop.
+1. Write, validate, review, commit, and push the implementation plan.
+2. Implement and complete the full delivery loop.
