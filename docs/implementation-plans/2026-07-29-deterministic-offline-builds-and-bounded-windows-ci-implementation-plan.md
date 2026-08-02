@@ -566,6 +566,28 @@ Verification:
 - Simulated exact bootstrap context runs `:website:build --dry-run` without scheduling Pester but still schedules Java, JavaScript, deterministic-version, sensor, and packaging tasks.
 - New PR and merged-main checks green; protected auto-deployer advances exact release SHA and all internal/public/service evidence passes.
 
+#### Code Edit 6.4
+- File: `website/src/test/java/dev/christopherbell/configuration/BuildAutomationConfigurationTest.java`
+- Lines: production deployment packaging contract
+- Action: add
+
+Require the build contract to inspect both the inherited `USERNAME` environment value and the JVM `user.name` identity. This test fails against the first bootstrap implementation, which recognizes only `USERNAME`.
+
+Verification:
+- `.\gradlew.bat :website:test --tests '*BuildAutomationConfigurationTest.productionPackagingExemptsOnlyTheProtectedWindowsDeploymentContext'`
+
+#### Code Edit 6.5
+- File: `website/build.gradle.kts`
+- Lines: `isProductionDeploymentBuild` and `verifyProductionDeploymentBuildContext`
+- Action: replace
+
+Resolve the exact legacy LocalSystem identity from either `System.getenv("USERNAME")` or `System.getProperty("user.name")`. Continue to require a Windows host and a Gradle home ending in `\christopherbell.dev\gradle-home`; an explicit marker is accepted only inside that same Windows/protected-home boundary. Extend the pure truth table with missing-environment/valid-runtime-identity, explicit-marker, wrong-home, non-Windows, and ordinary-user cases.
+
+Verification:
+- RED: the focused build-configuration contract rejects the environment-only detector.
+- GREEN: `.\gradlew.bat :website:verifyProductionDeploymentBuildContext`.
+- Ordinary Windows `build` produces all three Pester reports; simulated protected `:website:build --dry-run` omits only Pester; protected production advances to the exact merged SHA.
+
 ### Task 7 - Remove calendar-bound post-expiration fixtures exposed by merged-main CI
 
 Sequence / dependencies:
@@ -683,8 +705,8 @@ Verification:
 - `build.gradle.kts`: replace date/run versioning; add verification (2.1).
 - `website/build.gradle.kts`: cache/download/verification and Windows Pester wiring (3.1, 4.1).
 - `.github/workflows/ci.yml`: concurrency, Pester, and timeouts (4.2).
-- `website/build.gradle.kts` and `Production.Deploy.psm1`: strict protected-deployment Pester boundary plus legacy self-bootstrap compatibility (6.2-6.3).
-- `BuildAutomationConfigurationTest.java`: deployment boundary regression contract (6.1).
+- `website/build.gradle.kts` and `Production.Deploy.psm1`: strict protected-deployment Pester boundary plus two-source legacy LocalSystem bootstrap compatibility (6.2-6.5).
+- `BuildAutomationConfigurationTest.java`: deployment boundary regression contracts (6.1, 6.4).
 - `PostExpirationServiceTest.java` and `PostServiceTest.java`: bind expiration activity checks to their existing deterministic test clocks (7.1-7.3).
 - `SecureNativeLibraryProvisionerTest.java`: assert the exact fixed ACL principal set without contradicting the valid `SYSTEM` execution identity (7.4).
 
@@ -710,7 +732,7 @@ Separate concern commits allow targeted revert. Production retains automatic pre
 
 ## Risks
 
-Cold upstream availability (timeouts/warm cache); Kotlin DSL/provider interactions (focused/full tasks); dual-shell module discovery (pinned install/local XML); timeout sizing (large observed margin); concurrency expression syntax (parsed YAML/live PR); protected tool-copy bootstrap compatibility (exact context truth table and production evidence); calendar-bound test fixtures (fixed-clock injection); privileged build identities (fixed ACL allowlist assertions); mainline movement (rebase/retest).
+Cold upstream availability (timeouts/warm cache); Kotlin DSL/provider interactions (focused/full tasks); dual-shell module discovery (pinned install/local XML); timeout sizing (large observed margin); concurrency expression syntax (parsed YAML/live PR); protected tool-copy bootstrap compatibility (environment and JVM identity truth table plus production evidence); calendar-bound test fixtures (fixed-clock injection); privileged build identities (fixed ACL allowlist assertions); mainline movement (rebase/retest).
 
 ## Completion Criteria
 
