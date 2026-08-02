@@ -22,7 +22,7 @@ WebJar moved from 5.3.3 to 5.3.8 without matching asset-path and security update
 
 ## Related Specs and Plans
 
-- Project spec: pending.
+- Project spec: [Restore Bootstrap Assets After WebJar Version Bump](../specs/2026-08-02-restore-bootstrap-assets-after-webjar-version-bump.md) (`ready-for-execution`).
 - Implementation plan: pending.
 - Source issue: [azurras/christopherbell.dev#1339](https://github.com/azurras/christopherbell.dev/issues/1339).
 
