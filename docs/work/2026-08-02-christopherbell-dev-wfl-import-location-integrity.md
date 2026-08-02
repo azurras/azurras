@@ -22,6 +22,7 @@ Eliminate fabricated `Imported Metro, TX` restaurant locations from What's for L
 - Implementation plan: [What's for Lunch Import Location Integrity](../implementation-plans/2026-08-02-christopherbell-dev-wfl-import-location-integrity.md)
 - Reconciliation plan: [What's for Lunch Legacy Location Reconciliation](../implementation-plans/2026-08-02-christopherbell-dev-wfl-legacy-location-reconciliation.md)
 - Test report: [What's for Lunch Import Location Integrity](../test-reports/2026-08-02-wfl-import-location-integrity-test-report.md)
+- Reconciliation test report: [What's for Lunch Legacy Location Reconciliation](../test-reports/2026-08-02-wfl-legacy-location-reconciliation-test-report.md)
 - Spoke task/update/review: pending implementation
 - Closure: pending production cleanup and verification
 
@@ -41,7 +42,7 @@ None.
 
 ## Validation
 
-Initial strict-import automated, alternate-port runtime, CI, merge, deployment, backup, exact-placeholder cleanup, and production import checks passed. Expanded-coverage implementation, fresh runtime/CI/deployment checks, and final Census-backed reconciliation remain pending.
+Initial strict-import automated, alternate-port runtime, CI, merge, deployment, backup, exact-placeholder cleanup, and production import checks passed. Expanded-coverage implementation and alternate-port verification now also pass at spoke commit `1e7cd1daa066ff3ad386ed56f9391bd94c13bb03`; fresh PR/CI/deployment checks and final Census-backed reconciliation remain pending.
 
 ## Next Steps
 
