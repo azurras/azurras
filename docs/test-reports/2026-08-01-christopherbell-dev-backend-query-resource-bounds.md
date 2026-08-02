@@ -143,7 +143,27 @@ All runtime and automated acceptance cases passed. Conversation query groups are
 constant from one through fifty summaries. VIN request state is bounded and the
 documented validation/rate-limit envelopes are preserved. Scheduled feature work
 remained disabled in the smoke profile. The candidate was fully removed after
-testing and production remained unchanged.
+testing. Pull request 1336 was merged after every required check passed, and the
+automatic production rollout was verified successfully.
+
+## Publication and Production Verification
+
+- Pull request: `https://github.com/azurras/christopherbell.dev/pull/1336`.
+- Merged commit: `c4d60ce0c92281c201d063cfd6a07563f4a7b230`.
+- Pull-request gates: dependency review, CodeQL for Actions, Java/Kotlin, and
+  JavaScript/TypeScript, and the Windows, Linux, and macOS build matrix all
+  passed.
+- Post-merge gates: CI Build and CodeQL both completed successfully for the
+  exact merged commit.
+- The production listener rotated automatically from PID `13080` to PID
+  `31728`; no manual production restart was performed.
+- Local production root, liveness, readiness, `robots.txt`, and `sitemap.xml`
+  returned HTTP 200; both health groups reported `UP`.
+- Public root, `robots.txt`, and `sitemap.xml` returned HTTP 200.
+- The production HTML referenced asset namespace
+  `/c4d60ce0c92281c201d063cfd6a07563f4a7b230/`, exactly matching the merged
+  commit.
+- MongoDB, ChristopherBellDev, and cloudflared remained Running/Automatic.
 
 ## Evidence
 
