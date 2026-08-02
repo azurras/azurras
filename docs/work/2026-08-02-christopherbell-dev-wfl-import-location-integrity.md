@@ -20,6 +20,7 @@ Eliminate fabricated `Imported Metro, TX` restaurant locations from What's for L
 - Spec: [What's for Lunch Import Location Integrity](../specs/2026-08-02-christopherbell-dev-wfl-import-location-integrity.md)
 - Scope amendment: [What's for Lunch Legacy Location Reconciliation](../specs/2026-08-02-christopherbell-dev-wfl-legacy-location-reconciliation.md)
 - Implementation plan: [What's for Lunch Import Location Integrity](../implementation-plans/2026-08-02-christopherbell-dev-wfl-import-location-integrity.md)
+- Reconciliation plan: [What's for Lunch Legacy Location Reconciliation](../implementation-plans/2026-08-02-christopherbell-dev-wfl-legacy-location-reconciliation.md)
 - Test report: [What's for Lunch Import Location Integrity](../test-reports/2026-08-02-wfl-import-location-integrity-test-report.md)
 - Spoke task/update/review: pending implementation
 - Closure: pending production cleanup and verification
