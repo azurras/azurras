@@ -87,9 +87,10 @@ The production listener was not modified.
 
 - RED: targeted Node Bootstrap test failed with 5.3.3 actual versus 5.3.8 expected.
 - GREEN: the same test passed 2/2.
-- Focused Java: SecurityConfigTest passed 16/16.
+- Focused Java: SecurityConfigTest passed 16/16; StaticAssetRequestMatcherTest
+  passed its GET/POST and current/obsolete/unrelated WebJar boundary assertions.
 - JavaScript: :website:jsTest passed 312/312.
-- Full: :website:check was BUILD SUCCESSFUL in 3m 21s with 1,609 Java tests,
+- Full: :website:check was BUILD SUCCESSFUL in 3m 20s with 1,610 Java tests,
   0 failures, 0 errors, 3 skipped, and 150 Pester tests passed.
 - Runtime evidence includes exact URL, request, status, content type, response
   length, body signature, UI computed style, script URL, PID, and listener state.
