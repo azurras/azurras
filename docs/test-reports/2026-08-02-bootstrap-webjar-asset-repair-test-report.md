@@ -80,8 +80,8 @@ the browser log contained no warning or error entries.
 
 ## Pass / Fail
 
-PASS. All issue #1339 local runtime and UI cases passed on alternate port 8091.
-The production listener was not modified.
+PASS. All issue #1339 local runtime and UI cases passed on alternate port 8091,
+and post-merge production acceptance passed after the automatic deployment.
 
 ## Evidence
 
@@ -95,10 +95,24 @@ The production listener was not modified.
 - Runtime evidence includes exact URL, request, status, content type, response
   length, body signature, UI computed style, script URL, PID, and listener state.
 
+## Production Verification
+
+- PR #1340 was squash-merged as 5bd14e994a6130a32166602a6f272581abc53525.
+- The production listener rotated from PID 33024 to PID 2956 without a public
+  page outage. The initial readiness 503 during rotation transitioned to HTTP
+  200 `{"status":"UP"}`; liveness also returned HTTP 200 `{"status":"UP"}`.
+- GET https://www.christopherbell.dev/, /login, and /signup returned HTTP 200.
+- Bootstrap 5.3.8 CSS returned HTTP 200 text/css with 232,111 bytes and the
+  `--bs-blue` signature. Its JavaScript bundle returned HTTP 200
+  text/javascript with 80,496 bytes and the Bootstrap v5.3.8 signature.
+- Obsolete 5.3.3 CSS and JavaScript paths returned HTTP 403 application/json.
+- The public browser computed `--bs-blue: #0d6efd`, zero body margin, and
+  border-box sizing. Login loaded the 5.3.8 bundle and emitted no browser logs.
+- ChristopherBellDev, MongoDB, and cloudflared were Running and Automatic.
+
 ## Bugs / Follow-ups
 
 - The local profile later logged an unrelated startup catch-up OpenStreetMap
   import duplicate-key error for normalizedName "aama's kitchen". The app stayed
   healthy and all Bootstrap checks passed. This existing WFL data condition is
   outside issue #1339.
-- Production verification remains required after merge and automatic deployment.
