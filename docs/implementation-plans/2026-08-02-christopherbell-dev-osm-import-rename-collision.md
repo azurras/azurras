@@ -22,7 +22,7 @@
 
 ## Document Status
 
-`ready-for-execution`
+`in-progress`
 
 ## Objective
 
@@ -294,13 +294,13 @@ Proposed:
 Verification:
 - Inspect the OpenStreetMap Import section for consistency with the unique-name, same-address, monthly, and startup-catch-up behavior.
 
-- [ ] **Step 1: Apply only Code Edit 1.1.**
-- [ ] **Step 2: Run the focused test and capture expected RED evidence.**
-- [ ] **Step 3: Apply Code Edits 1.2 through 1.5 without unrelated refactoring.**
-- [ ] **Step 4: Re-run the focused test and capture GREEN evidence.**
-- [ ] **Step 5: Run the complete `RestaurantServiceTest` class.**
-- [ ] **Step 6: Inspect the diff with the coding-standard review rubric and fix blockers only.**
-- [ ] **Step 7: Commit the cohesive code, test, and feature-documentation change.**
+- [x] **Step 1: Apply only Code Edit 1.1.**
+- [x] **Step 2: Run the focused test and capture expected RED evidence.**
+- [x] **Step 3: Apply Code Edits 1.2 through 1.5 without unrelated refactoring.**
+- [x] **Step 4: Re-run the focused test and capture GREEN evidence.**
+- [x] **Step 5: Run the complete `RestaurantServiceTest` class.**
+- [x] **Step 6: Inspect the diff with the coding-standard review rubric and fix blockers only.**
+- [x] **Step 7: Commit the cohesive code, test, and feature-documentation change.**
 
 ### Task 2 - Run full automated and alternate-port runtime verification
 
@@ -317,28 +317,28 @@ Implementation notes:
 - Run a loopback OpenStreetMap stub on a separately verified free port that returns the renamed node and one later non-conflicting candidate.
 - Start the app with profiles `prod,deploy-smoke`, override `wfl.restaurant-import.monthly.enabled=true` so the startup listener runs, and set `SPRING_MONGODB_URI=mongodb://127.0.0.1:27017`, `SPRING_MONGODB_DATABASE=christopherbell_osm_collision_test_20260802`, `APP_MAIL_ENABLED=false`, a non-placeholder task-only `APP_JWT_SECRET`, `app.federation.discovery-enabled=false`, the loopback stub endpoint, and `--server.port=8096`.
 
-- [ ] **Step 1: Run focused service regression.**
+- [x] **Step 1: Run focused service regression.**
   - Command: `./gradlew.bat :website:test --tests dev.christopherbell.whatsforlunch.restaurant.RestaurantServiceTest --no-daemon`.
   - Expected: every `RestaurantServiceTest` passes.
-- [ ] **Step 2: Run the full website suite.**
+- [x] **Step 2: Run the full website suite.**
   - Command: `./gradlew.bat :website:test --no-daemon`.
   - Expected: `BUILD SUCCESSFUL`, zero failures.
-- [ ] **Step 3: Run repository-level verification.**
+- [x] **Step 3: Run repository-level verification.**
   - Command: `./gradlew.bat :website:check --no-daemon` and `git diff --check`.
   - Expected: both exit zero.
-- [ ] **Step 4: Seed deterministic isolated Mongo data and start the loopback OSM stub.**
+- [x] **Step 4: Seed deterministic isolated Mongo data and start the loopback OSM stub.**
   - Inputs: persisted `osm:node:8178213204` as `China Villa`, persisted `osm:node:13485126044` as `Aama's Kitchen`, upstream candidate `8178213204` renamed to `Aama's Kitchen`, and one `Later Candidate Cafe` node.
-- [ ] **Step 5: Start the app on `http://127.0.0.1:8096` and wait on readiness.**
+- [x] **Step 5: Start the app on `http://127.0.0.1:8096` and wait on readiness.**
   - Request: `GET /actuator/health/readiness`.
   - Expected: HTTP 200 with status `UP`.
-- [ ] **Step 6: Capture runtime import evidence.**
+- [x] **Step 6: Capture runtime import evidence.**
   - Mongo checks: `China Villa` remains unchanged; the existing `Aama's Kitchen` remains unchanged; `Later Candidate Cafe` exists; import state status is succeeded/completed.
   - Log checks: one concise collision skip diagnostic, successful import completion, and no `E11000`, `DuplicateKeyException`, or workflow `ERROR` for the deterministic run.
-- [ ] **Step 7: Check an unaffected public flow on the alternate port.**
+- [x] **Step 7: Check an unaffected public flow on the alternate port.**
   - Request: `GET /api/whatsforlunch/restaurant/2026-05-17/nearby` with valid deterministic latitude, longitude, and radius inputs supported by the isolated data.
   - Expected: record exact request, status, and bounded JSON response; no server error.
-- [ ] **Step 8: Stop only the alternate-port app and stub, then drop only `christopherbell_osm_collision_test_20260802`.**
-- [ ] **Step 9: Save and validate the Builder local app test report before publication.**
+- [x] **Step 8: Stop only the alternate-port app and stub, then drop only `christopherbell_osm_collision_test_20260802`.**
+- [x] **Step 9: Save and validate the Builder local app test report before publication.**
 
 ### Task 3 - Publish, merge, deploy, verify, and close
 
