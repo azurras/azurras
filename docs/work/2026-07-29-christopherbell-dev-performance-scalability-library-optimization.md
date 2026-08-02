@@ -50,6 +50,15 @@ read-only investigation.
 
 ## Current State
 
+- Authentication request-efficiency work is merged and production-verified through
+  PR #1329 at commit `3a8e249a45e50e53f1ddc6fa1c520dcc82adee03`.
+- Backend query/resource-bounds implementation is complete on
+  `codex/backend-query-resource-bounds` at verified commit
+  `52f3a61b9210599e9d76c51193b58ef4be07c51c`; the branch is ready for PR/CI.
+- Backend alternate-port verification passed with constant conversation query
+  groups, bounded cached VIN behavior, disabled scheduled writers, complete
+  cleanup, and no production listener change. See
+  [Backend Query and Resource Bounds Test Report](../test-reports/2026-08-01-christopherbell-dev-backend-query-resource-bounds.md).
 - The user approved a hot-path-first approach with extraction only after reuse
   is proven.
 - The user approved the backend, browser, Java-library, and verification design
@@ -85,16 +94,15 @@ read-only investigation.
 
 ## Blockers
 
-- Spoke implementation is not authorized by the design approvals recorded so
-  far and requires a separate explicit user instruction.
+- No authorization blocker remains for the approved campaign. Browser delivery
+  and shared-library-boundary implementation remain incomplete.
 
 ## Next Steps
 
-1. Ask for explicit execution authorization and the preferred execution mode.
-2. If authorized, execute the authentication and backend plans first, the
-   browser plan independently, and the shared-library plan after backend lease
-   consumers land.
-3. Run focused tests, full `:website:check`, alternate-port runtime acceptance,
-   pull-request CI, merge, and production-safe verification.
-4. Record Builder test, update, review, session-memory, and closure artifacts as
-   implementation proceeds.
+1. Publish the backend branch, complete PR/CI review, merge, and production-safe
+   verification.
+2. Execute the browser delivery plan independently.
+3. Execute the shared-library-boundary plan after the backend lease consumers
+   merge.
+4. Record Builder test, review, session-memory, and closure artifacts as each
+   implementation phase completes.
