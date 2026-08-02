@@ -26,7 +26,7 @@ Make every three-restaurant What's for Lunch draw rating-aware so highly rated r
 
 ## Related Artifacts
 
-- Project specification: pending save and user review
+- Project specification: [Rating-Weighted Void Upgrade](../specs/2026-08-02-christopherbell-dev-wfl-rating-weighted-void-upgrade.md), pending user review
 - Implementation plan: pending approved specification
 - Test report: pending local application verification
 - Spoke update/review and closure: pending implementation
