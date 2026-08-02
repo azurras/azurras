@@ -13,6 +13,8 @@ Approved repository-wide website performance, scalability, and shared-library op
 - Spoke branch: `codex/browser-delivery-optimization`
 - Commit under test: `c530fe3279eaab6ee047a424b7dda6190fd14832`
 - Base commit: `c4d60ce0c92281c201d063cfd6a07563f4a7b230`
+- Pull request: `azurras/christopherbell.dev#1337`
+- Merged commit: `95d805658beaa4c62a8b5e56af9bbf1c0aca66a6`
 
 ## App / Environment
 
@@ -23,7 +25,8 @@ Approved repository-wide website performance, scalability, and shared-library op
 - Scheduling: `APP_SCHEDULING_ENABLED=false`.
 - Mail: `APP_MAIL_ENABLED=false`.
 - JWT secret: temporary verification-only value, not retained.
-- Production URL/listener: port 8080, PID `39812`; never targeted or changed.
+- Production URL/listener: port 8080, PID `39812` during candidate testing;
+  automatically rotated to PID `33336` after merge without a manual restart.
 - Browser: Codex in-app Chromium browser at desktop and 390 by 844 mobile viewports.
 
 ## Local Run Details
@@ -72,6 +75,8 @@ Running/Automatic.
 | Browser console | No warning or error entries during Login, Blog, Photos, and Void checks | Pass |
 | Full candidate gate | Browser, Java, packaging, sensor, and deployment-context checks pass from a fresh rerun | Pass |
 | Cleanup and production isolation | Candidate and disposable data are removed; port 8080 and services remain unchanged | Pass |
+| Pull request and main CI | PR and post-merge Linux, macOS, Windows, CodeQL, and dependency checks are green | Pass |
+| Production delivery | Listener rotates automatically; local/public health and static delivery match the merged tree | Pass |
 
 ## Data Sent
 
@@ -119,6 +124,19 @@ authenticated visual flow.
 - The preliminary 390 by 844 Void Explore check reported no horizontal overflow and visibly
   rendered the responsive discovery-card layout.
 - Browser console warning/error inventory was empty.
+- After merge, production root, liveness, readiness, `robots.txt`, and
+  `sitemap.xml` returned status code 200 OK locally; public root, `robots.txt`,
+  and `sitemap.xml` also returned status code 200 OK.
+- Production rendered asset namespace `/36f78760656a39a24c90/`, exactly matching
+  the canonical merged Git-tree static fingerprint. The isolated worktree value
+  `/520a074536dc2f6e737d/` correctly differed because that checkout contained
+  different line-ending bytes; each namespace fingerprints the bytes its build
+  actually serves.
+- The public Login page contained only `app.js`, `auth/login.js`, and Bootstrap
+  script tags; it contained no Blog, Gallery, or player implementation script.
+- The public Command Center shell preserved feature-before-shared stylesheet
+  order. Its fingerprinted CSS and JavaScript returned one-year immutable cache
+  headers, while direct `/css/main.css` retained the one-hour cache.
 
 ## Pass / Fail
 
@@ -151,6 +169,14 @@ skips.
   completed in 5.768 seconds.
 - Cleanup proof: `DATABASE_BEFORE=true`, `DROP_OK=1`,
   `DATABASE_AFTER=false`; port 8093 free; production PID 39812 unchanged.
+- PR #1337 required checks: Linux, macOS, Windows, dependency review, and all
+  CodeQL analyses passed at head `c530fe3279eaab6ee047a424b7dda6190fd14832`.
+- Post-merge runs: CI Build `30729190961` and CodeQL `30729190934` passed at
+  merged SHA `95d805658beaa4c62a8b5e56af9bbf1c0aca66a6`.
+- Production listener rotated from PID 39812 to PID 33336. MongoDB,
+  ChristopherBellDev, and cloudflared remained Running/Automatic.
+- Canonical merged Git-tree fingerprint and production namespace:
+  `36f78760656a39a24c90`.
 
 ## Bugs / Follow-ups
 
