@@ -588,6 +588,18 @@ Verification:
 - GREEN: `.\gradlew.bat :website:verifyProductionDeploymentBuildContext`.
 - Ordinary Windows `build` produces all three Pester reports; simulated protected `:website:build --dry-run` omits only Pester; protected production advances to the exact merged SHA.
 
+#### Code Edit 6.6
+- File: `website/build.gradle.kts`
+- Lines: `isProductionDeploymentBuild` and `verifyProductionDeploymentBuildContext`
+- Action: replace
+
+The protected scheduled-task JVM does not expose a stable LocalSystem username through either inspected string source. Replace the suffix-plus-identity bootstrap with an exact, case-insensitive normalized match for `C:\ProgramData\christopherbell.dev\gradle-home` on Windows. That directory is already ACL-protected to SYSTEM and Administrators, so it is the authoritative capability boundary; a lookalike path on another drive or below another root must not qualify. Continue rejecting any explicit marker other than exactly `1`.
+
+Verification:
+- RED truth-table cases: exact protected home with absent identity must qualify; an `A:\scratch\christopherbell.dev\gradle-home` suffix lookalike must not qualify.
+- GREEN: `.\gradlew.bat :website:verifyProductionDeploymentBuildContext` and focused source contract.
+- Ordinary Windows `build` still produces all three Pester reports; protected production advances to the exact merged SHA.
+
 ### Task 7 - Remove calendar-bound post-expiration fixtures exposed by merged-main CI
 
 Sequence / dependencies:
@@ -705,8 +717,8 @@ Verification:
 - `build.gradle.kts`: replace date/run versioning; add verification (2.1).
 - `website/build.gradle.kts`: cache/download/verification and Windows Pester wiring (3.1, 4.1).
 - `.github/workflows/ci.yml`: concurrency, Pester, and timeouts (4.2).
-- `website/build.gradle.kts` and `Production.Deploy.psm1`: strict protected-deployment Pester boundary plus two-source legacy LocalSystem bootstrap compatibility (6.2-6.5).
-- `BuildAutomationConfigurationTest.java`: deployment boundary regression contracts (6.1, 6.4).
+- `website/build.gradle.kts` and `Production.Deploy.psm1`: strict protected-deployment Pester boundary using the exact ACL-protected Gradle home plus explicit marker validation (6.2-6.6).
+- `BuildAutomationConfigurationTest.java`: deployment boundary regression contracts (6.1, 6.4, 6.6).
 - `PostExpirationServiceTest.java` and `PostServiceTest.java`: bind expiration activity checks to their existing deterministic test clocks (7.1-7.3).
 - `SecureNativeLibraryProvisionerTest.java`: assert the exact fixed ACL principal set without contradicting the valid `SYSTEM` execution identity (7.4).
 
@@ -732,7 +744,7 @@ Separate concern commits allow targeted revert. Production retains automatic pre
 
 ## Risks
 
-Cold upstream availability (timeouts/warm cache); Kotlin DSL/provider interactions (focused/full tasks); dual-shell module discovery (pinned install/local XML); timeout sizing (large observed margin); concurrency expression syntax (parsed YAML/live PR); protected tool-copy bootstrap compatibility (environment and JVM identity truth table plus production evidence); calendar-bound test fixtures (fixed-clock injection); privileged build identities (fixed ACL allowlist assertions); mainline movement (rebase/retest).
+Cold upstream availability (timeouts/warm cache); Kotlin DSL/provider interactions (focused/full tasks); dual-shell module discovery (pinned install/local XML); timeout sizing (large observed margin); concurrency expression syntax (parsed YAML/live PR); protected tool-copy bootstrap compatibility (exact ACL-protected Gradle-home truth table plus production evidence); calendar-bound test fixtures (fixed-clock injection); privileged build identities (fixed ACL allowlist assertions); mainline movement (rebase/retest).
 
 ## Completion Criteria
 
