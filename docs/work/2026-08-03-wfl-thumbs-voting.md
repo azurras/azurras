@@ -27,8 +27,8 @@ Replace the WFL 1–5 restaurant rating system with thumbs-up/thumbs-down voting
 
 ## Related Artifacts
 
-- Specification: [What's For Lunch Thumbs Voting](../specs/2026-08-03-wfl-thumbs-voting.md), ready for user review
-- Implementation plan: pending written-spec approval
+- Specification: [What's For Lunch Thumbs Voting](../specs/2026-08-03-wfl-thumbs-voting.md), approved and ready for execution
+- Implementation plan: [What's For Lunch Thumbs Voting](../implementation-plans/2026-08-03-wfl-thumbs-voting.md), ready for execution
 - Test report: pending implementation
 - Spoke update/review: pending implementation
 - Closure/session memory: pending final delivery
@@ -39,11 +39,11 @@ Replace the WFL 1–5 restaurant rating system with thumbs-up/thumbs-down voting
 
 ## Current State
 
-Design sections are approved. Current `origin/main` is `363bb986581c4d20df3434154844807ce88701e4`. The authoritative spoke checkout is heavily dirty and stale, so implementation will use a new isolated worktree from refreshed `origin/main`. The current rating model, Mongo aggregation, three browser surfaces, profile SSR/JSON-LD, daily selector, shared-session selector, and V013 migration boundary have been inventoried.
+Design and written specification are approved. The implementation plan maps the migration, vote domain, aggregation, selector, service/session/API, SSR/SEO, browser, documentation, runtime, publishing, deployment, and closeout work to exact current-main ranges. Current `origin/main` is `363bb986581c4d20df3434154844807ce88701e4`; execution will create a new isolated worktree from refreshed main.
 
 ## Blockers
 
-None. Written specification review is the next required gate.
+None. Implementation execution-mode selection is the next gate.
 
 ## Validation
 
@@ -51,7 +51,6 @@ Read-only exploration confirmed one integer rating per account/restaurant, sum/c
 
 ## Next Steps
 
-1. Commit and push the approved written specification and work record.
-2. Obtain user review of the written specification.
-3. Create, review, validate, commit, and push the implementation plan.
-4. Implement and complete the default delivery loop through production and Builder closure.
+1. Validate, review, commit, and push the implementation plan.
+2. Select subagent-driven or inline execution.
+3. Implement and complete the default delivery loop through production and Builder closure.
