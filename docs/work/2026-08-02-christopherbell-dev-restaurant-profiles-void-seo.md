@@ -2,7 +2,7 @@
 
 ## Status
 
-active
+closed
 
 ## Objective
 
@@ -26,13 +26,13 @@ Render useful public restaurant profile content server-side so search engines ca
 
 ## Related Artifacts
 
-- Project specification: [Restaurant Profiles Void and Search Indexing](../specs/2026-08-02-christopherbell-dev-restaurant-profiles-void-seo.md), approved and ready for execution
-- Implementation plan: [Restaurant Profiles Void and Search Indexing](../implementation-plans/2026-08-02-restaurant-profiles-void-seo.md), ready for execution
-- Test report: pending implementation and local app testing
-- Spoke update: pending implementation
-- Spoke review: pending implementation
-- Closure: pending final delivery
-- Session memory: pending final delivery
+- Project specification: [Restaurant Profiles Void and Search Indexing](../specs/2026-08-02-christopherbell-dev-restaurant-profiles-void-seo.md), complete
+- Implementation plan: [Restaurant Profiles Void and Search Indexing](../implementation-plans/2026-08-02-restaurant-profiles-void-seo.md), complete
+- Test report: [Restaurant Profile Void SEO Test Report](../test-reports/2026-08-02-restaurant-profile-void-seo-test-report.md)
+- Spoke update: [Restaurant Profile Void SEO](../spoke-updates/2026-08-02-restaurant-profile-void-seo.md)
+- Spoke review: [Restaurant Profile Void SEO Review](../spoke-reviews/2026-08-02-restaurant-profile-void-seo-review.md)
+- Closure: [Restaurant Profile Void SEO](../work-closures/2026-08-02-restaurant-profile-void-seo.md)
+- Session memory: [Restaurant Profile Void SEO](../session-memory/2026-08-02-restaurant-profile-void-seo.md)
 
 ## Spoke Repositories
 
@@ -40,7 +40,7 @@ Render useful public restaurant profile content server-side so search engines ca
 
 ## Current State
 
-The three design sections and consolidated written project specification are approved. A fresh isolated worktree now exists at `A:\Projects\christopherbell.dev-worktrees\restaurant-profile-void-seo` on `codex/restaurant-profile-void-seo`, based on `origin/main` SHA `9c69623049829394f245515b8d1751c9f7579271`. The existing view, sitemap/robots, and JavaScript baseline passed before planning.
+Implementation, alternate-port acceptance, PR review, CI, merge, protected deployment, and production verification are complete. PR [#1345](https://github.com/azurras/christopherbell.dev/pull/1345) merged as `363bb986581c4d20df3434154844807ce88701e4`. Production serves the versioned Void profile assets, public canonical and Restaurant JSON-LD, sitemap discovery, and missing-profile noindex boundary on PID `59036`; required Windows services are running.
 
 ## Blockers
 
@@ -52,6 +52,4 @@ Read-only exploration confirmed the current profile route, client-rendered templ
 
 ## Next Steps
 
-1. Validate, review, and commit the implementation plan.
-2. Select the implementation execution mode.
-3. Implement regression-first, run focused/full/alternate-port validation, publish and merge the PR, verify production, and close the Builder work record.
+No required next steps. The linked closure and session memory contain the final evidence and resume boundary.
