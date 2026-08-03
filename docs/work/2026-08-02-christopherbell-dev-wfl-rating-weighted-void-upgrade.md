@@ -2,7 +2,7 @@
 
 ## Status
 
-active
+closed
 
 ## Objective
 
@@ -27,9 +27,12 @@ Make every three-restaurant What's for Lunch draw rating-aware so highly rated r
 ## Related Artifacts
 
 - Project specification: [Rating-Weighted Void Upgrade](../specs/2026-08-02-christopherbell-dev-wfl-rating-weighted-void-upgrade.md), approved and ready for execution
-- Implementation plan: pending approved specification
-- Test report: pending local application verification
-- Spoke update/review and closure: pending implementation
+- Implementation plan: [WFL Rating-Weighted Picks and Void Decision Console](../implementation-plans/2026-08-02-wfl-rating-weighted-void-upgrade.md)
+- Test report: [WFL Rating-Weighted Void Upgrade](../test-reports/2026-08-02-wfl-rating-weighted-void-upgrade-test-report.md)
+- Spoke update: [Completion update](../spoke-updates/2026-08-02-christopherbell-dev-wfl-rating-weighted-void-completion.md)
+- Spoke review: [Final review](../spoke-reviews/2026-08-02-christopherbell-dev-wfl-rating-weighted-void-review.md)
+- Closure: [Final closure](../work-closures/2026-08-02-christopherbell-dev-wfl-rating-weighted-void-closure.md)
+- Session memory: [WFL rating-weighted Void upgrade](../session-memory/2026-08-02-wfl-rating-weighted-void-upgrade.md)
 
 ## Spoke Repositories
 
@@ -37,17 +40,16 @@ Make every three-restaurant What's for Lunch draw rating-aware so highly rated r
 
 ## Current State
 
-Current `origin/main` uses a uniform in-memory shuffle for both persisted daily picks and on-demand nearby/ZIP picks. Aggregate rating data already exists as per-restaurant count and sum. The current WFL template uses the light `site-page` shell and dedicated lunch CSS; the approved design moves it to the established dark Void visual system.
+PR [#1344](https://github.com/azurras/christopherbell.dev/pull/1344) passed the complete CI, dependency-review, and CodeQL suite, merged to `main` as `9c69623049829394f245515b8d1751c9f7579271`, auto-deployed, and passed public HTTPS and authenticated desktop/mobile verification. Production now uses the approved rating-weighted selection flows and scoped Void Decision Console.
 
 ## Blockers
 
-None. Implementation remains gated on the required implementation plan.
+None.
 
 ## Validation
 
-Design exploration inspected current `origin/main`, the service selection paths, rating aggregation, WFL template/JavaScript/CSS, existing Void tokens, and recent WFL/Void commits. No source code has been modified.
+Regression-first focused tests, all 313 JavaScript tests, the full `:website:check` gate, alternate-port runtime, independent code review, required GitHub checks, production health/API checks, and authenticated desktop/mobile browser checks passed. The reviewer-found authenticated rating-color cascade was corrected before publication and verified at 9.06:1 contrast.
 
 ## Next Steps
 
-1. Write, validate, review, commit, and push the implementation plan.
-2. Implement and complete the full delivery loop.
+No required follow-up remains.
