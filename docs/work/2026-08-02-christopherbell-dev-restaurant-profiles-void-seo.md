@@ -26,8 +26,8 @@ Render useful public restaurant profile content server-side so search engines ca
 
 ## Related Artifacts
 
-- Project specification: [Restaurant Profiles Void and Search Indexing](../specs/2026-08-02-christopherbell-dev-restaurant-profiles-void-seo.md), ready for user review
-- Implementation plan: pending written-spec approval
+- Project specification: [Restaurant Profiles Void and Search Indexing](../specs/2026-08-02-christopherbell-dev-restaurant-profiles-void-seo.md), approved and ready for execution
+- Implementation plan: [Restaurant Profiles Void and Search Indexing](../implementation-plans/2026-08-02-restaurant-profiles-void-seo.md), ready for execution
 - Test report: pending implementation and local app testing
 - Spoke update: pending implementation
 - Spoke review: pending implementation
@@ -40,19 +40,18 @@ Render useful public restaurant profile content server-side so search engines ca
 
 ## Current State
 
-The three design sections have been approved in conversation. The consolidated written project specification is ready for user review. No spoke source changes or implementation worktree have been created for this initiative.
+The three design sections and consolidated written project specification are approved. A fresh isolated worktree now exists at `A:\Projects\christopherbell.dev-worktrees\restaurant-profile-void-seo` on `codex/restaurant-profile-void-seo`, based on `origin/main` SHA `9c69623049829394f245515b8d1751c9f7579271`. The existing view, sitemap/robots, and JavaScript baseline passed before planning.
 
 ## Blockers
 
-Implementation planning is intentionally waiting for the required user review and approval of the written project specification.
+None.
 
 ## Validation
 
-Read-only exploration confirmed the current profile route, client-rendered template, progressive-enhancement opportunity, existing canonical/social-preview handling, public restaurant sitemap membership, robots behavior, and missing-profile `404`/`noindex` tests on current `origin/main`.
+Read-only exploration confirmed the current profile route, client-rendered template, progressive-enhancement opportunity, existing canonical/social-preview handling, public restaurant sitemap membership, robots behavior, and missing-profile `404`/`noindex` tests on current `origin/main`. The focused view, sitemap/robots, and JavaScript baseline passed with `BUILD SUCCESSFUL`; the implementation plan passed the Builder quality validator and execution-readiness self-review.
 
 ## Next Steps
 
-1. Obtain user approval of the written project specification.
-2. Refresh from `origin/main`, create an isolated spoke worktree, and inspect exact source/test line ranges.
-3. Write, validate, and review the implementation plan before source edits.
-4. Implement regression-first, run focused/full/alternate-port validation, publish and merge the PR, verify production, and close the Builder work record.
+1. Validate, review, and commit the implementation plan.
+2. Select the implementation execution mode.
+3. Implement regression-first, run focused/full/alternate-port validation, publish and merge the PR, verify production, and close the Builder work record.

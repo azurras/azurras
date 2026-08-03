@@ -2,7 +2,7 @@
 
 ## Document Status
 
-ready-for-review
+ready-for-execution
 
 ## Purpose
 
