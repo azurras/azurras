@@ -2,7 +2,7 @@
 
 ## Status
 
-active
+closed
 
 ## Objective
 
@@ -33,10 +33,11 @@ Stop the What's For Lunch browser from treating archived shared sessions as muta
 
 ## Related Artifacts
 
-- Specification: [WFL Archived Session Recovery](../specs/2026-08-03-wfl-archived-session-recovery.md), in progress
-- Implementation plan: [WFL Archived Session Recovery](../implementation-plans/2026-08-03-wfl-archived-session-recovery.md), in progress
+- Specification: [WFL Archived Session Recovery](../specs/2026-08-03-wfl-archived-session-recovery.md), complete
+- Implementation plan: [WFL Archived Session Recovery](../implementation-plans/2026-08-03-wfl-archived-session-recovery.md), complete
 - Test report: [WFL Archived Session Recovery Test Report](../test-reports/2026-08-03-wfl-archived-session-recovery-test-report.md), complete
-- Closure/session memory: pending final delivery
+- Closure: [WFL Archived Session Recovery Closure](../work-closures/2026-08-03-wfl-archived-session-recovery-closure.md)
+- Session memory: [WFL Archived Session Recovery](../session-memory/2026-08-03-wfl-archived-session-recovery.md)
 
 ## Spoke Repositories
 
@@ -44,11 +45,11 @@ Stop the What's For Lunch browser from treating archived shared sessions as muta
 
 ## Current State
 
-Implementation is complete on `codex/wfl-archived-session-recovery` at commit `255df4d1`. Focused recovery tests pass 7/7, the JavaScript suite passes 343/343, and `:website:check` is green. Alternate-port browser acceptance proved implicit recovery, explicit archive readability, fresh-session creation, archive immutability, and active shared-session compatibility. Candidate resources were cleaned up and production readiness on port 8080 remained HTTP 200. Branch integration is the next gate.
+PR #1350 merged as `9c587103cb7f7df2ab52ed3e232f1ca67660fd6e` after every required CI, CodeQL, and dependency gate passed. The native SYSTEM deployment rotated production to the merged release. Signed-in production verification proved implicit archive fallback, explicit read-only archive rendering, enabled fresh-pick recovery, unchanged archived MongoDB state, zero browser warnings/errors, HTTP 200 local/apex/www WFL responses, and Running/Automatic native services. No required action remains.
 
 ## Blockers
 
-None. The implementation is ready for the user-selected branch integration path.
+None.
 
 ## Validation
 
@@ -58,6 +59,4 @@ None. The implementation is ready for the user-selected branch integration path.
 
 ## Next Steps
 
-1. Select the branch integration path.
-2. If published, complete PR/CI/merge and protected production deployment.
-3. Verify exact production behavior and complete Builder closeout.
+None. This work is closed.
