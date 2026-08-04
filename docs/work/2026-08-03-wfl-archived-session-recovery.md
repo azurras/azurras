@@ -33,8 +33,8 @@ Stop the What's For Lunch browser from treating archived shared sessions as muta
 
 ## Related Artifacts
 
-- Specification: [WFL Archived Session Recovery](../specs/2026-08-03-wfl-archived-session-recovery.md), ready for review
-- Implementation plan: pending specification review
+- Specification: [WFL Archived Session Recovery](../specs/2026-08-03-wfl-archived-session-recovery.md), ready for execution
+- Implementation plan: [WFL Archived Session Recovery](../implementation-plans/2026-08-03-wfl-archived-session-recovery.md), ready for execution
 - Test report: pending implementation
 - Closure/session memory: pending final delivery
 
@@ -44,11 +44,11 @@ Stop the What's For Lunch browser from treating archived shared sessions as muta
 
 ## Current State
 
-The root cause is confirmed in current production data and the merged browser flow. No production data or code has been changed. The user approved automatic recovery with explicit archived links remaining readable.
+The root cause is confirmed in current production data and the merged browser flow. No production data or code has been changed. The user approved the design and written specification; the implementation plan maps the narrow JavaScript controller, RED/GREEN tests, documentation, runtime acceptance, publishing, deployment, and closeout to exact current-main ranges.
 
 ## Blockers
 
-None. Written-spec review remains the next design gate.
+None. Implementation execution-mode selection is the next gate.
 
 ## Validation
 
@@ -58,7 +58,7 @@ None. Written-spec review remains the next design gate.
 
 ## Next Steps
 
-1. Save, self-review, and commit the approved specification.
-2. Obtain written-spec approval and create a literal-line implementation plan.
+1. Validate, review, commit, and push the implementation plan.
+2. Select inline or subagent-driven execution.
 3. Implement in a clean isolated worktree using failing JavaScript behavior tests first.
 4. Complete local runtime/browser validation, PR/CI/merge, protected production deployment, and Builder closeout.
