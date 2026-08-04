@@ -24,7 +24,7 @@
 
 ## Document Status
 
-ready-for-execution
+in-progress
 
 ## Objective
 

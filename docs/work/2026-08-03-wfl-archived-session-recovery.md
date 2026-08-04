@@ -33,9 +33,9 @@ Stop the What's For Lunch browser from treating archived shared sessions as muta
 
 ## Related Artifacts
 
-- Specification: [WFL Archived Session Recovery](../specs/2026-08-03-wfl-archived-session-recovery.md), ready for execution
-- Implementation plan: [WFL Archived Session Recovery](../implementation-plans/2026-08-03-wfl-archived-session-recovery.md), ready for execution
-- Test report: pending implementation
+- Specification: [WFL Archived Session Recovery](../specs/2026-08-03-wfl-archived-session-recovery.md), in progress
+- Implementation plan: [WFL Archived Session Recovery](../implementation-plans/2026-08-03-wfl-archived-session-recovery.md), in progress
+- Test report: [WFL Archived Session Recovery Test Report](../test-reports/2026-08-03-wfl-archived-session-recovery-test-report.md), complete
 - Closure/session memory: pending final delivery
 
 ## Spoke Repositories
@@ -44,11 +44,11 @@ Stop the What's For Lunch browser from treating archived shared sessions as muta
 
 ## Current State
 
-The root cause is confirmed in current production data and the merged browser flow. No production data or code has been changed. The user approved the design and written specification; the implementation plan maps the narrow JavaScript controller, RED/GREEN tests, documentation, runtime acceptance, publishing, deployment, and closeout to exact current-main ranges.
+Implementation is complete on `codex/wfl-archived-session-recovery` at commit `255df4d1`. Focused recovery tests pass 7/7, the JavaScript suite passes 343/343, and `:website:check` is green. Alternate-port browser acceptance proved implicit recovery, explicit archive readability, fresh-session creation, archive immutability, and active shared-session compatibility. Candidate resources were cleaned up and production readiness on port 8080 remained HTTP 200. Branch integration is the next gate.
 
 ## Blockers
 
-None. Implementation execution-mode selection is the next gate.
+None. The implementation is ready for the user-selected branch integration path.
 
 ## Validation
 
@@ -58,7 +58,6 @@ None. Implementation execution-mode selection is the next gate.
 
 ## Next Steps
 
-1. Validate, review, commit, and push the implementation plan.
-2. Select inline or subagent-driven execution.
-3. Implement in a clean isolated worktree using failing JavaScript behavior tests first.
-4. Complete local runtime/browser validation, PR/CI/merge, protected production deployment, and Builder closeout.
+1. Select the branch integration path.
+2. If published, complete PR/CI/merge and protected production deployment.
+3. Verify exact production behavior and complete Builder closeout.
