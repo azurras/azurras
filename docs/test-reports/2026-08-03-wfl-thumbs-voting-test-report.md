@@ -203,4 +203,12 @@ Result: **PASS**. Pester passed 92/92, Java passed 1,656 tests with zero failure
 
 - No unresolved functional defects were found in candidate testing.
 - The browser automation backend's `press` helper focused the native button but did not synthesize a click in this session; pointer activation and the native semantic button/ARIA contract were verified. Repository keyboard/accessibility tests remain green.
-- Production migration and post-cutover verification are intentionally pending the merged, CI-approved artifact and the approved forward-only outage procedure.
+- Production follow-through completed after the local report: PR #1349 passed all required CI/security checks, squash-merged as `3b9ee44ba29627c3595b8aebc16612cc2065a885`, and deployed through the protected forward-only Windows path.
+
+## Production Follow-through
+
+- The production release junction is `C:\ProgramData\christopherbell.dev\releases\3b9ee44ba29627c3595b8aebc16612cc2065a885`; the prior release is retained as `363bb986581c4d20df3434154844807ce88701e4` but was not restarted after V013.
+- Port 8080 rotated from PID 59036 to PID 74080. The new release returned readiness HTTP 200 with `{"status":"UP"}` and liveness HTTP 200.
+- Live MongoDB V013 is `APPLIED` with checksum `c10c2769b37044d866224770f7fb8b0877e02c2457c53d33ee25eeb879ab86f7`.
+- All 87 live vote documents are binary: 53 `UP`, 34 `DOWN`, zero legacy `rating` fields, zero invalid votes, and the unique `restaurant_account_unique` index retained.
+- Public Top Liked API/page, 308 redirect, sitemap, canonical profile, 0-100 JSON-LD, zero-vote omission, 404/noindex, Void WFL/profile rendering, horizontal fit, and browser console checks passed on `https://www.christopherbell.dev`.

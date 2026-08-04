@@ -2,7 +2,7 @@
 
 ## Status
 
-active
+closed
 
 ## Objective
 
@@ -31,7 +31,8 @@ Replace the WFL 1–5 restaurant rating system with thumbs-up/thumbs-down voting
 - Implementation plan: [What's For Lunch Thumbs Voting](../implementation-plans/2026-08-03-wfl-thumbs-voting.md), implementation complete and locally verified
 - Test report: [WFL Thumbs Voting Test Report](../test-reports/2026-08-03-wfl-thumbs-voting-test-report.md), complete
 - Spoke review: final whole-branch review passed with no critical, important, or minor findings
-- Closure/session memory: pending final delivery
+- Closure: [WFL Thumbs Voting Closure](../work-closures/2026-08-03-wfl-thumbs-voting.md)
+- Session memory: [WFL Thumbs Voting](../session-memory/2026-08-03-wfl-thumbs-voting.md)
 
 ## Spoke Repositories
 
@@ -39,11 +40,11 @@ Replace the WFL 1–5 restaurant rating system with thumbs-up/thumbs-down voting
 
 ## Current State
 
-Implementation is complete at spoke commit `fbab5e8816c66fd8c46147a95cf43f0832c3b341` on `codex/wfl-thumbs-voting`. The packaged candidate passed invalid-data migration preflight, successful legacy conversion, API compatibility rejection, weighted-selection sampling, SEO/redirect checks, authenticated desktop UI, mobile UI, browser console, persistence, and automated regressions on alternate port 8094 against disposable MongoDB databases. The candidate was stopped, port 8094 was freed, and disposable databases were removed without touching the production listener on 8080.
+Implementation completed at reviewed spoke commit `fbab5e8816c66fd8c46147a95cf43f0832c3b341`, passed PR #1349 CI/security, squash-merged as `3b9ee44ba29627c3595b8aebc16612cc2065a885`, and deployed through the protected Windows pipeline. Production now serves the merged release on port 8080 with readiness/liveness healthy. Live V013 is applied; all 87 WFL vote documents are binary with the unique restaurant/account index retained. Public API/UI/SEO and real-browser Void rendering checks passed.
 
 ## Blockers
 
-None. Publication, required CI, merge, approved forward-only production cutover, and production verification remain.
+None.
 
 ## Validation
 
@@ -51,7 +52,4 @@ Local runtime validation is recorded in the complete test report. Supporting aut
 
 ## Next Steps
 
-1. Commit and push the complete local runtime test report checkpoint.
-2. Rerun final verification and publish the spoke branch and pull request.
-3. Wait for required CI, merge the approved change, perform the approved forward-only production migration/cutover, and verify production.
-4. Close the Builder work record, specification, plan, and session memory.
+No required follow-up remains. Preserve the retained production backup/release according to normal retention; any future vote-contract change must append a new migration rather than modifying V013.

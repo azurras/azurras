@@ -26,7 +26,7 @@
 
 ## Document Status
 
-ready-for-execution
+complete
 
 ## Objective
 
@@ -317,11 +317,11 @@ Verification:
 - RED: test does not compile before V013/type creation.
 - GREEN: all V013 tests pass and `git diff --check` is clean.
 
-- [ ] Write the Task 1 migration/domain tests first.
-- [ ] Run the focused tests and record the expected RED failure.
-- [ ] Implement the minimal vote types and V013 behavior.
-- [ ] Run focused migration/model tests to GREEN.
-- [ ] Commit with `Migrate WFL ratings to binary votes`.
+- [x] Write the Task 1 migration/domain tests first.
+- [x] Run the focused tests and record the expected RED failure.
+- [x] Implement the minimal vote types and V013 behavior.
+- [x] Run focused migration/model tests to GREEN.
+- [x] Commit with `Migrate WFL ratings to binary votes`.
 
 ### Task 2 - Replace rating aggregation and selection with vote summaries
 
@@ -494,11 +494,11 @@ assertThat(ApprovalWeightedRestaurantSelector.weightFor(
 Verification:
 - Preserve deterministic without-replacement and invalid-random tests with vote summaries.
 
-- [ ] Write failing aggregation and selector tests.
-- [ ] Run focused tests to observe rating-shape failures.
-- [ ] Implement vote repository/summary/query and approval selector.
-- [ ] Run focused tests to GREEN and inspect aggregation JSON.
-- [ ] Commit with `Weight WFL picks by thumb approval`.
+- [x] Write failing aggregation and selector tests.
+- [x] Run focused tests to observe rating-shape failures.
+- [x] Implement vote repository/summary/query and approval selector.
+- [x] Run focused tests to GREEN and inspect aggregation JSON.
+- [x] Commit with `Weight WFL picks by thumb approval`.
 
 ### Task 3 - Change service, session, controller, and JSON contracts to votes
 
@@ -858,11 +858,11 @@ private final RestaurantVoteRepository restaurantVoteRepository;
 Verification:
 - Session service and constructor-based tests compile without rating-domain types.
 
-- [ ] Write failing service/controller/session/security tests for the new contract.
-- [ ] Run focused tests and capture old rating API/field failures.
-- [ ] Implement vote enrichment, writes, Top 10 Liked, and both selector integrations.
-- [ ] Run focused tests to GREEN and confirm old routes are absent.
-- [ ] Commit with `Expose binary WFL vote contracts`.
+- [x] Write failing service/controller/session/security tests for the new contract.
+- [x] Run focused tests and capture old rating API/field failures.
+- [x] Implement vote enrichment, writes, Top 10 Liked, and both selector integrations.
+- [x] Run focused tests to GREEN and confirm old routes are absent.
+- [x] Commit with `Expose binary WFL vote contracts`.
 
 ### Task 4 - Update server-rendered profiles, structured data, routes, sitemap, and security
 
@@ -1090,11 +1090,11 @@ Proposed:
 Verification:
 - Anonymous GETs to canonical API/page and legacy redirect pass; vote PUT still requires USER.
 
-- [ ] Add failing profile, route, redirect, sitemap, and security tests.
-- [ ] Run focused view/config tests to RED.
-- [ ] Implement vote SSR/JSON-LD and canonical route/security changes.
-- [ ] Run focused tests to GREEN and parse JSON-LD.
-- [ ] Commit with `Render WFL thumb approval publicly`.
+- [x] Add failing profile, route, redirect, sitemap, and security tests.
+- [x] Run focused view/config tests to RED.
+- [x] Implement vote SSR/JSON-LD and canonical route/security changes.
+- [x] Run focused tests to GREEN and parse JSON-LD.
+- [x] Commit with `Render WFL thumb approval publicly`.
 
 ### Task 5 - Replace star UI with accessible thumb controls on every WFL surface
 
@@ -1461,11 +1461,11 @@ assert.doesNotMatch(wflSecondaryNavigation('top-liked'), /Rated|top-rated/);
 Verification:
 - `./gradlew.bat :website:jsTest --rerun-tasks --no-daemon`
 
-- [ ] Add failing shared-summary, API, profile, picks, and list tests.
-- [ ] Run JS tests and record rating-contract failures.
-- [ ] Implement shared vote helpers, endpoints, controls, markup, and scoped CSS.
-- [ ] Run JS/static tests to GREEN plus `node --check` on touched modules.
-- [ ] Commit with `Replace WFL ratings with thumb controls`.
+- [x] Add failing shared-summary, API, profile, picks, and list tests.
+- [x] Run JS tests and record rating-contract failures.
+- [x] Implement shared vote helpers, endpoints, controls, markup, and scoped CSS.
+- [x] Run JS/static tests to GREEN plus `node --check` on touched modules.
+- [x] Commit with `Replace WFL ratings with thumb controls`.
 
 ### Task 6 - Update documentation and complete full migrated-runtime delivery
 
@@ -1523,18 +1523,18 @@ supported bridge from legacy numeric documents; runtime code does not dual-read.
 Verification:
 - Package/model/WFL README files agree on collection, fields, endpoints, ordering, and weighting.
 
-- [ ] Update WFL, model, vote, selection, view, JavaScript, and CSS ownership documentation.
-- [ ] Run `rg` stale-language scan and fix only active-contract occurrences.
-- [ ] Run focused Java and JS suites, then `:website:check --rerun-tasks` with private Gradle home.
-- [ ] Build the packaged JAR and start it on a free non-8080 port with a disposable Mongo database seeded with 1–5 ratings.
-- [ ] Verify V013 documents, migration record/checksum, unique index, up/down totals, Top 10 Liked ordering, selector inputs, old/new API behavior, profiles, JSON-LD, sitemap, redirect, liveness, and readiness.
-- [ ] Use browser automation for anonymous, signed-in UP, DOWN, change vote, same-vote idempotence, Favorites, Top 10 Liked, desktop, mobile, keyboard, and console checks.
-- [ ] Save and validate the Builder test report; commit/push that checkpoint.
-- [ ] Review the complete spoke diff with `write-jane-street-style-code` review rules; resolve all blockers/warnings.
-- [ ] Push `codex/wfl-thumbs-voting`, open a ready PR, wait for Linux/macOS/Windows, Dependency Review, and CodeQL, and fix in-scope failures.
-- [ ] Squash-merge only after all required checks pass and record the merged SHA.
-- [ ] Deploy the merged SHA through the protected Windows path; verify listener rotation, local/public health, versioned assets, live migrated vote data, API/UI/SEO behavior, Mongo/service state, and rollback absence.
-- [ ] Ingest/review/close Builder work, mark spec/plan complete, save session memory, update indexes, validate hub state, and commit/push Builder main.
+- [x] Update WFL, model, vote, selection, view, JavaScript, and CSS ownership documentation.
+- [x] Run `rg` stale-language scan and fix only active-contract occurrences.
+- [x] Run focused Java and JS suites, then `:website:check --rerun-tasks` with private Gradle home.
+- [x] Build the packaged JAR and start it on a free non-8080 port with a disposable Mongo database seeded with 1–5 ratings.
+- [x] Verify V013 documents, migration record/checksum, unique index, up/down totals, Top 10 Liked ordering, selector inputs, old/new API behavior, profiles, JSON-LD, sitemap, redirect, liveness, and readiness.
+- [x] Use browser automation for anonymous, signed-in UP, DOWN, change vote, same-vote idempotence, Favorites, Top 10 Liked, desktop, mobile, keyboard, and console checks.
+- [x] Save and validate the Builder test report; commit/push that checkpoint.
+- [x] Review the complete spoke diff with `write-jane-street-style-code` review rules; resolve all blockers/warnings.
+- [x] Push `codex/wfl-thumbs-voting`, open a ready PR, wait for Linux/macOS/Windows, Dependency Review, and CodeQL, and fix in-scope failures.
+- [x] Squash-merge only after all required checks pass and record the merged SHA.
+- [x] Deploy the merged SHA through the protected Windows path; verify listener rotation, local/public health, versioned assets, live migrated vote data, API/UI/SEO behavior, Mongo/service state, and rollback absence.
+- [x] Ingest/review/close Builder work, mark spec/plan complete, save session memory, update indexes, validate hub state, and commit/push Builder main.
 
 Verification:
 - Final production evidence contains exact URLs, request bodies/UI inputs, status codes/bodies, asset paths, listener PID, migration state, and service state.
