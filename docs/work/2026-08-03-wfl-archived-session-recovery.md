@@ -33,7 +33,7 @@ Stop the What's For Lunch browser from treating archived shared sessions as muta
 
 ## Related Artifacts
 
-- Specification: pending durable save
+- Specification: [WFL Archived Session Recovery](../specs/2026-08-03-wfl-archived-session-recovery.md), ready for review
 - Implementation plan: pending specification review
 - Test report: pending implementation
 - Closure/session memory: pending final delivery
@@ -48,7 +48,7 @@ The root cause is confirmed in current production data and the merged browser fl
 
 ## Blockers
 
-None for specification. Written-spec review remains the next design gate.
+None. Written-spec review remains the next design gate.
 
 ## Validation
 
