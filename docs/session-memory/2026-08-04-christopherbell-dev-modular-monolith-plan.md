@@ -61,3 +61,21 @@ The user asked for a plan to turn `christopherbell.dev` into a modular monolith.
 3. Invoke `write-jane-street-style-code` before every code-changing task.
 4. Complete the foundation through focused tests, full checks, alternate-port verification, PR/CI, merge, protected deployment, production checks, Builder test report, and closeout.
 5. Create the account/authorization line-level plan only after the foundation is merged and its actual baseline is available.
+
+## 21:20 - Foundation execution approved and opened
+
+### User Decision
+
+The user selected subagent-driven execution for the approved foundation plan.
+
+### Execution Controls
+
+- Opened the Builder work ledger and spoke implementation brief for the foundation.
+- Selected `A:\Projects\christopherbell.dev-worktrees\modular-monolith-foundation` and `codex/modular-monolith-foundation` as the isolated execution location and branch, subject to current-base verification.
+- Required a fresh implementer and independent task reviewer for each of the four ordered tasks, followed by a broad branch review.
+- Applied `write-jane-street-style-code` and test-driven-development requirements to every code-changing task, including the five-field Before-Edit Brief and witnessed RED/GREEN evidence.
+- Preserved the authoritative dirty checkout, production listener, services, database, and unrelated Builder state.
+
+### Current State
+
+Builder execution artifacts are being checkpointed before the first spoke worktree or code change. No spoke source has been modified.
