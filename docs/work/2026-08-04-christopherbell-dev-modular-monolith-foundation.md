@@ -1,6 +1,6 @@
 # christopherbell.dev Modular Monolith Foundation
 
-- Status: `active`
+- Status: `in-review`
 - Owner/Agent: Codex primary agent with fresh task implementers and reviewers
 - Started: 2026-08-04
 - Related spec: [christopherbell.dev Modular Monolith](../specs/2026-08-04-christopherbell-dev-modular-monolith.md)
@@ -32,18 +32,21 @@ The approved architecture prioritizes boundary safety and incremental capability
 
 ## Dispatched Tasks
 
-- [Modular Monolith Foundation Implementation](../spoke-tasks/2026-08-04-christopherbell-dev-modular-monolith-foundation-implementation.md) - `active`
+- [Modular Monolith Foundation Implementation](../spoke-tasks/2026-08-04-christopherbell-dev-modular-monolith-foundation-implementation.md) - `in-review`
 - Per-plan implementation briefs, implementer reports, and review packages will live in the isolated spoke's git-ignored `.superpowers/sdd/` workspace.
 
 ## Current State
 
-The specification and executable plan are approved. Execution mode is subagent-driven development with a fresh implementer and task-scoped reviewer for each ordered task. Builder checkpoint creation and worktree preflight are in progress; no spoke source has been changed.
+All four implementation tasks, the one ruled fix round, every task-scoped review, and the broad whole-branch review are complete on local head `f184f14125da232abf97ff0763505c23160cb1c9`. Fresh controller-owned full checks, JAR inspection, candidate HTTP requests, cleanup, and production-listener isolation passed. The branch is ready for the development-branch integration decision and has not been pushed.
 
 ## Validation
 
 - The implementation plan passed Builder mechanical validation and human execution review before approval.
 - The plan records exact line-range edits, TDD evidence, full-check commands, boot JAR inspection, and alternate-port runtime verification.
 - Current remote and worktree base will be revalidated before implementation.
+- [Local test report](../test-reports/2026-08-08-christopherbell-dev-modular-monolith-foundation.md) is complete.
+- [Spoke update](../spoke-updates/2026-08-08-christopherbell-dev-modular-monolith-foundation-local-verification.md) records commits and local verification.
+- [Branch review](../spoke-reviews/2026-08-08-christopherbell-dev-modular-monolith-foundation-branch-review.md) records no open findings and readiness to publish for PR review.
 
 ## Blockers
 
@@ -51,8 +54,8 @@ None.
 
 ## Next Steps
 
-1. Commit and push this Builder checkpoint.
-2. Refresh the spoke remote, verify plan blocks against the current base, and create the isolated worktree.
-3. Establish the per-plan SDD ledger and run the clean baseline.
-4. Execute Tasks 1-4 serially with task review gates.
-5. Complete branch review, runtime validation, PR/CI/integration, production verification, and Builder closeout.
+1. Complete the development-branch integration decision.
+2. If publishing, push the branch and open a PR against `main`.
+3. Wait for every required CI, Dependency Review, and CodeQL gate before merge.
+4. Deploy the merged artifact through the protected Windows workflow and verify production.
+5. Complete Builder ingest/review/closure and mark the implementation plan complete.
