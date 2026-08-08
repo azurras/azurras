@@ -26,7 +26,7 @@
 
 ## Document Status
 
-in-progress
+complete
 
 ## Objective
 
@@ -109,7 +109,7 @@ Implementation notes:
   - Effects and failures: dependency resolution may fail until verification metadata is generated; the first test run must fail at compilation before dependencies are added; an incorrect detection setting would cause legacy top-level packages such as `configuration` to appear as modules.
   - Tests and evidence: RED is the missing Modulith import; GREEN is the focused architecture test plus proof that `configuration` is not detected and `MODULES.verify()` succeeds.
 
-- [ ] **Step 1: Create the failing central module verification test.**
+- [x] **Step 1: Create the failing central module verification test.**
 
 #### Code Edit 1.1
 - File: `website/src/test/java/dev/christopherbell/architecture/ModularMonolithArchitectureTest.java`
@@ -141,7 +141,7 @@ Verification:
 - Run `\.\gradlew.bat :website:test --tests dev.christopherbell.architecture.ModularMonolithArchitectureTest --stacktrace` with the task-specific private `GRADLE_USER_HOME`.
 - Expected RED: Java compilation fails because `org.springframework.modulith.core.ApplicationModules` is not on the test compile classpath.
 
-- [ ] **Step 2: Import the Spring Modulith 2.1.0 BOM.**
+- [x] **Step 2: Import the Spring Modulith 2.1.0 BOM.**
 
 #### Code Edit 1.2
 - File: `website/build.gradle.kts`
@@ -175,7 +175,7 @@ Verification:
 - Run `\.\gradlew.bat :website:dependencyManagement --stacktrace`.
 - Expected: the task succeeds and reports the imported Spring Modulith BOM without adding a runtime dependency.
 
-- [ ] **Step 3: Add the test-only Spring Modulith starter.**
+- [x] **Step 3: Add the test-only Spring Modulith starter.**
 
 #### Code Edit 1.3
 - File: `website/build.gradle.kts`
@@ -215,7 +215,7 @@ Verification:
 - Run `\.\gradlew.bat :website:dependencies --configuration runtimeClasspath --stacktrace`.
 - Expected: no `org.springframework.modulith` artifact appears on `runtimeClasspath`.
 
-- [ ] **Step 4: Select explicit module discovery.**
+- [x] **Step 4: Select explicit module discovery.**
 
 #### Code Edit 1.4
 - File: `website/src/main/resources/application.yml`
@@ -240,7 +240,7 @@ Verification:
 - Run the focused test after verification metadata is generated.
 - Expected: `configuration` is absent from the module model and `MODULES.verify()` passes with no explicitly declared production modules.
 
-- [ ] **Step 5: Forward approved ArchUnit flags to forked test workers.**
+- [x] **Step 5: Forward approved ArchUnit flags to forked test workers.**
 
 #### Code Edit 1.5
 - File: `website/build.gradle.kts`
@@ -266,7 +266,7 @@ Verification:
 - Run `\.\gradlew.bat :website:properties -Darchunit.freeze.store.default.allowStoreCreation=true`.
 - Expected: Gradle configures successfully; only the two named ArchUnit flags are eligible for propagation to test workers, and `archunit.freeze.refreeze` is not forwarded.
 
-- [ ] **Step 6: Generate and review dependency-verification metadata.**
+- [x] **Step 6: Generate and review dependency-verification metadata.**
 
 Run from the isolated worktree:
 
@@ -282,7 +282,7 @@ Expected:
 - Existing verification entries remain intact.
 - A second focused test run without `--write-verification-metadata` passes.
 
-- [ ] **Step 7: Commit Task 1.**
+- [x] **Step 7: Commit Task 1.**
 
 ```powershell
 git add website/build.gradle.kts website/src/main/resources/application.yml website/src/test/java/dev/christopherbell/architecture/ModularMonolithArchitectureTest.java gradle/verification-metadata.xml
@@ -326,7 +326,7 @@ Implementation notes:
   - Effects and failures: classpath import is read-only; an unrecognized first-party package fails the catalog assertion; duplicate bytecode dependency kinds collapse to one source-class/target-class violation.
   - Tests and evidence: fixture tests must prove internal access fails, `.api` access passes, business-to-orchestration access fails even if API-shaped later, `permission` normalizes to `account`, and an uncatalogued top-level area is reported.
 
-- [ ] **Step 1: Add rule fixtures that distinguish API and internal access.**
+- [x] **Step 1: Add rule fixtures that distinguish API and internal access.**
 
 #### Code Edit 2.1
 - File: `website/src/test/java/dev/christopherbell/architecture/fixture/beta/api/BetaApiContract.java`
@@ -405,7 +405,7 @@ public final class AlphaConsumer {
 Verification:
 - Compiles with one permitted cross-area target and two forbidden targets.
 
-- [ ] **Step 2: Write the failing rule contract tests.**
+- [x] **Step 2: Write the failing rule contract tests.**
 
 #### Code Edit 2.5
 - File: `website/src/test/java/dev/christopherbell/architecture/LegacyModuleDependencyRulesTest.java`
@@ -474,7 +474,7 @@ Verification:
 - Run `\.\gradlew.bat :website:test --tests dev.christopherbell.architecture.LegacyModuleDependencyRulesTest --stacktrace`.
 - Expected RED: compilation fails because `LegacyModuleDependencyRules` does not exist.
 
-- [ ] **Step 3: Implement normalized, deterministic dependency conditions.**
+- [x] **Step 3: Implement normalized, deterministic dependency conditions.**
 
 #### Code Edit 2.6
 - File: `website/src/test/java/dev/christopherbell/architecture/LegacyModuleDependencyRules.java`
@@ -696,7 +696,7 @@ Verification:
 - Expected GREEN: all three fixture tests pass.
 - Run the same test twice and compare output; violation descriptions must be stable and contain no source line numbers.
 
-- [ ] **Step 4: Commit Task 2.**
+- [x] **Step 4: Commit Task 2.**
 
 ```powershell
 git add website/src/test/java/dev/christopherbell/architecture
@@ -730,7 +730,7 @@ Implementation notes:
   - Effects and failures: the first ordinary run fails because the store is absent; creation writes test resources; CI fails if a rule key or violation changes without a committed update.
   - Tests and evidence: prove missing-store failure, explicit creation success, read-only repeatability, new-fixture rule behavior from Task 2, and a clean baseline diff after a second read-only run.
 
-- [ ] **Step 1: Make the baseline store read-only by default.**
+- [x] **Step 1: Make the baseline store read-only by default.**
 
 #### Code Edit 3.1
 - File: `website/src/test/resources/archunit.properties`
@@ -748,7 +748,7 @@ Verification:
 - Run the central architecture test before creating the store.
 - Expected RED: ArchUnit reports that store creation is disabled or that no stored rule exists.
 
-- [ ] **Step 2: Wire both frozen rules into the central test.**
+- [x] **Step 2: Wire both frozen rules into the central test.**
 
 #### Code Edit 3.2
 - File: `website/src/test/java/dev/christopherbell/architecture/ModularMonolithArchitectureTest.java`
@@ -821,7 +821,7 @@ Verification:
 - Run the focused central test with the default configuration.
 - Expected RED: the absent baseline cannot be created because creation is disabled.
 
-- [ ] **Step 3: Create the initial store with explicit one-time authority.**
+- [x] **Step 3: Create the initial store with explicit one-time authority.**
 
 ```powershell
 .\gradlew.bat :website:test `
@@ -839,7 +839,7 @@ Expected:
 - `permission` and `account` never appear as a cross-area pair.
 - `dev.christopherbell.libs` never appears as a website area.
 
-- [ ] **Step 4: Prove the committed defaults are repeatable and read-only.**
+- [x] **Step 4: Prove the committed defaults are repeatable and read-only.**
 
 ```powershell
 .\gradlew.bat :website:test --tests dev.christopherbell.architecture.ModularMonolithArchitectureTest --stacktrace
@@ -848,7 +848,7 @@ git diff --exit-code -- website/src/test/resources/architecture-baseline
 
 Expected: the test passes and the second run makes no store change.
 
-- [ ] **Step 5: Document the only allowed baseline-reduction command in the commit body.**
+- [x] **Step 5: Document the only allowed baseline-reduction command in the commit body.**
 
 For later module slices, the explicit maintenance command is:
 
@@ -862,7 +862,7 @@ git diff -- website/src/test/resources/architecture-baseline
 
 The implementer must reject any diff that adds a violation. A baseline update is accepted only when all added lines are absent and removed lines correspond to reviewed boundary repairs.
 
-- [ ] **Step 6: Commit Task 3.**
+- [x] **Step 6: Commit Task 3.**
 
 ```powershell
 git add website/src/test/java/dev/christopherbell/architecture/ModularMonolithArchitectureTest.java website/src/test/resources/archunit.properties website/src/test/resources/architecture-baseline
@@ -897,7 +897,7 @@ Implementation notes:
   - Effects and failures: the test writes only beneath `website/build`; documentation generation failure fails the test; README commands must work in both normal CI and the Windows development host.
   - Tests and evidence: focused architecture tests generate the files, the full build passes, the boot JAR has no Modulith runtime artifact, and the candidate serves readiness/liveness and `/` from a non-8080 port.
 
-- [ ] **Step 1: Generate documentation from the verified module model.**
+- [x] **Step 1: Generate documentation from the verified module model.**
 
 #### Code Edit 4.1
 - File: `website/src/test/java/dev/christopherbell/architecture/ModularMonolithArchitectureTest.java`
@@ -999,7 +999,7 @@ Verification:
 - Expected: `website/build/spring-modulith-docs/` contains PlantUML/module-canvas output and the test passes.
 - Run `git status --short`; expected: no generated documentation is tracked.
 
-- [ ] **Step 2: Replace the descriptive backend section with enforceable conventions.**
+- [x] **Step 2: Replace the descriptive backend section with enforceable conventions.**
 
 #### Code Edit 4.2
 - File: `README.md`
@@ -1064,7 +1064,7 @@ Verification:
 - Read the rendered README section and run both commands on the development host using the `.\gradlew.bat` equivalent.
 - Expected: the normal command is read-only; the update command makes no change when the code has not reduced a violation.
 
-- [ ] **Step 3: Run focused and aggregate automated verification.**
+- [x] **Step 3: Run focused and aggregate automated verification.**
 
 ```powershell
 .\gradlew.bat :website:test --tests 'dev.christopherbell.architecture.*' --stacktrace
@@ -1076,7 +1076,7 @@ Expected:
 - Existing Java, JavaScript, Pester, packaged-JAR, sensor, and production-context checks pass.
 - No baseline file changes after the read-only run.
 
-- [ ] **Step 4: Prove Modulith remains absent from the runtime artifact.**
+- [x] **Step 4: Prove Modulith remains absent from the runtime artifact.**
 
 ```powershell
 .\gradlew.bat :website:bootJar --stacktrace
@@ -1088,7 +1088,7 @@ jar tf $candidateJar.FullName | Select-String 'spring-modulith'
 
 Expected: `bootJar` succeeds and the final command returns no matches.
 
-- [ ] **Step 5: Verify the packaged candidate on an alternate port.**
+- [x] **Step 5: Verify the packaged candidate on an alternate port.**
 
 Invoke `verify-local-spring-app` before this runtime action. Resolve an unused port, preferring `8096`, and create a uniquely named disposable MongoDB database. Start the packaged candidate with `local,deploy-smoke`, the alternate port, and the disposable database.
 
@@ -1156,7 +1156,7 @@ if (!$candidateProcess.HasExited) {
 mongosh --quiet --eval "db.getSiblingDB('$candidateDatabase').dropDatabase()"
 ```
 
-- [ ] **Step 6: Commit Task 4.**
+- [x] **Step 6: Commit Task 4.**
 
 ```powershell
 git add README.md website/src/test/java/dev/christopherbell/architecture/ModularMonolithArchitectureTest.java

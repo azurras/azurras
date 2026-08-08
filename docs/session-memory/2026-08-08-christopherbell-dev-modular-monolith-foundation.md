@@ -61,3 +61,37 @@ Execute the approved plan to turn `christopherbell.dev` into an incrementally en
 - GitHub readback confirmed 5 commits, 16 files, 775 additions, 15 deletions, and the expected head SHA.
 - Dependency Review passed; Ubuntu, macOS, and Windows Java 25 builds and the Java/Kotlin, JavaScript/TypeScript, and Actions CodeQL analyses were still running.
 - Next checkpoint is green CI and trusted review, followed by merge, protected deployment, production verification, and Builder closure.
+
+## 15:42 - Full delivery loop complete
+
+### Request
+
+Continue the approved Builder development loop beyond the draft-PR checkpoint through CI, merge, protected deployment, production verification, and durable closure.
+
+### Work Completed
+
+- Waited for every PR gate: Dependency Review, three CodeQL analyses, and Java 25 builds on Ubuntu, macOS, and Windows.
+- Promoted PR #1351 from draft only after GitHub reported the reviewed head and a clean merge state.
+- Squash-merged with expected-head enforcement as `2f025762e248cab5befe0fb699e0560f57006572`.
+- Confirmed post-merge main CodeQL and all three platform builds passed.
+- Observed the SYSTEM automatic deployment preserve production PID 12896 during build/candidate verification, then cut over to PID 7764.
+- Verified local/public health, primary pages, crawler metadata, NodeInfo, favicon, services, listener cleanup, deployment-process cleanup, and candidate-database cleanup.
+- Closed the Builder task and implementation plan while leaving the broader modular-monolith specification ready for follow-on capability slices.
+
+### Decisions
+
+- The development-branch option selected publication mechanics; it did not supersede the Builder default completion loop. Draft PR publication is a checkpoint, not completion.
+- Protected ProgramData reads remained ACL-denied. Evidence used permitted listener rotation, service state, HTTP behavior, process timing, post-merge CI, and exact candidate-database absence; ACLs were not weakened.
+- No external GitHub issue existed, so closure applies to the Builder work record rather than an issue comment.
+
+### Validation
+
+- PR CI: all required checks passed; Windows completed in 8m46s.
+- Main CI: all platform builds and CodeQL passed; Windows completed in 7m30s.
+- Production readiness/liveness returned 200 `{"status":"UP"}`; local and both public roots returned 200 `CB | Home`.
+- Blog, WFL, Canes tracker, crawler routes, NodeInfo routes, and favicon returned 200 with expected semantics.
+- All four Windows services were Running/Automatic, port 8080 had one listener at PID 7764, port 8081 was free, and candidate database inventory was empty.
+
+### Follow-Ups
+
+Plan and execute the first account/authorization capability slice, shrinking the frozen baseline and adding the first explicitly annotated production module without changing public or persistence contracts.

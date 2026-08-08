@@ -1,6 +1,6 @@
 # christopherbell.dev Modular Monolith Foundation Branch Review
 
-- Status: `in-review`
+- Status: `closed`
 - Work record: [christopherbell.dev Modular Monolith Foundation](../work/2026-08-04-christopherbell-dev-modular-monolith-foundation.md)
 - Task brief: [Implement christopherbell.dev Modular Monolith Foundation](../spoke-tasks/2026-08-04-christopherbell-dev-modular-monolith-foundation-implementation.md)
 - Spoke update: [Local Verification](../spoke-updates/2026-08-08-christopherbell-dev-modular-monolith-foundation-local-verification.md)
@@ -34,7 +34,7 @@ Task 2 originally permitted nested `api.*` packages and did not prove that an AP
 
 - The checked-in baseline intentionally records 286 legacy dependencies; follow-on capability slices must reduce it monotonically.
 - The explicitly annotated module model is intentionally empty until the first production capability migration.
-- PR/CI, merge, deployment, and production verification remain future gates and are not represented as complete.
+- The broader migration still carries 286 reviewed baseline entries and no explicitly closed production capability yet; both are intentional follow-on scope under the approved specification.
 
 ## Requested Changes
 
@@ -42,4 +42,4 @@ None.
 
 ## Merge Readiness
 
-Ready to publish for PR review. Merge only after every required repository CI, Dependency Review, and CodeQL gate passes. Production delivery must follow the protected Windows workflow after merge.
+Merged and production-accepted. PR #1351 passed every required repository CI, Dependency Review, and CodeQL gate, squash-merged as `2f025762e248cab5befe0fb699e0560f57006572`, and passed the protected Windows production workflow.
