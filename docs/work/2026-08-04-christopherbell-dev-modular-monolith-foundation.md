@@ -37,7 +37,7 @@ The approved architecture prioritizes boundary safety and incremental capability
 
 ## Current State
 
-All four implementation tasks, the one ruled fix round, every task-scoped review, and the broad whole-branch review are complete on local head `f184f14125da232abf97ff0763505c23160cb1c9`. Fresh controller-owned full checks, JAR inspection, candidate HTTP requests, cleanup, and production-listener isolation passed. The branch is ready for the development-branch integration decision and has not been pushed.
+All four implementation tasks, the one ruled fix round, every task-scoped review, and the broad whole-branch review are complete on head `f184f14125da232abf97ff0763505c23160cb1c9`. Fresh controller-owned full checks, JAR inspection, candidate HTTP requests, cleanup, and production-listener isolation passed. The branch was pushed unchanged and [draft PR #1351](https://github.com/azurras/christopherbell.dev/pull/1351) is open against `main`; Dependency Review passed and the platform builds and CodeQL analyses are running.
 
 ## Validation
 
@@ -46,6 +46,7 @@ All four implementation tasks, the one ruled fix round, every task-scoped review
 - Current remote and worktree base will be revalidated before implementation.
 - [Local test report](../test-reports/2026-08-08-christopherbell-dev-modular-monolith-foundation.md) is complete.
 - [Spoke update](../spoke-updates/2026-08-08-christopherbell-dev-modular-monolith-foundation-local-verification.md) records commits and local verification.
+- [Draft PR update](../spoke-updates/2026-08-08-christopherbell-dev-modular-monolith-foundation-draft-pr.md) records publication and initial CI state.
 - [Branch review](../spoke-reviews/2026-08-08-christopherbell-dev-modular-monolith-foundation-branch-review.md) records no open findings and readiness to publish for PR review.
 
 ## Blockers
@@ -54,8 +55,7 @@ None.
 
 ## Next Steps
 
-1. Complete the development-branch integration decision.
-2. If publishing, push the branch and open a PR against `main`.
-3. Wait for every required CI, Dependency Review, and CodeQL gate before merge.
-4. Deploy the merged artifact through the protected Windows workflow and verify production.
-5. Complete Builder ingest/review/closure and mark the implementation plan complete.
+1. Wait for every required CI and CodeQL gate before merge.
+2. Resolve any trusted review or CI finding.
+3. Deploy the merged artifact through the protected Windows workflow and verify production.
+4. Complete Builder ingest/review/closure and mark the implementation plan complete.
