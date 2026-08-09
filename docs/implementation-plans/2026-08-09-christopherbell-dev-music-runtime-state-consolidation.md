@@ -877,6 +877,12 @@ Sequence / dependencies:
 Implementation notes:
 - Required skill: `write-jane-street-style-code` before any code edits; invoke
   `superpowers:test-driven-development` and witness the migration test fail before adding V014.
+- Execution correction from real MongoDB evidence: typed `MongoTemplate` reads and inserts are
+  not safe for this migration because conversion can normalize malformed BSON and `@Version`
+  initialization resets migrated versions. V014 must validate raw BSON and insert raw target
+  documents. An absent legacy version remains absent at rest; the first later store save uses an
+  atomic, no-upsert compare-and-set from a missing version to version `0`, and a zero-match is an
+  optimistic conflict rather than an overwrite.
 - Before-Edit Brief:
   - Behavior: startup copies exactly one valid legacy queue and radio document into the two
     target identities, preserving logical payloads and versions while leaving sources intact.
@@ -891,9 +897,11 @@ Implementation notes:
     equivalent rerun acceptance, and pre-write refusal for bad source/partial destination.
 
 - [ ] Write V014 tests first and witness RED.
-- [ ] Implement preflight, conversion, insert, and readback equivalence.
+- [ ] Implement raw-BSON preflight, lossless conversion, raw insert, and readback equivalence.
+- [ ] Prove nonzero and absent version behavior plus the first-write compare-and-set against a
+  disposable, non-production MongoDB instance.
 - [ ] Run migration tests and runner regression tests.
-- [ ] Later, prove the same migration against a real cloned MongoDB database.
+- [ ] Later, repeat the proof against a restored production clone before cutover.
 - [ ] Commit as `feat: migrate music runtime state`.
 
 #### Code Edit 3.1
