@@ -39,6 +39,9 @@ music behavior, or deleting rollback data during the cutover.
 - The approved architecture uses one collection with separate queue and radio documents,
   preserving independent optimistic-lock versions.
 - The approved rollback-retention window is seven days.
+- Verification contract: full Pester on PowerShell 7 plus focused Music runtime, command, and
+  operations tests on Windows PowerShell 5.1. The untouched base has 85 unrelated PS5-only
+  incompatibility failures and they are recorded rather than added to this migration scope.
 
 ## Guardrails
 

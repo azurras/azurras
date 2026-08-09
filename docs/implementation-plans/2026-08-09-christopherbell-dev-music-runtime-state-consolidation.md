@@ -1302,7 +1302,9 @@ Implementation notes:
 - [ ] Add the focused module with exact nested-to-legacy conversion and metadata-only parser.
 - [ ] Wire the command and help text; keep preview as the default behavior.
 - [ ] Document emergency use and explicitly forbid using it as routine rollback.
-- [ ] Run Pester under PowerShell 7 and Windows PowerShell 5.1.
+- [ ] Run the full production Pester suite under PowerShell 7. Run the new Music runtime,
+  command-routing, and operations dependency tests under both PowerShell 7 and Windows
+  PowerShell 5.1; preserve the untouched-base PS5-only incompatibility report.
 - [ ] Commit as `feat: add bounded music state rollback operation`.
 
 #### Code Edit 5.1
@@ -1777,7 +1779,10 @@ Implementation notes:
 
 - [ ] Use private `GRADLE_USER_HOME` and run focused tests, `:website:test`, and
   `:website:bootJar` with no short outer timeout.
-- [ ] Run all production Pester tests under PowerShell 7 and Windows PowerShell 5.1.
+- [ ] Run all production Pester tests under PowerShell 7. Under Windows PowerShell 5.1, run
+  `Production.MusicRuntime.Tests.ps1`, `Production.Command.Tests.ps1`, and
+  `Production.Operations.Tests.ps1`; do not attribute the separately recorded 85 unrelated
+  untouched-base PS5-only incompatibilities to this branch.
 - [ ] Perform a whole-diff Jane Street review and an independent code review; fix every blocker.
 - [ ] Create a verified native backup and restore it into a disposable database.
 - [ ] Capture canonical pre-migration logical digests for the two legacy source documents
@@ -1803,14 +1808,15 @@ Verification commands:
 $env:GRADLE_USER_HOME = 'A:\Projects\christopherbell.dev-worktrees\.gradle-music-runtime-state'
 .\gradlew.bat --no-daemon :website:test :website:bootJar
 pwsh.exe -NoLogo -NoProfile -Command "Invoke-Pester -Path 'ops/production/windows/tests' -CI"
-powershell.exe -NoLogo -NoProfile -Command "Invoke-Pester -Path 'ops/production/windows/tests' -CI"
+powershell.exe -NoLogo -NoProfile -Command "Import-Module 'A:\Documents\PowerShell\Modules\Pester\5.9.0\Pester.psd1' -Force; Invoke-Pester -Path @('ops/production/windows/tests/Production.MusicRuntime.Tests.ps1','ops/production/windows/tests/Production.Command.Tests.ps1','ops/production/windows/tests/Production.Operations.Tests.ps1') -CI"
 .\prod.cmd music-runtime-rollback -WhatIf
 .\prod.cmd mongo-inventory
 .\prod.cmd verify-startup
 ```
 
 Expected evidence:
-- All Java/Gradle and both Pester-host suites pass.
+- All Java/Gradle tests, the full PowerShell 7 Pester suite, and the focused Windows
+  PowerShell 5.1 Music runtime/command/operations suite pass.
 - Disposable Mongo proves real BSON mapping, versions, migration idempotency boundary, and reverse
   conversion fidelity.
 - Candidate and production endpoints include URL/port, request input, status, and response body.
@@ -1880,7 +1886,8 @@ Verification:
 
 - Focused Gradle tests after every RED/GREEN task.
 - Full `:website:test` and `:website:bootJar` with a private Gradle home.
-- Pester under both supported Windows PowerShell hosts.
+- Full Pester under PowerShell 7 plus focused Music runtime/command/operations Pester under
+  Windows PowerShell 5.1 using the explicit Pester 5.9 module path.
 - Real disposable Mongo cloned from a current verified production backup.
 - Packaged candidate on a non-8080 port with exact health and music API evidence.
 - Reverse-copy drill against a disposable post-write destination.
@@ -1923,8 +1930,9 @@ Verification:
 ## Completion Criteria
 
 - Tasks 1-5 are individually reviewed, committed, and green.
-- Full Gradle, both Pester hosts, real disposable Mongo, candidate runtime, PR CI, dependency
-  review, CodeQL, merge, protected deployment, and production runtime checks pass.
+- Full Gradle, full PowerShell 7 Pester, focused Windows PowerShell 5.1 Pester, real disposable
+  Mongo, candidate runtime, PR CI, dependency review, CodeQL, merge, protected deployment,
+  and production runtime checks pass.
 - Production runs the exact merged release with migration 014 APPLIED.
 - `music_runtime_state` contains exactly `queue` and `radio` with preserved state and independent
   versions; both legacy collections remain unchanged and cataloged as rollback-retained.
