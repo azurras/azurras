@@ -125,7 +125,8 @@ Implementation notes:
 
 - [ ] Write `MusicRuntimeStateDocumentTest` first and run it to witness compilation failure.
 - [ ] Add the validated document and narrow store until the focused test is green.
-- [ ] Remove persistence mapping from the two domain records and delete the broad repositories.
+- [ ] Remove persistence mapping from the two domain records; retain the broad repository
+  interfaces until Task 2 switches their remaining callers so every task boundary compiles.
 - [ ] Run the focused document test plus compilation.
 - [ ] Commit as `feat: add shared music runtime state storage`.
 
@@ -411,10 +412,11 @@ import org.springframework.data.annotation.Version;
 Verification:
 - `gradlew.bat --no-daemon :website:compileJava`
 
-#### Code Edit 1.6
+#### Code Edit 1.6 (sequenced with Task 2)
 - File: `website/src/main/java/dev/christopherbell/music/radio/MusicQueueStateRepository.java`
 - Lines: 1-5
 - Action: delete
+- Sequencing: perform this edit in Task 2, after all callers switch; retain unchanged in Task 1.
 
 Current:
 ```java
@@ -425,16 +427,17 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 public interface MusicQueueStateRepository extends MongoRepository<MusicQueueState, String> {}
 ```
 
-Proposed: delete block
+Proposed: delete block in Task 2
 
 Verification:
 - `rg -n "MusicQueueStateRepository" website/src/main website/src/test` finds only Task 2
   callers before Task 2 and no matches after Task 2.
 
-#### Code Edit 1.7
+#### Code Edit 1.7 (sequenced with Task 2)
 - File: `website/src/main/java/dev/christopherbell/music/radio/MusicRadioRepository.java`
 - Lines: 1-5
 - Action: delete
+- Sequencing: perform this edit in Task 2, after all callers switch; retain unchanged in Task 1.
 
 Current:
 ```java
@@ -445,7 +448,7 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 public interface MusicRadioRepository extends MongoRepository<MusicRadioState, String> {}
 ```
 
-Proposed: delete block
+Proposed: delete block in Task 2
 
 Verification:
 - `rg -n "MusicRadioRepository" website/src/main website/src/test` finds only Task 2
@@ -475,6 +478,7 @@ Implementation notes:
 - [ ] Run both existing service tests as the pre-edit characterization baseline.
 - [ ] Replace repository dependencies and exact calls in both services.
 - [ ] Update service tests to use `MusicRuntimeStateStore` without asserting mocks as output.
+- [ ] Delete `MusicQueueStateRepository` and `MusicRadioRepository` after all callers switch.
 - [ ] Run both focused test classes and the music package tests.
 - [ ] Commit as `refactor: use shared music runtime state store`.
 
