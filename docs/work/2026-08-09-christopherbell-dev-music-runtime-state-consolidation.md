@@ -25,7 +25,7 @@ music behavior, or deleting rollback data during the cutover.
 
 - Project specification: [Music Runtime State Consolidation](../specs/2026-08-09-christopherbell-dev-music-runtime-state-consolidation.md)
 - Prior collection catalog work: [MongoDB Collection Catalog](2026-08-09-christopherbell-dev-mongodb-collection-catalog.md)
-- Implementation plan: pending written-spec approval
+- Implementation plan: [Music Runtime State Consolidation](../implementation-plans/2026-08-09-christopherbell-dev-music-runtime-state-consolidation.md)
 - Test report, spoke update, review, and closure: pending execution
 
 ## Current State
