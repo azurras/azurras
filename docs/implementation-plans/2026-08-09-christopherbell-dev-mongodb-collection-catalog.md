@@ -25,7 +25,7 @@
 
 ## Document Status
 
-ready-for-execution
+complete
 
 ## Objective
 
@@ -101,7 +101,7 @@ Implementation notes:
   - Effects and failures: The test reads one repository Markdown file and class metadata only. Missing files, unloaded classes, malformed rows, blank fields, invalid enums, duplicate names, or set differences fail the test with actionable diagnostics.
   - Tests and evidence: RED is `MongoCollectionCatalogTest` failing because the catalog file does not exist. GREEN is both focused tests passing after the complete catalog is added, followed by the architecture test suite.
 
-- [ ] **Step 1: Create the failing catalog test.**
+- [x] **Step 1: Create the failing catalog test.**
 
 #### Code Edit 1.1
 - File: `website/src/test/java/dev/christopherbell/architecture/MongoCollectionCatalogTest.java`
@@ -270,8 +270,8 @@ Verification:
 - Run `gradlew.bat --no-daemon :website:test --tests dev.christopherbell.architecture.MongoCollectionCatalogTest`.
 - Expected RED: test fails because `docs/operations/mongodb-collection-catalog.md` does not exist.
 
-- [ ] **Step 2: Run the focused test and record the expected missing-catalog failure.**
-- [ ] **Step 3: Add the complete collection catalog.**
+- [x] **Step 2: Run the focused test and record the expected missing-catalog failure.**
+- [x] **Step 3: Add the complete collection catalog.**
 
 #### Code Edit 1.2
 - File: `docs/operations/mongodb-collection-catalog.md`
@@ -376,7 +376,7 @@ Verification:
 - Run `gradlew.bat --no-daemon :website:test --tests dev.christopherbell.architecture.*`.
 - Run `git diff --check` and the repository Java formatter/check task used by `:website:check`.
 
-- [ ] **Step 4: Commit Task 1.**
+- [x] **Step 4: Commit Task 1.**
 
 ```powershell
 git add docs/operations/mongodb-collection-catalog.md website/src/test/java/dev/christopherbell/architecture/MongoCollectionCatalogTest.java
@@ -403,7 +403,7 @@ Implementation notes:
   - Effects and failures: The only external effect is read-only `mongosh` metadata I/O. Infrastructure failures preserve the existing checked-process exit behavior; malformed output becomes `InvalidDataException` with the parse cause; partial/wrong-database output becomes a specific validation failure.
   - Tests and evidence: RED is new Pester tests failing because the functions and CLI command do not exist. GREEN is focused Pester passing, followed by an integration run against disposable MongoDB and both supported PowerShell hosts.
 
-- [ ] **Step 1: Add failing Pester coverage for script safety, invocation, and fail-closed parsing.**
+- [x] **Step 1: Add failing Pester coverage for script safety, invocation, and fail-closed parsing.**
 
 #### Code Edit 2.1
 - File: `ops/production/windows/tests/Production.Operations.Tests.ps1`
@@ -520,8 +520,8 @@ Verification:
 - Run `pwsh -NoLogo -NoProfile -Command "Invoke-Pester -Path ops/production/windows/tests/Production.Command.Tests.ps1 -Output Detailed"`.
 - Expected RED: the new test cannot find `mongo-inventory` in the command, help, or Make surfaces.
 
-- [ ] **Step 2: Run focused Pester and record the expected missing-function failures.**
-- [ ] **Step 3: Implement the audited script, validation boundary, and public operation.**
+- [x] **Step 2: Run focused Pester and record the expected missing-function failures.**
+- [x] **Step 3: Implement the audited script, validation boundary, and public operation.**
 
 #### Code Edit 2.3
 - File: `ops/production/windows/modules/Production.Operations.psm1`
@@ -703,7 +703,7 @@ Verification:
 - Import the module and run `Get-Command Get-ProductionMongoCollectionInventory`; expected: one exported function.
 - Run the repository PowerShell parser/static checks included by `:website:check`.
 
-- [ ] **Step 4: Wire the CLI, help output, and Make target.**
+- [x] **Step 4: Wire the CLI, help output, and Make target.**
 
 #### Code Edit 2.5
 - File: `ops/production/windows/prod.ps1`
@@ -859,7 +859,7 @@ prod-install prod-deploy prod-status prod-logs prod-restart prod-releases prod-r
 Verification:
 - Run `make -n prod-mongo-inventory`; expected command is `cmd.exe /d /c prod.cmd mongo-inventory` and no operation executes.
 
-- [ ] **Step 5: Run focused Pester in PowerShell 7 and Windows PowerShell 5.1.**
+- [x] **Step 5: Run focused Pester in PowerShell 7 and Windows PowerShell 5.1.**
 
 Run:
 ```powershell
@@ -870,7 +870,7 @@ powershell.exe -NoLogo -NoProfile -Command "Invoke-Pester -Path ops/production/w
 
 Expected: zero failures in both hosts.
 
-- [ ] **Step 6: Commit Task 2.**
+- [x] **Step 6: Commit Task 2.**
 
 ```powershell
 git add Makefile ops/production/windows/prod.ps1 ops/production/windows/modules/Production.Common.psm1 ops/production/windows/modules/Production.Operations.psm1 ops/production/windows/tests/Production.Command.Tests.ps1 ops/production/windows/tests/Production.Operations.Tests.ps1
@@ -896,7 +896,7 @@ Implementation notes:
   - Effects and failures: Documentation has no runtime effect. Commands describe a read-only operation; incomplete output must be discarded rather than interpreted.
   - Tests and evidence: Starting evidence is the current docs omitting the catalog and command. Completion evidence is link validation, command/help consistency, and full hub/repository documentation checks.
 
-- [ ] **Step 1: Link the catalog and command from the repository README.**
+- [x] **Step 1: Link the catalog and command from the repository README.**
 
 #### Code Edit 3.1
 - File: `README.md`
@@ -981,7 +981,7 @@ Verification:
 - Verify the new reference-style catalog link resolves with the existing three inline runbook links.
 - Verify the README does not describe `mongo-inventory` as cleanup or collection consolidation.
 
-- [ ] **Step 2: Add the native Windows inventory runbook.**
+- [x] **Step 2: Add the native Windows inventory runbook.**
 
 #### Code Edit 3.4
 - File: `docs/operations/windows-production.md`
@@ -1073,7 +1073,7 @@ Verification:
 - Run the repository Markdown/link checks included by `:website:check`.
 - Verify the new section appears immediately before `Native MongoDB Backup and Restore`.
 
-- [ ] **Step 3: Commit Task 3.**
+- [x] **Step 3: Commit Task 3.**
 
 ```powershell
 git add README.md docs/operations/windows-production.md
@@ -1101,7 +1101,7 @@ Implementation notes:
   - Effects and failures: Disposable Mongo and alternate-port app effects are isolated and cleaned up exactly. Production effect is metadata reads plus ordinary protected deployment. Any incomplete inventory, failed test, CI failure, readiness failure, or Mongo-backed smoke failure blocks completion.
   - Tests and evidence: Focused RED/GREEN records from Tasks 1-2, full test outputs, exact disposable-Mongo JSON, alternate-port URL/status/body, CI/CodeQL conclusions, listener rotation, service state, and final metadata comparison.
 
-- [ ] **Step 1: Run focused and full automated verification.**
+- [x] **Step 1: Run focused and full automated verification.**
 
 ```powershell
 $env:GRADLE_USER_HOME = Join-Path $env:TEMP 'christopherbell-dev-mongo-catalog-gradle'
@@ -1115,7 +1115,7 @@ git diff --check
 
 Expected: zero failures/errors; only documented pre-existing skips are acceptable.
 
-- [ ] **Step 2: Exercise the JavaScript inventory against disposable MongoDB.**
+- [x] **Step 2: Exercise the JavaScript inventory against disposable MongoDB.**
 
 Use the installed MongoDB Server and configured `mongosh` to start a separate `mongod` on port `27018` with a newly created temporary dbpath. Seed only synthetic collections and indexes, run the exact script from `Get-ProductionMongoCollectionInventoryScript` against `mongodb://127.0.0.1:27018/admin`, and verify:
 
@@ -1127,7 +1127,7 @@ Use the installed MongoDB Server and configured `mongosh` to start a separate `m
 
 Stop only the disposable PID bound to `27018`, verify its resolved dbpath remains under the task-specific temporary directory, then remove that temporary directory. Never stop PID 5620 or anything bound to production port `27017` based on the planning-time snapshot; resolve current ownership at execution time.
 
-- [ ] **Step 3: Run packaged alternate-port application verification.**
+- [x] **Step 3: Run packaged alternate-port application verification.**
 
 Build the boot JAR, start it on a non-8080 port such as `8097` against the disposable MongoDB instance with scheduling and mail disabled, and record:
 
@@ -1139,27 +1139,27 @@ Build the boot JAR, start it on a non-8080 port such as `8097` against the dispo
 
 Stop only the candidate PID identified on port `8097`.
 
-- [ ] **Step 4: Review the final diff.**
+- [x] **Step 4: Review the final diff.**
 
 Apply the Jane Street review rubric to catalog parsing, manual-reference completeness, metadata allowlisting, process arguments, failure causes, PowerShell 5.1 compatibility, and test evidence. Treat any semantic gap as a blocker and return to the owning task.
 
-- [ ] **Step 5: Push the branch and open a focused draft PR.**
+- [x] **Step 5: Push the branch and open a focused draft PR.**
 
 The PR must state that it performs no collection merge, rename, deletion, document read, or schema/index change. Include focused/full test evidence and the disposable/alternate-port runtime evidence.
 
-- [ ] **Step 6: Wait for all required CI, CodeQL, and dependency checks.**
+- [x] **Step 6: Wait for all required CI, CodeQL, and dependency checks.**
 
 Fix failures through a focused RED/GREEN cycle, update evidence, and require a final review of the new HEAD before merge.
 
-- [ ] **Step 7: Merge and deploy through the protected native Windows path.**
+- [x] **Step 7: Merge and deploy through the protected native Windows path.**
 
 Wait through listener rotation. A transient readiness `503` is acceptable only during rotation and must become `200`/`UP` on recheck. Confirm `MongoDB`, `ChristopherBellDev`, and `cloudflared` remain Running and Automatic.
 
-- [ ] **Step 8: Run and record the live metadata-only comparison.**
+- [x] **Step 8: Run and record the live metadata-only comparison.**
 
 Run the installed `prod.cmd mongo-inventory`. Record URL/host boundary (`127.0.0.1:27017`, database `christopherbell`), command input, completeness, collection total, index total, and the set difference against the checked-in catalog. Do not preserve document data because none should be returned. Do not call any collection an orphan until current source, migrations, scripts, history, and ownership are reviewed; do not remove anything in this delivery.
 
-- [ ] **Step 9: Complete durable Builder evidence and source-work closure.**
+- [x] **Step 9: Complete durable Builder evidence and source-work closure.**
 
 Use `save-test-report`, `ingest-spoke-update`, `review-spoke-work`, `close-story-issue` if a source issue exists, `save-session-memory`, `update-hub-indexes`, `validate-hub-state`, and `close-hub-work` as applicable. Commit/push Builder artifacts through `commit-push-builder-main`.
 

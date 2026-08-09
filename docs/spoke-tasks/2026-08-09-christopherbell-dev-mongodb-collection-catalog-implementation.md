@@ -1,6 +1,6 @@
 # Implement christopherbell.dev MongoDB Collection Catalog
 
-- Status: `dispatched`
+- Status: `closed`
 - Work record: [christopherbell.dev MongoDB Collection Catalog](../work/2026-08-09-christopherbell-dev-mongodb-collection-catalog.md)
 - Project spec: [MongoDB Collection Catalog](../specs/2026-08-09-christopherbell-dev-mongodb-collection-catalog.md)
 - Implementation plan: [MongoDB Collection Catalog](../implementation-plans/2026-08-09-christopherbell-dev-mongodb-collection-catalog.md)
@@ -64,3 +64,12 @@ Revise the brief if investigation changes any assumption, and include the final 
 ## Required Return
 
 Return concise status plus durable report files containing commits and subjects, changed files, Before-Edit Brief, TDD RED/GREEN evidence, commands and exact results, review findings and fixes, PR/CI/merge state, deployment state, production verification, blockers or residual risks, and links needed for Builder ingestion and closure.
+
+## Final Delivery
+
+- Pull request: [#1352](https://github.com/azurras/christopherbell.dev/pull/1352)
+- Merge commit: `0bcc8a9b83738df9c4adcf076e4be4443090448c`
+- Test report: [MongoDB Collection Catalog Test Report](../test-reports/2026-08-09-christopherbell-dev-mongodb-collection-catalog-test-report.md)
+- Spoke update: [Merged Delivery](../spoke-updates/2026-08-09-christopherbell-dev-mongodb-collection-catalog-merged-delivery.md)
+- Review: [Branch Review](../spoke-reviews/2026-08-09-christopherbell-dev-mongodb-collection-catalog-branch-review.md)
+- Outcome: reviewed, merged, deployed, production-verified, and ready for hub closure; no source GitHub issue existed.
