@@ -75,7 +75,7 @@ history events, 2,284 scheduled collector runs, and 1,549 music tracks.
 | `canes_box_tracker` | price snapshots |
 | `application_runtime` | application leases and scheduled collector runs |
 | `application_migrations` | migration ledger |
-| `admin_activity` | administrative audit activity |
+| `admin_activity` | administrative audit activity and command-center pending actions |
 
 The successful cutover drops all source collections not present in this target
 list, including `music_queue_state`, `music_radio_state`, and the intermediate
