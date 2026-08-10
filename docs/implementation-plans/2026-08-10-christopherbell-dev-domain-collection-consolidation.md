@@ -80,6 +80,7 @@ None. If any source index cannot be represented as a kind-scoped partial index, 
 - `website/src/main/java/dev/christopherbell/configuration/mongo/domain/MalformedDomainDocumentException.java` — redacted invalid-envelope failure.
 - `website/src/main/java/dev/christopherbell/configuration/mongo/domain/DomainCollectionManifest.java` — exact 14 targets, source mapping, kinds, schemas, and indexes.
 - `website/src/main/java/dev/christopherbell/configuration/mongo/domain/KindScopedMongoOperations.java` — sole runtime CRUD/query/update boundary.
+- `website/src/main/java/dev/christopherbell/configuration/mongo/domain/MongoTemplateKindScopedOperations.java` — the only production implementation of that boundary.
 - `website/src/test/java/dev/christopherbell/configuration/mongo/domain/*Test.java` — unit and disposable-Mongo contract tests.
 
 ### Domain adapters
@@ -308,12 +309,12 @@ Implementation notes:
   - Invariants: exactly 14 unique targets, every current/dormant source maps once, every kind maps once, and no legacy runtime mapping survives.
   - Boundary/API: the manifest is immutable application infrastructure; modules own adapters, not arbitrary collection names.
   - Effects and failures: application startup fails before writers start if manifest uniqueness or generated-script digest is wrong.
-  - Tests and evidence: replace the current catalog baseline with exact target/kind/source checks and forbidden direct Mongo access checks.
+  - Tests and evidence: replace the collection-name catalog with exact target/kind/source checks and pin the existing direct-access inventory so it cannot grow before Tasks 3-5 reduce it to zero.
 
-- [ ] **Step 1: Change catalog tests to expect exactly 14 targets and fail on the existing 50 `@Document` mappings.**
+- [ ] **Step 1: Change catalog tests to expect exactly 14 manifest targets while retaining an exact temporary baseline of legacy mappings.**
 - [ ] **Step 2: Implement the manifest with all 52 runtime kinds, including dormant pending actions, federation scan state, account deletion jobs, and both vehicle import-state types.**
-- [ ] **Step 3: Remove `@Document` from domain models and retain only domain-shape index annotations until manifest indexes replace them.**
-- [ ] **Step 4: Add ArchUnit/source tests forbidding `MongoRepository` and unapproved direct `MongoTemplate` outside migration infrastructure and the shared boundary.**
+- [ ] **Step 3: Add a checked temporary inventory of every legacy `@Document`, `MongoRepository`, and direct `MongoTemplate` owner; fail if the inventory grows.**
+- [ ] **Step 4: Make Tasks 3-5 delete entries from that inventory with their adapters; Task 5 must leave only approved migration infrastructure and the shared boundary.**
 - [ ] **Step 5: Run architecture/catalog tests and commit `refactor: define fourteen Mongo domain collections`**.
 
 #### Code Edit 2.1
@@ -352,9 +353,9 @@ class MongoCollectionCatalogTest {
   }
 
   @Test
-  void domainCodeCannotAddressMongoWithoutTheKindScopedBoundary() {
+  void legacyDirectAccessCannotGrowDuringTheAdapterMigration() {
     assertThat(sourceViolations("MongoRepository", "MongoTemplate", "MongoCollection"))
-        .containsExactlyElementsOf(APPROVED_INFRASTRUCTURE_OWNERS);
+        .containsExactlyElementsOf(TEMPORARY_LEGACY_ACCESS_BASELINE);
   }
 }
 ```
@@ -363,32 +364,30 @@ Verification:
 - `.\gradlew.bat :website:test --tests dev.christopherbell.architecture.MongoCollectionCatalogTest --tests dev.christopherbell.architecture.ModularMonolithArchitectureTest --console=plain`
 
 #### Code Edit 2.2
-- File: `website/src/main/java/dev/christopherbell/account/model/Account.java`
-- Lines: 21-45
-- Action: replace
-
-Current:
-```java
-import org.springframework.data.mongodb.core.index.Indexed;
-import org.springframework.data.mongodb.core.mapping.Document;
-
-@Document("accounts")
-public class Account {
-  @Id
-  private String id;
-```
+- File: `website/src/main/java/dev/christopherbell/configuration/mongo/domain/DomainCollectionManifest.java`
+- Lines: before 1
+- Action: add
 
 Proposed:
 ```java
-import org.springframework.data.mongodb.core.index.Indexed;
+package dev.christopherbell.configuration.mongo.domain;
 
-public class Account {
-  @Id
-  private String id;
+import java.util.List;
+import java.util.Set;
+
+public final class DomainCollectionManifest {
+  public static final Set<String> COLLECTIONS = Set.of(
+      "accounts", "sessions", "communications", "content", "federation", "music",
+      "whatsforlunch", "shared_folder", "vehicles", "location", "canes_box_tracker",
+      "application_runtime", "application_migrations", "admin_activity");
+  public static final List<DomainDocumentKind<?>> KINDS = DomainKinds.all();
+
+  private DomainCollectionManifest() {}
+}
 ```
 
 Verification:
-- `rg -n '@Document|MongoRepository' website/src/main/java cbell-lib/src/main/java` returns only explicitly approved migration infrastructure while Task 2 is green.
+- `.\gradlew.bat :website:test --tests dev.christopherbell.architecture.MongoCollectionCatalogTest --console=plain`
 
 ### Task 3 - Migrate accounts, sessions, communications, content, federation, and admin adapters
 
@@ -415,7 +414,7 @@ Files:
 - Content/federation/admin: `post/**/*Repository.java`, `PostLikeStore.java`, `report/query/ReportQueryService.java`, `federation/**/*Repository.java`, `admin/activity/AdminActivityQueryService.java`, `admin/commandcenter/action/MongoPendingActionStore.java`.
 
 - [ ] **Step 1: Add failing adapter contract tests for every public repository method and manual query path in these domains.**
-- [ ] **Step 2: Convert repository interfaces from Spring Data inheritance to explicit domain ports.**
+- [ ] **Step 2: Convert repository interfaces from Spring Data inheritance to explicit domain ports and remove `@Document` only from the model types owned by this task.**
 - [ ] **Step 3: Add concrete Mongo adapters using kind-scoped operations and migrate manual query/update/delete paths.**
 - [ ] **Step 4: Run focused domain, security, controller, and architecture tests.**
 - [ ] **Step 5: Commit `refactor: move social domains into shared Mongo collections`**.
@@ -496,8 +495,8 @@ Implementation notes:
   - Tests and evidence: run all music/WFL tests plus real Mongo version-winner/stale-loser and cross-kind collision tests.
 
 - [ ] **Step 1: Write failing tests for new target names, kind filters, partial unique indexes, and runtime CAS.**
-- [ ] **Step 2: Migrate all music repository and manual Mongo paths to kind-scoped operations.**
-- [ ] **Step 3: Migrate all WFL repository and manual bounded-query paths to kind-scoped operations.**
+- [ ] **Step 2: Migrate all music repository/manual Mongo paths and remove their model `@Document` annotations.**
+- [ ] **Step 3: Migrate all WFL repository/manual bounded-query paths and remove their model `@Document` annotations.**
 - [ ] **Step 4: Run focused and disposable-Mongo suites.**
 - [ ] **Step 5: Commit `refactor: consolidate music and lunch persistence`**.
 
@@ -588,9 +587,9 @@ Implementation notes:
   - Tests and evidence: existing domain tests plus new port contracts and real TTL/index/CAS checks.
 
 - [ ] **Step 1: Add failing tests for shared-folder/vehicle/location/canes kind isolation and library store ports.**
-- [ ] **Step 2: Convert remaining repositories and manual Mongo paths to kind-scoped adapters.**
+- [ ] **Step 2: Convert remaining repositories/manual Mongo paths and remove their model `@Document` annotations.**
 - [ ] **Step 3: Replace cbell-lib direct Mongo ownership with explicit store ports and website implementations.**
-- [ ] **Step 4: Run all remaining domain, cbell-lib, migration, and architecture tests.**
+- [ ] **Step 4: Replace the temporary legacy-access inventory with the final zero-domain-bypass assertion, then run all remaining domain, cbell-lib, migration, and architecture tests.**
 - [ ] **Step 5: Commit `refactor: consolidate remaining Mongo domains`**.
 
 #### Code Edit 5.1
