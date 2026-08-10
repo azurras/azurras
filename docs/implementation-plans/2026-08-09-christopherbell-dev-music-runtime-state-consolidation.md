@@ -1295,6 +1295,14 @@ Sequence / dependencies:
 Implementation notes:
 - Required skill: `write-jane-street-style-code` before script, configuration, test, or runbook
   edits; invoke `superpowers:test-driven-development` and read the PowerShell script tests first.
+- Execution safety refinement: the confirmed operation acquires the established `deploy.lock`
+  before the first writer-state check and holds it through backup, mutation, validation, failure
+  wrapping, and disposal. Post-backup failures expose only an allowlisted phase/code and the
+  retained archive path while preserving a redacted causal exception.
+- Disposable-Mongo tests accept only an explicit credential-free loopback URI on a non-27017
+  port. Every Mongo invocation revalidates a canonical, non-reparse, marker-owned data root plus
+  OS process start identity, then performs same-connection Mongo startup, `dbPath`, bind, and port
+  checks before any fixture reset or mutation.
 - Before-Edit Brief:
   - Behavior: `prod.cmd music-runtime-rollback -WhatIf` produces a no-write preview; actual
     reverse copy requires an explicit confirmation switch, stopped website service, and fresh
