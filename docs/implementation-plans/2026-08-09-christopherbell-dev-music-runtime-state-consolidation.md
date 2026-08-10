@@ -1785,7 +1785,212 @@ Proposed:
 Verification:
 - `Invoke-Pester ops/production/windows/tests/Production.Command.Tests.ps1 -CI`
 
-### Task 6 - Run full verification, review, publication, and non-destructive cutover
+### Task 6 - Close the installed Windows writer-start safety boundary
+
+Sequence / dependencies:
+- Runs after Task 5 because it hardens the installed service boundary introduced by the
+  schema-direction state machine.
+- This is the user-approved scoped follow-on after five Task 5 fix rounds reached the review
+  escalation limit. No MongoDB collection mutation is authorized.
+
+Implementation notes:
+- Required skill: `write-jane-street-style-code` before script or test edits; invoke
+  `superpowers:test-driven-development` and preserve Windows PowerShell 5.1 compatibility.
+- Before-Edit Brief:
+  - Behavior: a pre-guard installed service is disabled before publication begins and cannot
+    boot or recover until the guarded launcher bundle and parent service directory pass exact
+    hash, path, reparse, and ACL validation.
+  - Invariants: every publication failure leaves a pre-guard service Disabled; success restores
+    Automatic only when the guarded boundary is ready for an explicitly compatible start.
+  - Boundary/API: the existing deploy-lock-held writer-start publisher and `prod install`
+    lifecycle own the transition; no new public database or collection inputs are added.
+  - Effects and failures: a previously running healthy website is restarted and health-checked
+    after successful install; an intentionally stopped website remains stopped; failures preserve
+    causes and leave the writer stopped/disabled.
+  - Tests and evidence: pre-guard staging/first-publication/crash simulations, boot state,
+    service-root ACL integration, reinstall running/stopped behavior, and Windows path casing are
+    proven on PowerShell 7 and Windows PowerShell 5.1.
+
+- [ ] Write RED tests for pre-guard failure startup type, protected parent directory, reinstall
+  lifecycle, and case-insensitive sensor root identity.
+- [ ] Disable and verify the pre-guard service before publication, then restore Automatic only
+  after the installed guard is fully verified.
+- [ ] Protect and verify the canonical non-reparse production/service directory boundary and
+  make the installed launcher validate it before JVM startup.
+- [ ] Preserve the prior running/stopped state across `prod install`; restart and health-check
+  a previously running service under the held deploy lock.
+- [ ] Run full PowerShell 7, approved focused PowerShell 5.1, real Windows ACL integration on
+  both hosts, parser checks, and a fresh independent review.
+- [ ] Commit as `fix: close installed writer start boundary`.
+
+#### Code Edit 6.1
+- File: `ops/production/windows/modules/Production.Deploy.psm1`
+- Lines: 51-75
+- Action: replace
+
+Current:
+```powershell
+function Ensure-ProductionWriterStartGuardUnderHeldLock {
+    # Stops the writer and publishes the guarded launcher bundle.
+}
+```
+
+Proposed:
+```powershell
+function Ensure-ProductionWriterStartGuardUnderHeldLock {
+    # Disable and verify a pre-guard Automatic service before any publication effect.
+    # Publish and validate the complete protected bundle, then restore Automatic only on success.
+}
+```
+
+Verification:
+- Pre-guard staging, first-file, and simulated process-death failures leave the service Disabled.
+- A verified bundle restores the intended startup type only after exact readback succeeds.
+
+#### Code Edit 6.2
+- File: `ops/production/windows/modules/Production.WriterStart.psm1`
+- Lines: 94-220
+- Action: replace
+
+Current:
+```powershell
+function Publish-ProductionWriterStartGuardBundle {
+    # Protects staging and bundle files.
+}
+```
+
+Proposed:
+```powershell
+function Publish-ProductionWriterStartGuardBundle {
+    # Canonicalize and reject reparse traversal, protect/verify the service directory first,
+    # publish atomically, and verify the directory plus every installed file and manifest.
+}
+```
+
+Verification:
+- Real Windows ACL assertions prove the expected protected service-directory boundary on both
+  supported PowerShell hosts.
+
+#### Code Edit 6.3
+- File: `ops/production/windows/service/Start-ChristopherBellDev.ps1`
+- Lines: 1-40
+- Action: replace
+
+Current:
+```powershell
+# Verifies the installed launcher files before checking schema direction.
+```
+
+Proposed:
+```powershell
+# Reject reparse traversal and verify the protected service directory and exact installed
+# bundle before evaluating schema direction or starting Java.
+```
+
+Verification:
+- A parent-directory ACL or reparse mismatch fails before JVM launch.
+
+#### Code Edit 6.4
+- File: `ops/production/windows/modules/Production.Install.psm1`
+- Lines: 184-220
+- Action: replace
+
+Current:
+```powershell
+function Install-ProductionRuntime {
+    # Stops an existing website during install.
+}
+```
+
+Proposed:
+```powershell
+function Install-ProductionRuntime {
+    # Capture prior service state under deploy.lock; after a successful guarded install,
+    # restart/health-check only a previously running service and preserve an intentional stop.
+}
+```
+
+Verification:
+- Successful reinstall restores a prior healthy running service and preserves a stopped service.
+- Failure leaves the writer stopped/disabled with bounded causal evidence.
+
+#### Code Edit 6.5
+- File: `ops/production/windows/modules/Production.Sensors.psm1`
+- Lines: 336-347
+- Action: replace
+
+Current:
+```powershell
+[IO.Path]::GetFullPath([string]$config.programDataRoot) -cne $root
+```
+
+Proposed:
+```powershell
+-not [string]::Equals(
+    [IO.Path]::GetFullPath([string]$config.programDataRoot),
+    $root,
+    [StringComparison]::OrdinalIgnoreCase)
+```
+
+Verification:
+- Canonically identical Windows paths with different casing are accepted.
+
+#### Code Edit 6.6
+- File: `ops/production/windows/tests/Production.WriterStart.Tests.ps1`
+- Lines: 175-360
+- Action: replace
+
+Current:
+```powershell
+# Bundle publication and launcher-source tests.
+```
+
+Proposed:
+```powershell
+# Pre-guard Disabled-state, crash/failure, boot, protected parent ACL, reparse traversal,
+# installed readback, and launcher fail-closed tests.
+```
+
+Verification:
+- Focused writer-start tests pass under PowerShell 7 and Windows PowerShell 5.1.
+
+#### Code Edit 6.7
+- File: `ops/production/windows/tests/Production.Install.Tests.ps1`
+- Lines: 1-140
+- Action: replace
+
+Current:
+```powershell
+# Installer structure tests.
+```
+
+Proposed:
+```powershell
+# Reinstall running/stopped/failure lifecycle and real protected-directory ACL tests.
+```
+
+Verification:
+- Focused install tests pass under PowerShell 7 and Windows PowerShell 5.1.
+
+#### Code Edit 6.8
+- File: `ops/production/windows/tests/Production.Sensors.Tests.ps1`
+- Lines: 100-170
+- Action: replace
+
+Current:
+```powershell
+# Sensor lock and rollback tests.
+```
+
+Proposed:
+```powershell
+# Add case-insensitive canonical ProgramData-root identity coverage.
+```
+
+Verification:
+- Focused sensor tests pass under PowerShell 7 and Windows PowerShell 5.1.
+
+### Task 7 - Run full verification, review, publication, and non-destructive cutover
 
 Sequence / dependencies:
 - Runs after all code tasks are individually green and committed.
@@ -1844,10 +2049,10 @@ Expected evidence:
 - Candidate and production endpoints include URL/port, request input, status, and response body.
 - Production retains both source collections and adds exactly one destination collection.
 
-### Task 7 - Observe for seven days and prepare, but do not execute, retirement
+### Task 8 - Observe for seven days and prepare, but do not execute, retirement
 
 Sequence / dependencies:
-- Begins only after Task 6 production cutover is healthy.
+- Begins only after Task 7 production cutover is healthy.
 - Ends at a new user approval gate; collection deletion belongs to a new plan.
 
 Implementation notes:

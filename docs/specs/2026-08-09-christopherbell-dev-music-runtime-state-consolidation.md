@@ -154,16 +154,31 @@ the migration succeeds without creating the target collection.
 ## Rollback Design
 
 A release rollback after destination writes requires a reverse conversion; simply starting
-the old release would expose stale source state.
+the old release would expose stale source state. A protected schema-direction marker and the
+installed Windows writer-start guard make the release identity and permitted schema direction a
+single fail-closed state machine across deploy, rollback, boot, SCM recovery, sensors, and install.
 
-1. Stop all website writers.
+1. Acquire the deployment lock, suspend SCM recovery, and stop all website writers.
 2. Capture and checksum a fresh backup of `music_runtime_state` and both source namespaces.
 3. Read and validate the current `queue` and `radio` destination documents.
 4. Transform them back to the two source schemas with `_id: "global"`, preserving logical
    payloads and compatible version values.
 5. Replace only the two exact source documents.
 6. Read back and compare canonical payloads and versions.
-7. Start the prior release only after verification succeeds.
+7. Switch and start the prior release through the guarded launcher only after verification
+   succeeds, then record that legacy-to-target reconciliation is required before a target-schema
+   writer may run again.
+
+The guarded launcher bundle and its containing service directory are canonical, non-reparse,
+hash-verified, and protected by the expected Windows ACL. A pre-guard installed service is set to
+Disabled before publication begins; any publication failure leaves it unable to boot through the
+old launcher. Startup type returns to Automatic only after the installed boundary is fully
+verified. A previously running service is restored and health-checked after successful routine
+installation, while an intentionally stopped service remains stopped.
+
+Automatic deployment never performs schema reconciliation. A later manual target deployment
+holds the same lock, keeps the writer stopped, captures a fresh verified backup, copies the exact
+current legacy singleton membership forward, verifies it, and only then permits the target writer.
 
 The reverse conversion is implemented and tested before production cutover. A failed reverse
 check leaves the writer stopped and reports a redacted operational error.
