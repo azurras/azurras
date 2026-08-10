@@ -1796,6 +1796,13 @@ Sequence / dependencies:
 Implementation notes:
 - Required skill: `write-jane-street-style-code` before script or test edits; invoke
   `superpowers:test-driven-development` and preserve Windows PowerShell 5.1 compatibility.
+- User-approved post-merge ACL follow-on (2026-08-10): after five Task 6 review rounds, elevated
+  disposable evidence exposed an empty installed-file DACL, and the final review then found the
+  parent verifier still hid inherited-flag ACEs. Before cutover, both the publisher and pre-import
+  launcher must use raw security descriptors requiring exact Builtin Administrators ownership,
+  protected DACL, and exactly SYSTEM/Administrators FullControl plus LocalService
+  ReadAndExecute/Synchronize OI|CI allow ACEs with no inherited, deny, callback, object, duplicate,
+  missing, or extra entry.
 - Before-Edit Brief:
   - Behavior: a pre-guard installed service is disabled before publication begins and cannot
     boot or recover until the guarded launcher bundle and parent service directory pass exact
