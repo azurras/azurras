@@ -106,14 +106,16 @@ writer is active.
 
 1. Read metadata and documents from the two literal source namespaces.
 2. Require an expected source state:
-   - each source has exactly one document;
-   - each document has `_id: "global"`;
-   - each document maps successfully through the current domain validator;
+   - each source has zero or one document because the existing runtime treats absent state as
+     valid and creates it lazily;
+   - each present document has `_id: "global"`;
+   - each present document maps successfully through the current domain validator;
    - version values are present or absent only as allowed by existing Spring Data semantics.
-3. Require `music_runtime_state` to be absent or to contain a fully equivalent, already
-   completed two-document migration state. Reject a partial or conflicting destination.
-4. Transform queue and radio into the two target envelopes, retaining all logical fields
-   and version values.
+3. Require `music_runtime_state` to be absent or to contain exactly the target membership
+   implied by the present sources, with every document fully equivalent. Reject missing, extra,
+   duplicate, malformed, or conflicting destination state.
+4. Transform each present queue or radio source into its target envelope, retaining all logical
+   fields and version values; do not synthesize state for an absent source.
 5. Insert the target documents and then read them back through the production storage
    adapter.
 6. Compare canonical logical payloads and versions with the sources.
@@ -121,8 +123,9 @@ writer is active.
 8. Leave both source documents and collections unchanged.
 
 The migration must be safe to reevaluate after an interrupted startup. It may accept only
-an absent destination or a fully verified equivalent destination; it must never guess how
-to repair partial or divergent state.
+an absent destination or a fully verified destination with the exact source-implied membership;
+it must never guess how to repair partial or divergent state. If both valid sources are absent,
+the migration succeeds without creating the target collection.
 
 ## Runtime Storage Behavior
 
@@ -237,7 +240,7 @@ is mapped against a fresh isolated worktree.
 
 - Forward conversion preserves every queue/radio logical field and version.
 - Reverse conversion restores the old schemas and identities without loss.
-- Migration succeeds from the verified source state.
+- Migration succeeds for all four valid queue/radio source-presence combinations.
 - Migration accepts only a fully equivalent already-completed destination on reevaluation.
 - Migration rejects wrong IDs, extra source documents, malformed payloads, conflicting
   destinations, and partial destinations.

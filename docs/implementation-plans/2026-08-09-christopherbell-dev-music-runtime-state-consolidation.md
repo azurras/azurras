@@ -884,15 +884,17 @@ Implementation notes:
   atomic, no-upsert compare-and-set from a missing version to version `0`, and a zero-match is an
   optimistic conflict rather than an overwrite.
 - Before-Edit Brief:
-  - Behavior: startup copies exactly one valid legacy queue and radio document into the two
-    target identities, preserving logical payloads and versions while leaving sources intact.
+  - Behavior: startup copies each present valid legacy queue/radio singleton into its target
+    identity, preserving logical payloads and versions while leaving sources intact; zero or one
+    document per source is valid because the legacy runtime creates missing state lazily.
   - Invariants: destination is either empty or exactly equivalent; partial, duplicate,
     malformed, extra, or divergent state is rejected before an insert.
   - Boundary/API: immutable `ApplicationMigration` id
     `014-consolidate-music-runtime-state` with checksum
     `11a69bdd4556cfc38060ccdda5075fb9d6bc36f1cc414edd7b26cd61a74b5cbb`.
-  - Effects and failures: only the empty destination receives a two-document ordered insert;
-    source reads are explicit by literal namespace; runner redaction remains unchanged.
+  - Effects and failures: only the empty destination receives the exact set of present-source
+    target documents (possibly none); source reads are explicit by literal namespace; runner
+    redaction remains unchanged.
   - Tests and evidence: RED test proves V014 is absent; GREEN tests prove copy fidelity,
     equivalent rerun acceptance, and pre-write refusal for bad source/partial destination.
 
@@ -1896,8 +1898,9 @@ Verification:
 
 - Document round trips and mixed-payload rejection.
 - Queue/radio service characterization through the new store.
-- Migration copy fidelity, equivalent rerun, source cardinality refusal, partial destination
-  refusal, divergent destination refusal, and post-insert readback.
+- Migration copy fidelity for all four source-presence combinations, equivalent rerun, duplicate
+  source refusal, exact target-membership refusal, divergent destination refusal, and post-insert
+  readback.
 - Catalog status vocabulary, source-backed coverage, mapped/manual ownership, and exact count.
 - PowerShell rollback preview, confirmation, stopped service, backup-before-mutation ordering,
   fixed URI/database/names, allowlisted output, and absence of drop/delete commands.
