@@ -111,6 +111,14 @@ kind-scoped indexes. Indexes that apply to only one kind must use an exact
 `partialFilterExpression` on `_kind`. Unique indexes must remain unique within
 their kind and retain their existing sparse or partial behavior.
 
+MongoDB does not allow `sparse: true` and `partialFilterExpression` on the
+same index. A legacy sparse index moved into a shared target therefore omits
+the literal sparse flag and uses one combined partial filter requiring both
+the exact `_kind` and existence of the original indexed field. Verification
+compares effective index participation and uniqueness semantics, including
+absent versus explicit-null fields, rather than requiring an impossible flag
+combination.
+
 The migration must build and validate all target indexes before live rename.
 The index verifier compares keys, order, uniqueness, sparsity, partial filter,
 TTL, collation, and index count. Index consolidation is allowed only when two

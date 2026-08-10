@@ -14,6 +14,7 @@
 - Every migrated document has canonical `_id: { kind: <_kind>, legacyId: <original BSON _id> }` in that exact field order, mandatory lower-case allowlisted `_kind`, integer `schemaVersion`, and lossless `payload`.
 - Every read, update, delete, count, uniqueness check, and index that is not global is scoped by exact `_kind`; direct unscoped domain use of `MongoTemplate`, `MongoRepository`, or raw `MongoCollection` is forbidden by architecture tests.
 - Preserve public HTTP behavior, authorization, optimistic concurrency, BSON types, unique/sparse/partial indexes, TTL values, collation, and retention semantics.
+- Translate a legacy sparse index into an exact `_kind AND field-exists` partial index when shared-collection scoping is required, because MongoDB forbids combining the literal sparse flag with a partial filter; preserve absent/null membership and uniqueness semantics in tests.
 - Use the isolated branch `codex/domain-collection-consolidation` from current `origin/main`; never modify the authoritative dirty checkout.
 - Invoke `write-jane-street-style-code` before every production source, test, migration, script, executable configuration, or code-bearing template edit.
 - No production source collection is renamed or dropped until a checksummed backup has passed a dry restore and the exact migration has passed disposable-Mongo, restored-clone, alternate-port, and live pre-publication verification.
