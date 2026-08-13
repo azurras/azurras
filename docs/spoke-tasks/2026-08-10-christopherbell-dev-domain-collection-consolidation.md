@@ -1,6 +1,6 @@
 # Dispatch: christopherbell.dev Domain Collection Consolidation
 
-- Status: `active`
+- Status: `closed`
 - Work record: [Domain Collection Consolidation](../work/2026-08-10-christopherbell-dev-domain-collection-consolidation.md)
 - Specification: [Domain Collection Consolidation](../specs/2026-08-10-christopherbell-dev-domain-collection-consolidation.md)
 - Implementation plan: [Domain Collection Consolidation](../implementation-plans/2026-08-10-christopherbell-dev-domain-collection-consolidation.md)

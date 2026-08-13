@@ -1,6 +1,6 @@
 # christopherbell.dev Domain Collection Consolidation
 
-- Status: `active`
+- Status: `closed`
 - Owner context: Builder hub coordinating design, implementation, production migration,
   immediate superseded-collection retirement, and closeout
 - Related spec: [Domain Collection Consolidation](../specs/2026-08-10-christopherbell-dev-domain-collection-consolidation.md)
@@ -29,17 +29,24 @@ cutover.
 
 - Project specification: [Domain Collection Consolidation](../specs/2026-08-10-christopherbell-dev-domain-collection-consolidation.md)
 - Prior narrow work: [Music Runtime State Consolidation](2026-08-09-christopherbell-dev-music-runtime-state-consolidation.md)
-- Implementation plan: pending
-- Spoke task, updates, review, test report, closure, and session memory: pending
+- Implementation plan: [Domain Collection Consolidation](../implementation-plans/2026-08-10-christopherbell-dev-domain-collection-consolidation.md)
+- Spoke task: [Domain Collection Consolidation](../spoke-tasks/2026-08-10-christopherbell-dev-domain-collection-consolidation.md)
+- Spoke update: [Merged and Production-Verified Delivery](../spoke-updates/2026-08-12-christopherbell-dev-domain-collection-consolidation-completion.md)
+- Spoke review: [Final Delivery Review](../spoke-reviews/2026-08-12-christopherbell-dev-domain-collection-consolidation-review.md)
+- Test report: [Production Test Report](../test-reports/2026-08-12-christopherbell-dev-domain-collection-consolidation-test-report.md)
+- Closure: [Domain Collection Consolidation Closure](../work-closures/2026-08-12-christopherbell-dev-domain-collection-consolidation.md)
+- Session memory: [Domain Collection Consolidation](../session-memory/2026-08-12-christopherbell-dev-domain-collection-consolidation.md)
 
-## Current State
+## Final State
 
-- The approved design maps all current domain data into exactly 14 physical collections.
-- Shared documents use a kind discriminator, schema version, and lossless namespaced ID.
-- The user approved one maintenance cutover and immediate deletion of superseded sources.
-- No collection from this broader migration has been renamed or deleted yet.
-- The website, MongoDB, cloudflared, automatic deployment, and protected writer-start
-  boundary are healthy on the current release.
+- Production contains exactly the approved 14 physical collections, 52 canonical kinds,
+  and 126 manifest-defined indexes; every inventory compliance check is true.
+- All superseded sources were removed by the guarded cutover after backup, candidate,
+  checksum, index, and stopped-writer verification.
+- Release `62e1c7193414ecab266a217d221141120c8ecaef` is live; the website, MongoDB,
+  and cloudflared services are Running and local/public health checks return HTTP 200.
+- The final read-only inventory load-order repair merged in PR #1369 and may ride the
+  next ordinary deployment; it is not required for current application or schema health.
 
 ## Guardrails
 
@@ -58,10 +65,5 @@ cutover.
 
 ## Next Steps
 
-1. Write, review, validate, commit, and push the literal implementation plan.
-2. Create the isolated spoke worktree and execute the plan task by task with TDD.
-3. Run independent implementation and security review, full automated verification,
-   disposable MongoDB proof, and restored-production-clone alternate-port proof.
-4. Merge through CI, perform the guarded maintenance cutover, immediately drop the exact
-   superseded allowlist, and verify the 14-collection production catalog.
-5. Save test, review, closure, and session-memory artifacts and close the hub work.
+None required. Retain the verified backup and normal monitoring; deploy PR #1369 with a
+future ordinary release rather than forcing an otherwise unnecessary production restart.
