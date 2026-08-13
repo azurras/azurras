@@ -63,8 +63,8 @@ database viewer software for PostgreSQL.
   production configuration, and operational migration surfaces.
 - Checked current primary documentation for PostgreSQL supported releases, Spring Boot
   SQL/jOOQ integration, jOOQ code generation, and pgAdmin Desktop capabilities.
-- Placeholder scan found no `TBD`, `TODO`, incomplete line ranges, or unresolved marker in
-  the work record or specification.
+- Placeholder scan found no unfinished markers, incomplete line ranges, or unresolved
+  decisions in the work record or specification.
 - No application tests or runtime checks were run because this checkpoint contains only
   Builder design artifacts and authorizes no implementation.
 
