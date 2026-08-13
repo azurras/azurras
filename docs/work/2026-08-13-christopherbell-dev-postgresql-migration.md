@@ -35,7 +35,7 @@ MongoDB only after PostgreSQL production and recovery evidence pass the approved
 - Project specification: [PostgreSQL Migration](../specs/2026-08-13-christopherbell-dev-postgresql-migration.md)
 - Prior MongoDB consolidation closure: [Domain Collection Consolidation](../work-closures/2026-08-12-christopherbell-dev-domain-collection-consolidation.md)
 - Prior MongoDB consolidation work: [Domain Collection Consolidation](2026-08-10-christopherbell-dev-domain-collection-consolidation.md)
-- Implementation plan: in preparation from the approved written specification
+- Implementation plan: [PostgreSQL Migration Implementation Plan](../implementation-plans/2026-08-13-christopherbell-dev-postgresql-migration.md)
 - Spoke task, reviews, test reports, production evidence, closure, and session memory:
   create during the approved delivery loop
 
@@ -88,12 +88,13 @@ MongoDB only after PostgreSQL production and recovery evidence pass the approved
   verification strategy, and completion criteria were approved interactively.
 - No spoke implementation, database installation, schema creation, data copy, service
   mutation, or production cutover has started.
-- The user approved the saved written specification; implementation planning is active.
+- The saved implementation plan is mechanically valid, human-reviewed, and
+  `ready-for-execution` on isolated branch `codex/postgresql-migration`.
 
 ## Blockers
 
-No external blocker. Production code, database, service, and operational changes remain
-blocked until the implementation plan is saved, reviewed, validated, and approved.
+No external blocker. Production code, database, service, and operational changes await
+the selected execution workflow for the ready implementation plan.
 
 ## Validation State
 
@@ -102,13 +103,15 @@ blocked until the implementation plan is saved, reviewed, validated, and approve
   modifying the spoke.
 - PostgreSQL, Spring Boot SQL/jOOQ, pgAdmin, and supported-version choices were checked
   against current primary documentation during design.
+- The clean spoke worktree baseline passed 2,002 tests with zero failures/errors and 75
+  skips while explicitly configured only for Mongo database `test`.
+- The implementation plan passed `validate-implementation-plan`; human review found no
+  execution blocker. Residual risks are the 52-kind mapping volume, native-host
+  installation/cutover timing, and the required 14-day soak.
 - No implementation or runtime claims have been made.
 
 ## Next Steps
 
-1. Create and validate a literal-file, line-range implementation plan from a clean
-   isolated worktree refreshed from `origin/main`.
-2. Review and approve the saved implementation plan.
-3. Execute the approved delivery loop through implementation, real-PostgreSQL testing,
+1. Execute the approved delivery loop through implementation, real-PostgreSQL testing,
    shadow rehearsals, PR/CI/merge, protected cutover, 14-day soak, MongoDB retirement,
    production verification, closure, and durable session memory.
