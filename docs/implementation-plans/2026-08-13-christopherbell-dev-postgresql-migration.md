@@ -462,7 +462,7 @@ plugins {
 }
 ```
 
-Apply the plugin in `website/build.gradle.kts`, add the PostgreSQL driver to the `jooqCodegen` configuration, configure the generator from `JOOQ_CODEGEN_JDBC_URL`, `JOOQ_CODEGEN_USERNAME`, `JOOQ_CODEGEN_PASSWORD`, and `JOOQ_CODEGEN_SCHEMA`, restrict generation to the ten approved schemas, target `build/generated-src/jooq/main`, and make `compileJava` depend on `jooqCodegen` only after the Task 2 Flyway schema-preparation task.
+Apply the plugin in `website/build.gradle.kts`, add the PostgreSQL driver to the `jooqCodegen` configuration, configure the generator from `JOOQ_CODEGEN_JDBC_URL`, `JOOQ_CODEGEN_USERNAME`, `JOOQ_CODEGEN_PASSWORD`, and `JOOQ_CODEGEN_SCHEMA_PREFIX`, restrict generation to the ten approved prefixed input schemas, map them to canonical output schemas, target `build/generated-src/jooq/main`, and make `compileJava` depend on `jooqCodegen` only after the Task 2 Flyway schema-preparation task. `JOOQ_CODEGEN_SCHEMA_PREFIX` is the exact approved public key because it supplies the shared `cbtest_<run>_` prefix, not one schema name; the obsolete singular `JOOQ_CODEGEN_SCHEMA` key is unsupported and fails closed.
 
 Verification:
 - Apply Task 2 Flyway migrations to a unique `cbtest_*` schema, then `./gradlew.bat :website:jooqCodegen :website:compileJava --console=plain` succeeds and contains no credential in task output.
