@@ -129,40 +129,13 @@ Implementation notes:
   - Invariants: one backend active; local and test use database `test`; production credentials have no defaults; tests use unique schemas and reject any other database.
   - Boundary/API: `app.persistence.backend` is the only application backend selector; domain code never reads it directly.
   - Effects and failures: startup performs a redacted database identity check and fails before context readiness on a wrong database, ambiguous adapter set, or unavailable schema.
-  - Tests and evidence: configuration parsing, bean-selection tests, database-identity rejection, concurrent unique-schema isolation, Flyway clean-create, and Compose loopback checks.
+  - Tests and evidence: configuration parsing, bean-selection tests, database-identity rejection, concurrent unique-schema isolation, JDBC connectivity, and Compose loopback checks.
 
 - [ ] **Step 1: Add failing profile, dependency, backend-selection, and database-guard tests.**
 - [ ] **Step 2: Run the focused tests and confirm failures because PostgreSQL configuration and selectors do not exist.**
 - [ ] **Step 3: Add dependencies, pinned Compose PostgreSQL, profiles, conditional adapter annotations, and identity guard.**
-- [ ] **Step 4: Apply Flyway to a unique schema inside database `test`, generate jOOQ sources, and prove two concurrent schemas cannot see each other.**
+- [ ] **Step 4: Connect only to database `test`, create two guarded disposable schemas, and prove the two connections cannot see each other's fixtures.**
 - [ ] **Step 5: Run focused tests and `:website:compileJava`, then commit `feat: establish PostgreSQL persistence foundation`.**
-
-#### Code Edit 1.1
-- File: `build.gradle.kts`
-- Lines: 1-5
-- Action: replace
-
-Current:
-```kotlin
-plugins {
-    id("org.springframework.boot") version "4.1.0" apply false
-    id("io.spring.dependency-management") version "1.1.7" apply false
-    java
-}
-```
-
-Proposed:
-```kotlin
-plugins {
-    id("org.springframework.boot") version "4.1.0" apply false
-    id("io.spring.dependency-management") version "1.1.7" apply false
-    id("org.jooq.jooq-codegen-gradle") version "3.21.5" apply false
-    java
-}
-```
-
-Verification:
-- `./gradlew.bat :website:tasks --all --console=plain` lists the jOOQ code-generation task.
 
 #### Code Edit 1.2
 - File: `website/build.gradle.kts`
@@ -189,7 +162,6 @@ Proposed:
 plugins {
     id("org.springframework.boot")
     id("io.spring.dependency-management")
-    id("org.jooq.jooq-codegen-gradle")
     java
 }
 
@@ -202,20 +174,10 @@ dependencies {
     runtimeOnly("org.postgresql:postgresql")
     // retain all existing non-persistence and test dependencies unchanged
 }
-
-sourceSets.main {
-    java.srcDir(layout.buildDirectory.dir("generated-src/jooq/main"))
-}
-
-tasks.named("compileJava") {
-    dependsOn("jooqCodegen")
-}
 ```
 
-The code-generation configuration reads only `JOOQ_CODEGEN_JDBC_URL`, `JOOQ_CODEGEN_USERNAME`, `JOOQ_CODEGEN_PASSWORD`, and a unique `JOOQ_CODEGEN_SCHEMA`; it limits input schemata to the ten approved schemas and writes under `build/generated-src/jooq/main`. No credential or generated file is committed.
-
 Verification:
-- `$env:SPRING_PROFILES_ACTIVE='test'; $env:SPRING_DATASOURCE_URL='jdbc:postgresql://127.0.0.1:5432/test'; ./gradlew.bat :website:compileJava --console=plain`
+- `$env:SPRING_PROFILES_ACTIVE='test'; $env:SPRING_DATASOURCE_URL='jdbc:postgresql://127.0.0.1:5432/test'; ./gradlew.bat :website:compileJava --console=plain` succeeds without requiring generated tables that do not exist yet.
 
 #### Code Edit 1.3
 - File: `compose.yaml`
@@ -474,6 +436,35 @@ Implementation notes:
 - [ ] **Step 3: Write all 52 catalog entries with source field mappings, hashes, load order, and reconciliation rules.**
 - [ ] **Step 4: Generate jOOQ twice from clean unique schemas and prove byte-identical generated sources.**
 - [ ] **Step 5: Run schema/catalog tests and commit `feat: define canonical PostgreSQL schema`.**
+
+#### Code Edit 2.0
+- File: `build.gradle.kts`
+- Lines: 1-5
+- Action: replace
+
+Current:
+```kotlin
+plugins {
+    id("org.springframework.boot") version "4.1.0" apply false
+    id("io.spring.dependency-management") version "1.1.7" apply false
+    java
+}
+```
+
+Proposed:
+```kotlin
+plugins {
+    id("org.springframework.boot") version "4.1.0" apply false
+    id("io.spring.dependency-management") version "1.1.7" apply false
+    id("org.jooq.jooq-codegen-gradle") version "3.21.5" apply false
+    java
+}
+```
+
+Apply the plugin in `website/build.gradle.kts`, add the PostgreSQL driver to the `jooqCodegen` configuration, configure the generator from `JOOQ_CODEGEN_JDBC_URL`, `JOOQ_CODEGEN_USERNAME`, `JOOQ_CODEGEN_PASSWORD`, and `JOOQ_CODEGEN_SCHEMA`, restrict generation to the ten approved schemas, target `build/generated-src/jooq/main`, and make `compileJava` depend on `jooqCodegen` only after the Task 2 Flyway schema-preparation task.
+
+Verification:
+- Apply Task 2 Flyway migrations to a unique `cbtest_*` schema, then `./gradlew.bat :website:jooqCodegen :website:compileJava --console=plain` succeeds and contains no credential in task output.
 
 #### Code Edit 2.1
 - File: `website/src/main/resources/db/migration/V1__create_schemas_and_migration_ledger.sql`
