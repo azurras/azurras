@@ -41,6 +41,7 @@ Deliver the approved relational database, complete Mongo-to-PostgreSQL bridge, n
 
 - The finished website is PostgreSQL-only. The Mongo backend and transition bridge are temporary and must be deleted after the approved soak.
 - Local development and every database-backed test use PostgreSQL database `test` only. Each automated test suite receives a disposable, uniquely named schema inside `test`; tests must refuse production-like database names.
+- Flyway schema identifiers use one validated `${schema_prefix}` placeholder: production supplies the empty string and test/code-generation runs supply a unique `cbtest_<run>_` prefix. Thus `identity` becomes `cbtest_<run>_identity` in tests; jOOQ maps prefixed input schemas back to canonical generated schema names.
 - Flyway versioned SQL is the only schema source. Never edit an applied migration; add a forward migration.
 - jOOQ-generated sources are reproducible build output and are never hand-edited. jOOQ 3.21.5 stays aligned with Spring Boot 4.1.0 dependency management.
 - Domain services, controllers, and frontend code retain persistence-neutral ports and cannot import `DSLContext`, generated jOOQ packages, JDBC, Mongo APIs, or PostgreSQL driver types.
@@ -473,18 +474,18 @@ Verification:
 
 Proposed:
 ```sql
-CREATE SCHEMA identity;
-CREATE SCHEMA social;
-CREATE SCHEMA communication;
-CREATE SCHEMA federation;
-CREATE SCHEMA music;
-CREATE SCHEMA shared_folder;
-CREATE SCHEMA mobility;
-CREATE SCHEMA lunch;
-CREATE SCHEMA canes;
-CREATE SCHEMA platform;
+CREATE SCHEMA ${schema_prefix}identity;
+CREATE SCHEMA ${schema_prefix}social;
+CREATE SCHEMA ${schema_prefix}communication;
+CREATE SCHEMA ${schema_prefix}federation;
+CREATE SCHEMA ${schema_prefix}music;
+CREATE SCHEMA ${schema_prefix}shared_folder;
+CREATE SCHEMA ${schema_prefix}mobility;
+CREATE SCHEMA ${schema_prefix}lunch;
+CREATE SCHEMA ${schema_prefix}canes;
+CREATE SCHEMA ${schema_prefix}platform;
 
-CREATE TABLE platform.persistence_migration_run (
+CREATE TABLE ${schema_prefix}platform.persistence_migration_run (
   run_id uuid PRIMARY KEY,
   catalog_version varchar(64) NOT NULL,
   source_database varchar(128) NOT NULL,
@@ -495,8 +496,8 @@ CREATE TABLE platform.persistence_migration_run (
   completed_at timestamptz
 );
 
-CREATE TABLE platform.persistence_migration_source (
-  run_id uuid NOT NULL REFERENCES platform.persistence_migration_run(run_id) ON DELETE RESTRICT,
+CREATE TABLE ${schema_prefix}platform.persistence_migration_source (
+  run_id uuid NOT NULL REFERENCES ${schema_prefix}platform.persistence_migration_run(run_id) ON DELETE RESTRICT,
   source_kind varchar(96) NOT NULL,
   source_id varchar(512) NOT NULL,
   transformer_version integer NOT NULL CHECK (transformer_version > 0),
@@ -507,8 +508,10 @@ CREATE TABLE platform.persistence_migration_source (
 );
 
 CREATE INDEX persistence_migration_source_status_idx
-  ON platform.persistence_migration_source (run_id, source_kind, status);
+  ON ${schema_prefix}platform.persistence_migration_source (run_id, source_kind, status);
 ```
+
+The first schema statement is likewise `CREATE SCHEMA ${schema_prefix}identity;`; every schema-qualified identifier in all Task 2 migrations uses the same validated placeholder. Production accepts only an empty prefix; test/code-generation accepts only a generated `cbtest_<run>_` prefix and drops exactly those owned schemas after verification. jOOQ config enumerates the ten prefixed input schemas and assigns canonical output schema names (`identity`, `social`, and so on), so random run prefixes never enter generated Java.
 
 Verification:
 - Apply all Flyway migrations to a new `cbtest_schema_*` schema and query `pg_catalog` for exactly ten owned schemas and the declared constraints.
@@ -520,7 +523,7 @@ Verification:
 
 Proposed:
 ```sql
-CREATE TABLE identity.account (
+CREATE TABLE ${schema_prefix}identity.account (
   account_id varchar(128) PRIMARY KEY,
   email varchar(320) NOT NULL,
   normalized_email varchar(320) NOT NULL UNIQUE,
@@ -532,9 +535,9 @@ CREATE TABLE identity.account (
   deleted_at timestamptz
 );
 
-CREATE TABLE social.post (
+CREATE TABLE ${schema_prefix}social.post (
   post_id varchar(128) PRIMARY KEY,
-  author_account_id varchar(128) NOT NULL REFERENCES identity.account(account_id) ON DELETE RESTRICT,
+  author_account_id varchar(128) NOT NULL REFERENCES ${schema_prefix}identity.account(account_id) ON DELETE RESTRICT,
   body text NOT NULL,
   visibility varchar(32) NOT NULL,
   version bigint NOT NULL DEFAULT 0 CHECK (version >= 0),
@@ -542,23 +545,23 @@ CREATE TABLE social.post (
   updated_at timestamptz NOT NULL,
   expires_at timestamptz
 );
-CREATE INDEX post_author_created_idx ON social.post (author_account_id, created_at DESC, post_id DESC);
-CREATE INDEX post_expiration_idx ON social.post (expires_at) WHERE expires_at IS NOT NULL;
+CREATE INDEX post_author_created_idx ON ${schema_prefix}social.post (author_account_id, created_at DESC, post_id DESC);
+CREATE INDEX post_expiration_idx ON ${schema_prefix}social.post (expires_at) WHERE expires_at IS NOT NULL;
 
-CREATE TABLE communication.message (
+CREATE TABLE ${schema_prefix}communication.message (
   message_id varchar(128) PRIMARY KEY,
-  sender_account_id varchar(128) NOT NULL REFERENCES identity.account(account_id) ON DELETE RESTRICT,
-  recipient_account_id varchar(128) NOT NULL REFERENCES identity.account(account_id) ON DELETE RESTRICT,
+  sender_account_id varchar(128) NOT NULL REFERENCES ${schema_prefix}identity.account(account_id) ON DELETE RESTRICT,
+  recipient_account_id varchar(128) NOT NULL REFERENCES ${schema_prefix}identity.account(account_id) ON DELETE RESTRICT,
   body text NOT NULL,
   sent_at timestamptz NOT NULL,
   read_at timestamptz
 );
 CREATE INDEX message_conversation_idx
-  ON communication.message (sender_account_id, recipient_account_id, sent_at DESC, message_id DESC);
+  ON ${schema_prefix}communication.message (sender_account_id, recipient_account_id, sent_at DESC, message_id DESC);
 
-CREATE TABLE federation.delivery_job (
+CREATE TABLE ${schema_prefix}federation.delivery_job (
   delivery_job_id varchar(128) PRIMARY KEY,
-  actor_account_id varchar(128) REFERENCES identity.account(account_id) ON DELETE SET NULL,
+  actor_account_id varchar(128) REFERENCES ${schema_prefix}identity.account(account_id) ON DELETE SET NULL,
   destination_uri text NOT NULL,
   state varchar(32) NOT NULL,
   attempt_count integer NOT NULL DEFAULT 0 CHECK (attempt_count >= 0),
@@ -566,7 +569,7 @@ CREATE TABLE federation.delivery_job (
   created_at timestamptz NOT NULL
 );
 CREATE INDEX federation_delivery_claim_idx
-  ON federation.delivery_job (state, next_attempt_at, delivery_job_id);
+  ON ${schema_prefix}federation.delivery_job (state, next_attempt_at, delivery_job_id);
 ```
 
 The same migration contains the remaining identity/social/communication/federation tables named in the ownership table. Each current Mongo uniqueness, TTL, cursor, and partial-index rule is represented by an explicit constraint or partial index and asserted by `PostgresqlSchemaContractTest`.
@@ -581,7 +584,7 @@ Verification:
 
 Proposed:
 ```sql
-CREATE TABLE music.track (
+CREATE TABLE ${schema_prefix}music.track (
   track_id varchar(512) PRIMARY KEY,
   relative_path text NOT NULL UNIQUE,
   title text NOT NULL,
@@ -593,23 +596,23 @@ CREATE TABLE music.track (
   updated_at timestamptz NOT NULL
 );
 
-CREATE TABLE music.playlist (
+CREATE TABLE ${schema_prefix}music.playlist (
   playlist_id varchar(128) PRIMARY KEY,
-  owner_account_id varchar(128) REFERENCES identity.account(account_id) ON DELETE SET NULL,
+  owner_account_id varchar(128) REFERENCES ${schema_prefix}identity.account(account_id) ON DELETE SET NULL,
   name varchar(256) NOT NULL,
   version bigint NOT NULL DEFAULT 0 CHECK (version >= 0),
   created_at timestamptz NOT NULL,
   updated_at timestamptz NOT NULL
 );
-CREATE TABLE music.playlist_track (
-  playlist_id varchar(128) NOT NULL REFERENCES music.playlist(playlist_id) ON DELETE CASCADE,
+CREATE TABLE ${schema_prefix}music.playlist_track (
+  playlist_id varchar(128) NOT NULL REFERENCES ${schema_prefix}music.playlist(playlist_id) ON DELETE CASCADE,
   ordinal integer NOT NULL CHECK (ordinal >= 0),
-  track_id varchar(512) NOT NULL REFERENCES music.track(track_id) ON DELETE RESTRICT,
+  track_id varchar(512) NOT NULL REFERENCES ${schema_prefix}music.track(track_id) ON DELETE RESTRICT,
   PRIMARY KEY (playlist_id, ordinal),
   UNIQUE (playlist_id, track_id)
 );
 
-CREATE TABLE shared_folder.maintenance_lease (
+CREATE TABLE ${schema_prefix}shared_folder.maintenance_lease (
   lease_name varchar(128) PRIMARY KEY,
   owner_id varchar(256) NOT NULL,
   fence_token bigint NOT NULL CHECK (fence_token > 0),
@@ -617,7 +620,7 @@ CREATE TABLE shared_folder.maintenance_lease (
   updated_at timestamptz NOT NULL DEFAULT transaction_timestamp()
 );
 CREATE INDEX shared_folder_lease_expiration_idx
-  ON shared_folder.maintenance_lease (expires_at);
+  ON ${schema_prefix}shared_folder.maintenance_lease (expires_at);
 ```
 
 Verification:
@@ -630,10 +633,10 @@ Verification:
 
 Proposed:
 ```sql
-CREATE TABLE mobility.vehicle (
+CREATE TABLE ${schema_prefix}mobility.vehicle (
   vehicle_id varchar(128) PRIMARY KEY,
   vin char(17) NOT NULL UNIQUE,
-  owner_account_id varchar(128) REFERENCES identity.account(account_id) ON DELETE SET NULL,
+  owner_account_id varchar(128) REFERENCES ${schema_prefix}identity.account(account_id) ON DELETE SET NULL,
   model_year integer CHECK (model_year BETWEEN 1886 AND 9999),
   make text,
   model text,
@@ -642,7 +645,7 @@ CREATE TABLE mobility.vehicle (
   updated_at timestamptz NOT NULL
 );
 
-CREATE TABLE lunch.restaurant (
+CREATE TABLE ${schema_prefix}lunch.restaurant (
   restaurant_id varchar(128) PRIMARY KEY,
   normalized_name varchar(512) NOT NULL UNIQUE,
   display_name text NOT NULL,
@@ -657,7 +660,7 @@ CREATE TABLE lunch.restaurant (
   CHECK ((latitude IS NULL) = (longitude IS NULL))
 );
 
-CREATE TABLE canes.price_snapshot (
+CREATE TABLE ${schema_prefix}canes.price_snapshot (
   snapshot_id varchar(128) PRIMARY KEY,
   location_key varchar(256) NOT NULL,
   amount numeric(12,2) NOT NULL CHECK (amount >= 0),
@@ -666,7 +669,7 @@ CREATE TABLE canes.price_snapshot (
   UNIQUE (location_key, captured_at)
 );
 
-CREATE TABLE platform.application_lease (
+CREATE TABLE ${schema_prefix}platform.application_lease (
   lease_name varchar(128) PRIMARY KEY,
   owner_id varchar(256) NOT NULL,
   fence_token bigint NOT NULL CHECK (fence_token > 0),
