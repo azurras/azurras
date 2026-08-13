@@ -35,7 +35,7 @@ MongoDB only after PostgreSQL production and recovery evidence pass the approved
 - Project specification: [PostgreSQL Migration](../specs/2026-08-13-christopherbell-dev-postgresql-migration.md)
 - Prior MongoDB consolidation closure: [Domain Collection Consolidation](../work-closures/2026-08-12-christopherbell-dev-domain-collection-consolidation.md)
 - Prior MongoDB consolidation work: [Domain Collection Consolidation](2026-08-10-christopherbell-dev-domain-collection-consolidation.md)
-- Implementation plan: not yet created; blocked on written-spec review
+- Implementation plan: in preparation from the approved written specification
 - Spoke task, reviews, test reports, production evidence, closure, and session memory:
   create during the approved delivery loop
 
@@ -88,12 +88,12 @@ MongoDB only after PostgreSQL production and recovery evidence pass the approved
   verification strategy, and completion criteria were approved interactively.
 - No spoke implementation, database installation, schema creation, data copy, service
   mutation, or production cutover has started.
-- The specification is ready for the user's written-artifact review.
+- The user approved the saved written specification; implementation planning is active.
 
 ## Blockers
 
-No external blocker. Implementation planning waits for explicit approval of the saved
-written specification.
+No external blocker. Production code, database, service, and operational changes remain
+blocked until the implementation plan is saved, reviewed, validated, and approved.
 
 ## Validation State
 
@@ -106,10 +106,9 @@ written specification.
 
 ## Next Steps
 
-1. Review and approve the saved specification.
-2. Create and validate a literal-file, line-range implementation plan from a clean
+1. Create and validate a literal-file, line-range implementation plan from a clean
    isolated worktree refreshed from `origin/main`.
+2. Review and approve the saved implementation plan.
 3. Execute the approved delivery loop through implementation, real-PostgreSQL testing,
    shadow rehearsals, PR/CI/merge, protected cutover, 14-day soak, MongoDB retirement,
    production verification, closure, and durable session memory.
-
