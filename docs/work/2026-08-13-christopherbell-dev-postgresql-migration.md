@@ -84,34 +84,42 @@ MongoDB only after PostgreSQL production and recovery evidence pass the approved
 
 ## Current State
 
-- The architecture, migration flow, recovery policy, pgAdmin access boundary,
-  verification strategy, and completion criteria were approved interactively.
-- No spoke implementation, database installation, schema creation, data copy, service
-  mutation, or production cutover has started.
-- The saved implementation plan is mechanically valid, human-reviewed, and
-  `ready-for-execution` on isolated branch `codex/postgresql-migration`.
+- Tasks 1 through 8 are implemented, reviewed, rehearsed, and merged through
+  [PR #1370](https://github.com/azurras/christopherbell.dev/pull/1370) as
+  `bca4231b4d36bdad963a4d33645b5bb61d88795c`.
+- PostgreSQL 18/Flyway/jOOQ foundations, typed adapters for all 52 source kinds,
+  the guarded migration engine, native Windows operations, and shadow/candidate
+  verification are complete.
+- Repeated live-source and 63,230-document restored-archive rehearsals reconciled all
+  52 kinds. A PostgreSQL-only candidate passed the exact HTTP, role, scheduler,
+  capacity, plan, latency, security, and cleanup matrix.
+- Production Mongo, PostgreSQL 16, and the website listener remain unchanged. No
+  FINALIZE, production authority marker, service dependency change, or cutover has run.
 
 ## Blockers
 
-No external blocker. Production code, database, service, and operational changes await
-the selected execution workflow for the ready implementation plan.
+Task 9 requires an explicitly approved maintenance window before it can stop production
+writers, take the final backup, transfer authority, or rotate the production listener.
+This is an intentional authorization gate because the operation interrupts production
+and the post-authority rollback direction is PostgreSQL-forward only.
 
 ## Validation State
 
-- Builder and spoke context were inspected read-only.
-- Current `origin/main` and the dirty authoritative spoke state were verified without
-  modifying the spoke.
-- PostgreSQL, Spring Boot SQL/jOOQ, pgAdmin, and supported-version choices were checked
-  against current primary documentation during design.
-- The clean spoke worktree baseline passed 2,002 tests with zero failures/errors and 75
-  skips while explicitly configured only for Mongo database `test`.
-- The implementation plan passed `validate-implementation-plan`; human review found no
-  execution blocker. Residual risks are the 52-kind mapping volume, native-host
-  installation/cutover timing, and the required 14-day soak.
-- No implementation or runtime claims have been made.
+- Definitive Task 8 verification passed 2,386 Java tests with zero failures/errors,
+  plus JavaScript and PowerShell/Pester gates.
+- The PostgreSQL candidate passed 39/39 exact HTTP statuses and latency budgets;
+  role separation showed app sessions and zero bridge sessions.
+- Final CI passed PostgreSQL 18 jOOQ generation, Java/JavaScript/Actions CodeQL,
+  dependency review, and Java 25 builds on macOS, Ubuntu, and Windows.
+- Independent review found no remaining Critical, Important, Blocker, or Warning
+  finding in the Task 8 scope. The merged tree exactly matches the reviewed branch.
+- The authoritative dirty spoke checkout was preserved throughout isolated worktree
+  development, testing, PR integration, and merge.
 
 ## Next Steps
 
-1. Execute the approved delivery loop through implementation, real-PostgreSQL testing,
-   shadow rehearsals, PR/CI/merge, protected cutover, 14-day soak, MongoDB retirement,
-   production verification, closure, and durable session memory.
+1. Obtain explicit approval for the Task 9 maintenance window.
+2. Execute the guarded final backup, writer freeze, all-kind FINALIZE/reconciliation,
+   alternate-port acceptance, one-way authority marker, and production listener rotation.
+3. Monitor PostgreSQL for 14 full days and prove post-cutover restore before Task 10
+   removes Mongo runtime code, service state, and exact live data.
