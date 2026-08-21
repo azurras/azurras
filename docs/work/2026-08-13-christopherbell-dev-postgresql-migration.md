@@ -87,6 +87,9 @@ MongoDB only after PostgreSQL production and recovery evidence pass the approved
 - Tasks 1 through 8 are implemented, reviewed, rehearsed, and merged through
   [PR #1370](https://github.com/azurras/christopherbell.dev/pull/1370) as
   `bca4231b4d36bdad963a4d33645b5bb61d88795c`.
+- The Task 9 guarded production command is implemented, reviewed, and merged through
+  [PR #1372](https://github.com/azurras/christopherbell.dev/pull/1372) as
+  `ea6cead1a4fa14bd4ba3c5de65bb8dda91501d0c`; it has not been run in production.
 - PostgreSQL 18/Flyway/jOOQ foundations, typed adapters for all 52 source kinds,
   the guarded migration engine, native Windows operations, and shadow/candidate
   verification are complete.
@@ -111,6 +114,12 @@ and the post-authority rollback direction is PostgreSQL-forward only.
   role separation showed app sessions and zero bridge sessions.
 - Final CI passed PostgreSQL 18 jOOQ generation, Java/JavaScript/Actions CodeQL,
   dependency review, and Java 25 builds on macOS, Ubuntu, and Windows.
+- Task 9's definitive local gate passed 2,268 website tests and 123 cbell-lib tests
+  with zero failures/errors. The guarded cutover state machine passed 16/16, operations
+  Pester passed 753 with 28 expected skips, and the read-only source snapshot plus live
+  migration package passed against disposable MongoDB and PostgreSQL 18.4 `test` databases.
+- PR #1372 passed all nine GitHub checks and merged to refreshed `origin/main` as
+  `ea6cead1a4fa14bdad963a4d33645b5bb61d88795c`.
 - Independent review found no remaining Critical, Important, Blocker, or Warning
   finding in the Task 8 scope. The merged tree exactly matches the reviewed branch.
 - The authoritative dirty spoke checkout was preserved throughout isolated worktree
@@ -118,8 +127,9 @@ and the post-authority rollback direction is PostgreSQL-forward only.
 
 ## Next Steps
 
-1. Obtain explicit approval for the Task 9 maintenance window.
-2. Execute the guarded final backup, writer freeze, all-kind FINALIZE/reconciliation,
+1. Obtain explicit approval for the up-to-30-minute Task 9 maintenance window.
+2. Execute the merged `postgres-cutover -ConfirmPostgreSqlCutover` boundary, which owns
+   the final backup, writer freeze, all-kind FINALIZE/reconciliation,
    alternate-port acceptance, one-way authority marker, and production listener rotation.
 3. Monitor PostgreSQL for 14 full days and prove post-cutover restore before Task 10
    removes Mongo runtime code, service state, and exact live data.
