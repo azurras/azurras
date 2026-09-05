@@ -84,6 +84,35 @@ MongoDB only after PostgreSQL production and recovery evidence pass the approved
 
 ## Current State
 
+### Verified resumption on 2026-09-05 (supersedes the historical snapshot below)
+
+- Maintenance downtime up to 30 minutes is already approved by Christopher; do not
+  request the same approval again. Spring Data JPA/JDBC replaced jOOQ in PR #1376.
+- PR #1385 was still open despite all checks passing. Astra resumed its delivery,
+  retaining the clean isolated `postgresql-cutover` worktree and preserving the
+  authoritative checkout.
+- Read-only elevated production evidence: journal is `ROLLED_BACK`, no authority
+  sidecar exists, and source snapshot emits five Mongo log lines plus one valid
+  evidence record whose catalog digest matches the release.
+- Production journal checksum passes only when timestamp strings are preserved;
+  default PowerShell JSON DateTime conversion changes its canonical hash. The
+  corrected reader uses `-DateKind String` with a real disk-round-trip regression.
+- Additional pre-cutover defects found and being corrected: local-date writer
+  lease rejected by Java Instant.parse; website still depending on MongoDB;
+  persistent writer-start marker not advanced after cutover; and mutating startup
+  recovery incompatible with read-only candidate acceptance.
+- Full ops suite passed 795 tests, zero failures, 28 skips after the PowerShell
+  corrections. Java startup recovery profile coverage and final PR checks remain
+  underway. No new production authority transfer has been attempted this session.
+- Ordinary deployment still uses Mongo backup/restore. Pause automatic deployment
+  before cutover and implement PostgreSQL-aware deployment before reenabling it.
+- Preserve the failed attempt's journal and sidecars before retrying; do not bypass
+  checks or erase recovery evidence. The existing terminal ROLLED_BACK state is not
+  automatically retried by the public command.
+- Retirement requires 14 full days after verified PostgreSQL authority and restore
+  proof; retain the final Mongo archive for 90 days. Calendar time before cutover
+  does not count toward soak.
+
 - Tasks 1 through 8 are implemented, reviewed, rehearsed, and merged through
   [PR #1370](https://github.com/azurras/christopherbell.dev/pull/1370) as
   `bca4231b4d36bdad963a4d33645b5bb61d88795c`.
