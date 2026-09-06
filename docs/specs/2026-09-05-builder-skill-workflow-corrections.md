@@ -1,7 +1,7 @@
 # Builder Skill Workflow Corrections
 
 ## Document Status
-ready-for-execution
+complete
 
 ## Purpose
 Implement the user's selected corrections from the skill audit: guarded Builder commits, consistent delivery closure, maintainable implementation plans, safe Spring verification/deployment routing, and Windows spoke registration.
