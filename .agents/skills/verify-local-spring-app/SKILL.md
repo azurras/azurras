@@ -1,78 +1,46 @@
 ---
 name: verify-local-spring-app
-description: Run, verify, and production-restart a local Spring Boot web app safely on a desktop that may already be serving production traffic. Use when Codex needs to test a Spring Boot site on an alternate port, avoid disrupting an existing production port until validation is complete, identify and stop the process bound to a port, and restart the app with the newly merged code.
+description: Verify a local Spring Boot application on an isolated non-production port. Use for desktop runtime checks and, when deployment is already authorized, routing the validated candidate through the repository's production deployment mechanism.
 ---
 
 # Verify Local Spring App
 
-## Overview
+The development host may also serve production. Choose verification-only or verification-plus-deployment from the user's request and existing authorization. Local testing alone does not authorize deployment. Do not request approval again when the session already authorizes the deployment.
 
-Use this workflow for local desktop deployments where the same machine is both the development host and the production host. Keep production traffic running while validation happens on a separate port, then restart the production port only after tests and manual checks pass.
+## Preflight Before Tests or Startup
 
-## Workflow
+1. Read repository `AGENTS.md`, README, and relevant run/deployment instructions. Inspect Git state and preserve unrelated dirty work. Identify the production port, service or process supervisor, and the documented local test profile.
+2. Before any database-backed automated test or candidate startup, verify the effective database target from the actual profile, environment overrides, credentials/role, and connection configuration. In Builder-coordinated MongoDB/PostgreSQL work, use database `test` only. PostgreSQL tests use a role isolated from production. Never rely on port isolation to imply data isolation; never use local-development, staging, or production databases for tests.
+3. If the effective database target or permissions cannot be verified, stop database-dependent execution and resolve the configuration. A test may be database-free only when inspected configuration/code proves no database connection is used. Record sanitized target evidence without credentials.
+4. Check background jobs, external integrations, and storage paths that the test profile enables; isolate effects that could mutate live state. Choose a free alternate port and explicit profile/port settings. Keep production running.
 
-1. Confirm the repository instructions and app defaults before starting:
-   - Read `AGENTS.md` and the root `README.md`.
-   - Confirm the normal production port and the normal local/test port.
-   - Inspect `git status --short --branch`; do not overwrite dirty user work.
+## Verify the Candidate
 
-2. Run automated verification first:
-   - Run the smallest focused tests for the changed behavior.
-   - Run the broader build/test command required by the repo before any completion claim.
-   - For browser assets, run the repo's JavaScript syntax or browser checks.
+1. Run focused automated checks and repository-required broader validation with the verified test configuration.
+2. Start the candidate on the alternate port with explicit configuration. Keep its process/session handle, command, artifact/commit identity, and log location. Start background helpers hidden on Windows unless the user requested a visible window.
+3. Poll with a bounded startup deadline and check the application's expected readiness response. An arbitrary HTTP response, redirect to login, or error page is not proof of health.
+4. Exercise changed endpoints/UI flows with representative inputs and relevant regressions. Record URL/port, method or UI action, sanitized input, expected/actual status and output, and pass/fail results.
+5. Stop only the candidate process owned by this verification session, including on failure. Save runtime evidence with `save-test-report` when working through Builder.
+6. For verification-only scope, finish here. Do not restart production.
 
-3. Start the app on a non-production port:
-   - Choose a free alternate port, usually the repo's documented local port.
-   - Start the app with explicit profile and port settings instead of relying on inherited environment.
-   - Keep the process handle or terminal session id so it can be stopped after checks.
+## Authorized Deployment
 
-4. Verify the alternate-port app:
-   - Poll the base URL until it returns an HTTP response or the startup log shows a fatal error.
-   - Exercise the changed endpoints or pages directly with `curl`, `Invoke-WebRequest`, browser automation, or targeted smoke scripts.
-   - Capture exact commands, ports, status codes, and any important response snippets.
+Proceed only when deployment is within the existing request and candidate verification passed.
 
-5. Stop the alternate-port process.
+1. Identify the repository's supported deployment script/pipeline/service manager and its protected operating procedure. Confirm the merged revision/artifact to deploy and required CI gates. Do not substitute an ad hoc `bootRun` or PID kill for a managed service deployment.
+2. Before mutation, record the currently deployed artifact/configuration, rollback command or procedure, backup prerequisites for data/schema changes, and bounded success/failure criteria. Keep secrets redacted and preserve protected ACLs. If the deployment mechanism or recovery path is unknown, resolve that prerequisite before proceeding.
+3. Use the supported deployment mechanism. Let its service/supervisor own process rotation. For an explicitly documented unmanaged process, follow that repository's exact stop/start/rollback procedure; identifying a port owner alone is insufficient authority or recovery planning.
+4. Verify service state, expected listener, application readiness, deployed revision when exposed, and the changed production behavior through authorized non-destructive checks. Confirm required dependencies without writing test fixtures into production.
+5. If deployment fails, follow the pre-established rollback procedure and verify the restored service. Stop repeated restart attempts; report failure evidence and whether recovery succeeded. If rollback fails, leave the service state explicit and request only the missing decision or access.
 
-6. Restart production only after validation:
-   - Identify the current production process by port before stopping it.
-   - Record the command or jar currently used when possible.
-   - Stop only the process bound to the intended production port.
-   - Start the new code with the production profile and explicit production port.
-   - Poll the production URL until it responds.
-
-## Windows Port Commands
-
-Use PowerShell-native commands on Windows:
+## Read-Only Windows Inspection
 
 ```powershell
-Get-NetTCPConnection -LocalPort 8080 -State Listen |
-  Select-Object LocalAddress,LocalPort,OwningProcess
-
-Get-Process -Id <pid> |
-  Select-Object Id,ProcessName,Path,StartTime
-
-Stop-Process -Id <pid>
+Get-NetTCPConnection -LocalPort 8080 -State Listen | Select-Object LocalAddress,LocalPort,OwningProcess
 ```
 
-Start background helpers hidden unless the user asked for a visible window:
+Replace 8080 with the verified production port. Match the owner to the documented Windows service/supervisor; this command does not authorize stopping it.
 
-```powershell
-Start-Process -WindowStyle Hidden -FilePath ".\gradlew.bat" -ArgumentList ":website:bootRun"
-```
+## Completion Evidence
 
-Prefer an interactive terminal session when live logs matter, but do not leave temporary verification processes running.
-
-## Safety Rules
-
-- Do not kill the production port before alternate-port validation passes.
-- Do not use destructive git commands to update a dirty production checkout.
-- If the production checkout has dirty user work, deploy from a clean merged worktree or ask before touching those files.
-- Use explicit environment variables for profile and port.
-- Report any restart failure immediately with the last relevant log lines and leave the prior process state clear.
-
-## Evidence To Record
-
-- Test/build command names and exit codes.
-- Alternate port used and URLs checked.
-- Production PID stopped and command used to restart.
-- Production URL response after restart.
+Record automated results, sanitized database isolation, candidate commit/artifact, exact runtime inputs and outputs, and candidate cleanup. For deployment scope also record the deployment mechanism/result, service and application health, deployed identity, and rollback outcome if used. A verification-only result should state that production deployment was outside that request.

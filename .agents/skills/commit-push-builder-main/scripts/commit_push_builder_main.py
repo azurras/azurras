@@ -40,9 +40,11 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--message",
-        required=True,
-        help="Commit message.",
+        help="Commit message, required when selecting files.",
     )
+    operation = parser.add_mutually_exclusive_group(required=True)
+    operation.add_argument("--path", action="append", dest="paths", help="Exact repository-relative file to commit; repeat for each file.")
+    operation.add_argument("--push-only", action="store_true", help="Push existing main commits without staging or committing files.")
     parser.add_argument(
         "--dry-run",
         action="store_true",
@@ -67,15 +69,38 @@ def fail(message: str) -> int:
     return 1
 
 
+def selected_paths(root: Path, paths: list[str]) -> list[str]:
+    selected: list[str] = []
+    for value in paths:
+        path = Path(value)
+        if path.is_absolute() or path.drive or ".." in path.parts:
+            raise ValueError(f"Select an exact repository-relative file: {value!r}")
+        candidate = root / path
+        if not candidate.resolve().is_relative_to(root):
+            raise ValueError(f"Selected path escapes the repository: {value!r}")
+        if candidate.is_dir() or candidate.is_symlink() or any(part.lower() in {".git", ".ds_store"} for part in path.parts):
+            raise ValueError(f"Directories, symlinks, Git internals, and machine metadata cannot be selected: {value!r}")
+        normalized = path.as_posix()
+        if not candidate.is_file():
+            tracked = run_git(root, ["--literal-pathspecs", "ls-files", "-z", "--error-unmatch", "--", normalized], check=False)
+            if tracked.returncode != 0 or tracked.stdout.split("\0") != [normalized, ""]:
+                raise ValueError(f"Selected file does not exist and is not a tracked deletion: {value!r}")
+        if normalized not in selected:
+            selected.append(normalized)
+    return selected
+
+
 def main() -> int:
     args = parse_args()
     root = Path(args.root).expanduser().resolve()
-    message = args.message.strip()
+    message = (args.message or "").strip()
 
     if not is_expected_root(root):
         return fail(f"Refusing to operate outside configured builder roots ({expected_roots_display()}): {root}")
-    if not message:
+    if not args.push_only and not message:
         return fail("--message must not be blank")
+    if args.push_only and args.message is not None:
+        return fail("--push-only does not accept a commit message")
 
     try:
         top_level = Path(run_git(root, ["rev-parse", "--show-toplevel"]).stdout.strip()).resolve()
@@ -91,34 +116,40 @@ def main() -> int:
     if remote != EXPECTED_REMOTE:
         return fail(f"Refusing unexpected origin remote: {remote}")
 
-    status = run_git(root, ["status", "--short"]).stdout.strip()
-    if not status:
-        print("No changes to commit.")
-        return 0
-
-    print("Repository:", root)
-    print("Branch:", branch)
-    print("Remote:", remote)
-    print("Status:")
-    print(status)
-    print("Commit message:", message)
-
-    if args.dry_run:
-        print("Dry run complete; no changes staged, committed, or pushed.")
-        return 0
-
     try:
-        run_git(root, ["add", "--all"])
-        run_git(root, ["reset", "--", ".DS_Store", "docs/.DS_Store"], check=False)
-        staged = run_git(root, ["diff", "--cached", "--name-only"]).stdout.strip()
-        if not staged:
-            print("No staged changes to commit after exclusions.")
+        print("Repository:", root)
+        print("Branch:", branch)
+        print("Remote:", remote)
+        print("Status:")
+        print(run_git(root, ["status", "--short", "--branch"]).stdout.strip())
+        if not args.push_only:
+            paths = selected_paths(root, args.paths)
+            staged = set(filter(None, run_git(root, ["diff", "--cached", "--name-only", "--no-renames", "-z"]).stdout.split("\0")))
+            unrelated = staged - set(paths)
+            if unrelated:
+                return fail(f"Unrelated files are already staged; leave them intact and resolve the selection first: {sorted(unrelated)!r}")
+            print("Selected files:", paths)
+            print("Commit message:", message)
+        else:
+            print("Push-only: existing main commits will be pushed; the index and working files are unchanged.")
+
+        if args.dry_run:
+            print("Dry run complete; no changes staged, committed, or pushed.")
             return 0
 
-        commit = run_git(root, ["commit", "-m", message])
-        print(commit.stdout.strip())
+        if not args.push_only:
+            run_git(root, ["--literal-pathspecs", "add", "--", *paths])
+            staged = set(filter(None, run_git(root, ["diff", "--cached", "--name-only", "--no-renames", "-z"]).stdout.split("\0")))
+            if staged - set(paths):
+                return fail("The index changed outside the selected files; refusing to commit. Inspect the index before retrying.")
+            if not staged:
+                print("No selected changes to commit. To publish existing commits, inspect them and use --push-only.")
+                return 0
+            commit = run_git(root, ["commit", "-m", message])
+            print(commit.stdout.strip())
 
         commit_hash = run_git(root, ["rev-parse", "--short", "HEAD"]).stdout.strip()
+        print(f"Pushing existing commit {commit_hash}; a failed push can be retried with --push-only.")
         push = run_git(root, ["push", "origin", EXPECTED_BRANCH])
         if push.stdout.strip():
             print(push.stdout.strip())
@@ -126,6 +157,8 @@ def main() -> int:
             print(push.stderr.strip())
         print(f"Pushed {commit_hash} to origin {EXPECTED_BRANCH}.")
         return 0
+    except ValueError as exc:
+        return fail(str(exc))
     except subprocess.CalledProcessError as exc:
         if exc.stdout.strip():
             print(exc.stdout.strip())

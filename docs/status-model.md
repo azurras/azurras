@@ -31,4 +31,4 @@ Specs, implementation plans, and test reports use status values that describe do
 - `complete`: The artifact has served its purpose and no required edits remain.
 - `superseded`: The artifact has been replaced by a newer artifact. Use only for test reports or other evidence records where historical preservation still matters.
 
-Implementation plans must not use `ready-for-execution` while any Code Edit line range is `line range pending file inspection`.
+Implementation plans must not use `ready-for-execution` while target inspection, task contracts, or execution prerequisites remain unresolved. Inspected file/symbol contracts do not require exact line ranges or replacement code. Legacy Code Edit blocks remain supported; supplied pending line ranges still prevent execution readiness.

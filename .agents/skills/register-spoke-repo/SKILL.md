@@ -1,37 +1,25 @@
 ---
 name: register-spoke-repo
-description: Register or update an external spoke repository in the Builder hub. Use when adding a repo that agents may work in from the hub, recording its local path, remote URL, default branch, purpose, active status, guardrails, or notes.
+description: Register or update an external repository in the Builder hub with its verified local path, remote, branch, purpose, and guardrails.
 ---
 
 # Register Spoke Repo
 
-## Overview
-
-Maintain the canonical spoke repository registry for the Builder hub-and-spoke workflow. This skill records which external repos are controlled or coordinated from the hub.
-
-## Storage Rules
-
-- Store the registry at `docs/spokes/repos.md`.
-- Use one Markdown section per spoke repo.
-- Update an existing section when the same repo slug is registered again.
-- Keep entries factual: local path, remote, default branch, purpose, status, guardrails, and notes.
+Maintain `docs/spokes/repos.md` with one section per repository. Re-registering the same slug updates that section. Record factual local path, remote, default branch, purpose, status, guardrails, and notes; preserve other entries.
 
 ## Workflow
 
-1. Confirm the active hub root is `/Users/cbell/Developer/builder`.
-2. Collect the spoke repo name, local path, remote URL, default branch, and purpose.
-3. Record guardrails such as branch policy, test expectations, ownership, and whether direct pushes are allowed.
-4. Update `docs/spokes/repos.md`, preferring the helper script.
-5. Save session memory and use `commit-push-builder-main`.
+1. Discover the active Builder root with `git rev-parse --show-toplevel` and verify origin with `git remote get-url origin`. Supported authoritative roots are `C:\Users\Christopher\Developer\builder` on Windows and `/Users/cbell/Developer/builder` on macOS; origin is `https://github.com/azurras/builder.git`. Do not require the macOS path on Windows.
+2. Inspect the target repository read-only to establish its actual local path, remote, and default branch. Record access gaps rather than inventing values. Registration does not authorize source changes or deployment.
+3. Record repository purpose and guardrails, including branch policy, validation, ownership, and direct-push rules.
+4. Run the helper with the verified hub root explicitly. Review only the intended registry section change, update hub indexes, and validate hub state.
+5. Save authorized project continuity notes and use `commit-push-builder-main` with the registry and intended related files.
 
-## Helper Script
+## PowerShell Example
 
-```bash
-python3 .agents/skills/register-spoke-repo/scripts/register_spoke_repo.py \
-  --name "Repo Name" \
-  --path "/path/to/repo" \
-  --remote "https://github.com/org/repo.git" \
-  --purpose "What this repo owns"
+```powershell
+$builderRoot = git rev-parse --show-toplevel
+python .agents/skills/register-spoke-repo/scripts/register_spoke_repo.py --root $builderRoot --name 'Example Repo' --path 'A:\Projects\example' --remote 'https://github.com/org/example.git' --default-branch main --purpose 'Describe the repository responsibility'
 ```
 
-The helper creates or updates the matching repo section in `docs/spokes/repos.md`.
+Replace the example values with inspected facts. On macOS, invoke the same helper with the discovered root and native paths; the helper is platform-independent.

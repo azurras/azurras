@@ -149,22 +149,16 @@ def _matches_any(value: str, patterns: tuple[str, ...]) -> bool:
     return any(re.search(pattern, value, re.IGNORECASE) for pattern in patterns)
 
 
-def validate_implementation_plan_text(markdown: str, path: Path | None = None) -> list[str]:
-    errors: list[str] = []
-    sections = markdown_sections(markdown)
-    _require_sections(sections, PLAN_REQUIRED_SECTIONS, errors, path)
+PLAN_TASK_FIELDS = (
+    "Dependencies", "Files", "Symbols", "Inspection", "Behavior", "Invariants",
+    "Boundary/API", "Effects and failures", "Tests and evidence", "Verification",
+)
 
-    status = _plain_status(sections.get("Document Status", ""))
-    if status and status not in PLAN_STATUSES:
-        errors.append(f"{_label(path)}invalid plan status {status!r}")
 
-    task_breakdown = sections.get("Task Breakdown", "")
-    if not re.search(r"(?m)^###\s+Task\s+\d+\b", task_breakdown):
-        errors.append(f"{_label(path)}Task Breakdown must include ordered task headings")
-    if "#### Code Edit" not in task_breakdown:
-        errors.append(f"{_label(path)}Task Breakdown must include task-level Code Edit blocks")
-
-    code_edit_blocks = re.split(r"(?m)^####\s+Code Edit\s+", task_breakdown)[1:]
+def _validate_legacy_code_edits(
+    task: str, status: str, path: Path | None, errors: list[str]
+) -> None:
+    code_edit_blocks = re.split(r"(?m)^####\s+Code Edit\s+", task)[1:]
     for ordinal, block in enumerate(code_edit_blocks, start=1):
         if not re.search(r"(?m)^-\s*File:\s*`?[^`\n]+`?\s*$", block):
             errors.append(f"{_label(path)}Code Edit {ordinal} missing File")
@@ -196,6 +190,57 @@ def validate_implementation_plan_text(markdown: str, path: Path | None = None) -
         if block.count("```") < 2:
             errors.append(f"{_label(path)}Code Edit {ordinal} must include fenced code")
 
+
+def validate_implementation_plan_text(markdown: str, path: Path | None = None) -> list[str]:
+    errors: list[str] = []
+    sections = markdown_sections(markdown)
+    _require_sections(sections, PLAN_REQUIRED_SECTIONS, errors, path)
+    status = _plain_status(sections.get("Document Status", ""))
+    if status not in PLAN_STATUSES:
+        errors.append(f"{_label(path)}invalid or empty plan status {status!r}")
+
+    breakdown = sections.get("Task Breakdown", "")
+    plan_format = sections.get("Plan Format", "").strip()
+    if plan_format and plan_format != "task-contract-v1":
+        errors.append(f"{_label(path)}unsupported Plan Format {plan_format!r}")
+    # Unversioned literal-patch plans keep their original whole-plan checks.
+    # Their non-edit delivery tasks predate the per-task contract format.
+    if not plan_format and "#### Code Edit" in breakdown:
+        if not re.search(r"(?m)^###\s+Task\s+\d+\b", breakdown):
+            errors.append(f"{_label(path)}Task Breakdown must include ordered task headings")
+        _validate_legacy_code_edits(breakdown, status, path, errors)
+        return errors
+
+    headings = list(re.finditer(r"(?m)^###[ \t]+Task[ \t]+(\d+)\b[^\n]*", breakdown))
+    if not headings:
+        errors.append(f"{_label(path)}Task Breakdown must include ordered task headings")
+    numbers = [int(heading.group(1)) for heading in headings]
+    if numbers != list(range(1, len(numbers) + 1)):
+        errors.append(f"{_label(path)}Task headings must be sequential starting at Task 1")
+
+    has_contract = False
+    for index, heading in enumerate(headings):
+        end = headings[index + 1].start() if index + 1 < len(headings) else len(breakdown)
+        task = breakdown[heading.end():end]
+        label = f"{_label(path)}Task {heading.group(1)}"
+        if re.search(r"(?m)^####[ \t]+Code Edit[ \t]+", task):
+            _validate_legacy_code_edits(task, status, path, errors)
+            continue
+        has_contract = True
+        for field in PLAN_TASK_FIELDS:
+            match = re.search(rf"(?mi)^[ \t]*(?:-[ \t]*)?{re.escape(field)}:[ \t]*(.*)$", task)
+            value = match.group(1).strip() if match else ""
+            if not value:
+                errors.append(f"{label} missing {field}: supply a task contract or legacy Code Edit block")
+            elif status in {"ready-for-execution", "in-progress", "complete"} and re.search(
+                r"(?i)\b(TBD|TODO)\b|pending file inspection|line range pending", value
+            ):
+                errors.append(f"{label} unresolved {field} in {status} plan")
+
+    if has_contract or plan_format == "task-contract-v1":
+        for section in PLAN_REQUIRED_SECTIONS:
+            if section in sections and not sections[section].strip():
+                errors.append(f"{_label(path)}{section} must not be empty")
     return errors
 
 

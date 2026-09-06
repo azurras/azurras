@@ -14,7 +14,7 @@ Check that the hub remains navigable and consistent as artifacts accumulate.
 - Required directories and templates exist.
 - Markdown artifact filenames use `YYYY-MM-DD-title.md`, except approved index/state files.
 - Work statuses use the canonical status model.
-- Quality-gated implementation plans and test reports satisfy required artifact structure.
+- Implementation plans (inspected contracts or legacy literal edits) and test reports satisfy required artifact structure. Only the eight explicitly named historical pre-schema plans remain warnings; new plans cannot bypass validation by omitting Code Edit blocks.
 - Markdown links to local docs resolve.
 - Repo-scoped skills have valid frontmatter.
 - Generated index files exist.

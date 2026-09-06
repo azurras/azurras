@@ -1,27 +1,18 @@
 ---
 name: validate-implementation-plan
-description: Use when reviewing, saving, or preparing to execute a Builder implementation plan that must prove it has status, branch, ordered tasks, literal line-range code edit blocks, testing, risks, and completion criteria.
+description: Validate Builder plan structure, ordered task contracts or legacy literal edits, status, testing, risks, and completion criteria before saving or execution.
 ---
 
 # Validate Implementation Plan
 
-## Overview
+Run the shared validator against the supplied Markdown. It accepts inspected file/symbol task contracts without requiring line ranges or replacement code, and retains support for legacy Code Edit blocks.
 
-Reject vague implementation plans before execution. A plan is only ready when it contains executable tasks with literal Code Edit blocks tied to files, line ranges, current code, proposed code, and task-level verification.
-
-## Workflow
-
-1. Read the implementation plan Markdown.
-2. Run the helper script below.
-3. Treat any reported error as a blocker for execution.
-4. If the plan contains `line range pending file inspection`, keep the document status as `draft` or `blocked`.
-5. Use `review-implementation-plan` when a human-readable review verdict is needed.
-
-## Helper Script
-
-```bash
-python3 .agents/skills/validate-implementation-plan/scripts/validate_implementation_plan.py \
-  docs/implementation-plans/YYYY-MM-DD-title.md
+```powershell
+python .agents/skills/validate-implementation-plan/scripts/validate_implementation_plan.py docs/implementation-plans/YYYY-MM-DD-title.md
 ```
 
-The script exits non-zero when required sections, task headings, Code Edit blocks, line ranges, current/proposed code, or verification details are missing.
+With no filename, the CLI reads stdin. The save helper uses the same validator and refuses invalid artifacts before writing.
+
+New plans use `## Plan Format` with value `task-contract-v1`; each task must independently satisfy a supported format. Unversioned historical literal-patch plans retain their former whole-plan checks so existing non-edit delivery tasks remain compatible. Unversioned plans without literal edits use the new contract checks. Contract fields and required document sections must be nonempty; task numbers must be sequential. An empty/invalid status fails. Unresolved task prerequisites such as pending inspection cannot appear in ready-for-execution, in-progress, or complete contracts. Legacy blocks retain their field and line-range checks.
+
+Use `review-implementation-plan` for semantic readiness: structural validation cannot prove that referenced files were inspected, that commands cover the risks, or that scope and authority are correct. Draft plans may record unresolved inspection explicitly; they are not permission to start dependent implementation.

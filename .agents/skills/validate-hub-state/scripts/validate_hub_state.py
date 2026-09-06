@@ -15,6 +15,19 @@ from artifact_quality import validate_implementation_plan_text, validate_test_re
 from builder_hub import STATUS_VALUES, extract_status, list_markdown, markdown_links, parse_dated_file, read_text
 
 
+# Historical pre-schema plans remain warnings; all other plans must validate.
+LEGACY_PLAN_NAMES = frozenset({
+    '2026-07-08-complete-christopherbell-dev-issues-1105-1109.md',
+    '2026-07-09-issue-1090-production-jwt-secret-fallback.md',
+    '2026-07-09-issue-1091-trusted-client-ip-resolution.md',
+    '2026-07-09-issue-1092-request-body-size-enforcement.md',
+    '2026-07-09-issue-1093-password-reset-token-logging.md',
+    '2026-07-09-issue-1094-generic-controller-exception-fallback.md',
+    '2026-07-09-issue-1095-endpoint-aware-rate-limits.md',
+    '2026-07-09-issue-1096-bean-validation-request-dto.md',
+})
+
+
 ARTIFACT_DIRS = (
     "docs/session-memory",
     "docs/specs",
@@ -133,10 +146,10 @@ def main() -> int:
         if path.name == "index.md":
             continue
         content = read_text(path)
-        if "#### Code Edit" in content:
-            errors.extend(validate_implementation_plan_text(content, path))
+        if path.name in LEGACY_PLAN_NAMES and "#### Code Edit" not in content and "## Plan Format" not in content:
+            warnings.append(f"{path}: historical implementation plan predates the quality schema")
         else:
-            warnings.append(f"{path}: legacy implementation plan missing quality-gated Code Edit blocks")
+            errors.extend(validate_implementation_plan_text(content, path))
 
     for path in list_markdown(root, "docs/test-reports"):
         if path.name == "index.md":

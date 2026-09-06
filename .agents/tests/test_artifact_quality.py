@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 import sys
+import importlib.util
+import subprocess
+import tempfile
 from pathlib import Path
 import unittest
 
@@ -92,6 +95,86 @@ Verification:
 
 
 class ArtifactQualityTests(unittest.TestCase):
+    def contract_plan(self) -> str:
+        start = VALID_PLAN.index("### Task 1")
+        end = VALID_PLAN.index("## Code Changes")
+        return VALID_PLAN[:start].replace("## Document Status", "## Plan Format\ntask-contract-v1\n\n## Document Status") + """### Task 1 - Reject missing configuration
+Dependencies: None; first task.
+Files: `src/main/java/App.java`
+Symbols: `App.requiredSecret`
+Inspection: Read implementation and caller at baseline commit abc1234.
+Required skill: write-jane-street-style-code before code edits.
+Behavior: Reject missing configuration at startup.
+Invariants: No fallback secret is accepted.
+Boundary/API: Keep existing startup configuration interface.
+Effects and failures: Missing input fails startup with a redacted error.
+Tests and evidence: Regression for absent secret; valid configuration remains accepted.
+Verification: `./gradlew test --tests AppTest`
+
+""" + VALID_PLAN[end:]
+
+    def test_save_cli_accepts_contract_and_refuses_incomplete_task_before_write(self) -> None:
+        script = ROOT / ".agents/skills/save-implementation-plan/scripts/save_implementation_plan.py"
+        with tempfile.TemporaryDirectory() as directory:
+            for title, content, expected in (("Valid", self.contract_plan(), 0), ("Invalid", self.contract_plan().replace("Symbols: `App.requiredSecret`", "Symbols:"), 1)):
+                result = subprocess.run([sys.executable, str(script), "--root", directory, "--date", "2099-04-05", "--title", title], input=content, text=True, capture_output=True)
+                self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+                artifact = Path(directory) / "docs/implementation-plans" / f"2099-04-05-{title.lower()}.md"
+                self.assertEqual(artifact.exists(), expected == 0)
+
+    def test_hub_validates_new_plans_without_literal_code_edits(self) -> None:
+        script = ROOT / ".agents/skills/validate-hub-state/scripts/validate_hub_state.py"
+        spec = importlib.util.spec_from_file_location("hub_validation", script)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            for name in module.ARTIFACT_DIRS:
+                (root / name).mkdir(parents=True, exist_ok=True)
+            for name in (*module.TEMPLATE_FILES, *module.INDEX_FILES):
+                target = root / name
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_text("# Fixture\n", encoding="utf-8")
+            plan = root / "docs/implementation-plans/2099-04-05-new-plan.md"
+            for content, expected in ((self.contract_plan(), 0), ("# Vague new plan\nDo something.\n", 1)):
+                plan.write_text(content, encoding="utf-8")
+                result = subprocess.run([sys.executable, str(script), "--root", str(root)], text=True, capture_output=True)
+                self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+
+    def test_inspected_symbol_contract_does_not_require_literal_patch(self) -> None:
+        self.assertEqual(validate_implementation_plan_text(self.contract_plan()), [])
+
+    def test_contract_requires_each_actionable_field(self) -> None:
+        import re
+        for field in ("Dependencies", "Files", "Symbols", "Inspection", "Behavior", "Invariants", "Boundary/API", "Effects and failures", "Tests and evidence", "Verification"):
+            with self.subTest(field=field):
+                invalid = re.sub(rf"(?m)^{re.escape(field)}:.*$", f"{field}:", self.contract_plan())
+                self.assertTrue(any(field in error for error in validate_implementation_plan_text(invalid)))
+
+    def test_each_task_needs_its_own_contract_or_patch(self) -> None:
+        invalid = self.contract_plan().replace("## Code Changes", "### Task 2 - Unspecified work\nDo something later.\n\n## Code Changes")
+        self.assertTrue(any("Task 2" in error for error in validate_implementation_plan_text(invalid)))
+
+    def test_legacy_plan_retains_non_edit_delivery_tasks(self) -> None:
+        historical = VALID_PLAN.replace("## Code Changes", "### Task 2 - Publish verified result\nRun the existing delivery workflow after Task 1.\n\n## Code Changes")
+        self.assertEqual(validate_implementation_plan_text(historical), [])
+
+    def test_versioned_literal_plan_requires_nonempty_document_sections(self) -> None:
+        import re
+        versioned = VALID_PLAN.replace("## Document Status", "## Plan Format\ntask-contract-v1\n\n## Document Status")
+        for section in ("Risks", "Branch", "Rollback or Recovery"):
+            with self.subTest(section=section):
+                invalid = re.sub(rf"(?ms)(^## {re.escape(section)}\n).*?(?=^## |\Z)", r"\1\n", versioned)
+                self.assertTrue(any(section in error for error in validate_implementation_plan_text(invalid)))
+
+    def test_ready_contract_rejects_unresolved_inspection(self) -> None:
+        invalid = self.contract_plan().replace("Read implementation and caller at baseline commit abc1234.", "pending file inspection")
+        self.assertTrue(any("Inspection" in error for error in validate_implementation_plan_text(invalid)))
+
+    def test_status_must_be_present_and_nonempty(self) -> None:
+        invalid = self.contract_plan().replace("ready-for-execution", "")
+        self.assertTrue(any("status" in error.lower() for error in validate_implementation_plan_text(invalid)))
+
     def test_valid_implementation_plan_passes(self) -> None:
         self.assertEqual(validate_implementation_plan_text(VALID_PLAN), [])
 

@@ -1,45 +1,27 @@
 ---
 name: review-implementation-plan
-description: Use when Codex needs to review a Builder implementation plan before execution, especially to reject vague tasks, missing line ranges, missing Code Edit blocks, weak testing, unowned tasks, or missing rollback and risk details.
+description: Review a Builder implementation plan for inspected targets, concrete task contracts, dependencies, verification, and recovery before execution.
 ---
 
 # Review Implementation Plan
 
-## Overview
-
-Review implementation plans from an execution-readiness stance. The review should lead with blockers, not a summary.
+Run `validate-implementation-plan`, then review whether the work is executable and appropriately scoped. Lead with concrete blockers and their task/file references.
 
 ## Review Contract
 
-Reject the plan if any of these are true:
+Reject the plan when:
 
-- Document status is `ready-for-execution` but any Code Edit has `line range pending file inspection`.
-- A code-changing task lacks a `Code Edit` block.
-- A `Code Edit` block lacks `File`, `Lines`, `Action`, `Current`, `Proposed`, or `Verification`.
-- A code-changing task omits `Required skill: write-jane-street-style-code` or does not direct execution to invoke it before code edits; reject the plan until the constraint is explicit.
-- A code-changing task omits a Before-Edit Brief with Behavior, Invariants, Boundary/API, Effects and failures, and Tests and evidence; reject the plan until each field contains task-specific content.
-- Testing sections do not name concrete commands or checks.
-- Local testing is missing for runtime behavior.
-- Rollback/recovery, risks, or completion criteria are empty.
-- Tasks are not ordered or do not state dependencies.
+- A task has neither an inspected file/symbol contract nor a valid legacy Code Edit block.
+- Targets, dependencies, acceptance checks, risks, or rollback are vague or unresolved for the proposed ready state.
+- A code-changing task omits `Required skill: write-jane-street-style-code` before code edits or its task-specific Before-Edit Brief: Behavior, Invariants, Boundary/API, Effects and failures, Tests and evidence.
+- Claimed inspection is unsupported by the actual files/callers, or the branch has changed in a way that invalidates the contract.
+- Application runtime impact lacks a local verification plan; non-runtime changes lack appropriate native checks or a reason runtime testing is not applicable.
+- Required verification commands or completion criteria cannot establish the proposed result.
 
-## Workflow
+Preserve unversioned historical literal-plan compatibility; when revising one for new execution, prefer the task-contract-v1 format and reinspect the affected scope.
 
-1. Run `validate-implementation-plan` first.
-2. Read the plan for execution clarity beyond mechanical validation.
-3. Check each Before-Edit Brief against the proposed code and verification, not merely for the field names.
-4. Report findings ordered by severity with file/section references when possible.
-5. If no blockers remain, say the plan is ready for execution and list residual risks.
+Exact line ranges and replacement code are optional for inspected task contracts. Do not reject such a plan solely because the implementation has not been written. When literal Code Edit blocks are used, check the supplied range and code against the inspected file; additions may omit Current, while replace/delete/move require it.
 
-## Output Shape
+## Outcome
 
-```markdown
-## Blockers
-- ...
-
-## Warnings
-- ...
-
-## Ready State
-ready | not ready
-```
+Report blockers, actionable warnings, and `ready | not ready`. Explain the violated contract and the smallest correction needed. When ready, name the evidence reviewed and any remaining accepted risk. Reinspect changed targets at execution time instead of treating old line numbers as authoritative.
